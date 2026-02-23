@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kore Login</title>
+    <title>Kore Cadastro</title>
 </head>
 
 <body>
@@ -16,41 +16,50 @@
             <input type="email" name="input_email" id="input_email">
 
 
+            <label for="input_nome">Nome:</label>
+            <input type="text" name="input_nome" id="input_nome">
+
+
             <label for="input_senha">Senha:</label>
             <input type="password" name="input_senha" id="input_senha">
-            <button type="button" onclick="login()">
-                Entrar
+            <button type="button" onclick="cadastrar()">
+                Cadastrar
             </button>
         </form>
     </section>
 
     <script>
-        function login() {
+        function cadastrar() {
             const email = input_email.value;
+            const nome = input_nome.value;
             const senha = input_senha.value;
 
-            if (email === "" || senha === "") {
+            if (email === "" || nome === "" || senha === "") {
                 alert("Preencha todos os campos!");
                 return;
             }
 
-            fetch("http://localhost:8080/login", {
+            // config cors no backend para aceitar requisições do front-end
+            fetch("http://localhost:8080/usuarios", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+
+
                 },
-                body: JSON.stringify({ email, senha })
+                body: JSON.stringify({ email, nome, senha })
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        alert("Login bem-sucedido!");
+                    console.log(data)
+                    if (data.id) {
+                        alert("Cadastro bem-sucedido!");
                     } else {
-                        alert("Email ou senha incorretos!");
+                        alert("Erro ao cadastrar usuário!");
                     }
                 })
                 .catch(error => {
-                    console.error("Erro ao fazer login:", error);
+                    console.error("Erro ao fazer cadastro:", error);
                     alert("Ocorreu um erro. Tente novamente mais tarde.");
                 });
 
