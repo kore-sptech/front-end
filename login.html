@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kore Login</title>
+</head>
+
+<body>
+
+    <section>
+
+        <form>
+            <label for="input_email">Email:</label>
+            <input type="email" name="input_email" id="input_email">
+
+
+            <label for="input_senha">Senha:</label>
+            <input type="password" name="input_senha" id="input_senha">
+            <button type="submit" onclick="login()">
+                Entrar
+            </button>
+        </form>
+    </section>
+
+    <script>
+        function login() {
+            const email = input_email.value;
+            const senha = input_senha.value;
+
+            if (email === "" || senha === "") {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            fetch("http://localhost:8080/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email, senha })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Login bem-sucedido!");
+                    } else {
+                        alert("Email ou senha incorretos!");
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao fazer login:", error);
+                    alert("Ocorreu um erro. Tente novamente mais tarde.");
+                });
+
+
+        }
+    </script>
+
+</body>
+
+</html>
