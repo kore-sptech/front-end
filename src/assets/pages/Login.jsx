@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function App() {
+export function Login() {
   const [formLogin, setFormLogin] = useState({
     email: "",
     password: "",
@@ -8,21 +8,7 @@ export default function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    fetch("http://localhost:8080/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formLogin),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    console.log(formLogin);
   };
 
   return (
