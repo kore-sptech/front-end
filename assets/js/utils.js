@@ -1,12 +1,16 @@
 
 function formatDate(dateString) {
-
     const data = new Date(dateString); // Note que T00:00:00 é necessário para evitar problemas de fuso horário local
+    const dataAtual = new Date();
+
+
 
     const formatador = new Intl.DateTimeFormat('pt-BR', {
         day: 'numeric',
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
     });
 
     return formatador.format(data);
@@ -26,4 +30,11 @@ function formatCurrency(value = 0) {
 
 function formatPhone(phone) {
     return phone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+}
+
+function formatTextLong(text = "") {
+    if (text.length > 30) {
+        return text.substring(0, 30) + "...";
+    }
+    return text;
 }

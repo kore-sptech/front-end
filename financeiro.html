@@ -487,8 +487,8 @@
                                             /></svg>
                                         </button>
                                     <div>
-                                        <h4>${transacao.nome}</h4>
-                                        <p>${transacao.categoria} - ${formatDate(transacao.dataCriacao)}</p>
+                                        <h4>${formatTextLong(transacao.nome)}</h4>
+                                        <p>${transacao.categoria ? transacao.categoria + " - " : "Sessão - ".toUpperCase()}${formatDate(transacao.dataCriacao)}</p>
                                     </div>
                                 </span>
 
