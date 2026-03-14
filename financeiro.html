@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kore Financeiro</title>
+    <script src="./assets/js/utils.js"></script>
+    <link rel="stylesheet" href="./assets/css/financeiro.css">
+
+    <link rel="shortcut icon" href="./assets/icons/logo-kore.png" type="image/x-icon">
+    <!-- import chart js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body onload="loadMetrics(),loadTransactions(),validSession()">
+
+    <aside>
+        <h2 class="logo">
+            Logotipo
+            <br>
+            da empresa
+        </h2>
+
+        <div class="line"></div>
+
+
+        <div class="links">
+            <button class="link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-menu-icon lucide-menu">
+                    <path d="M4 5h16" />
+                    <path d="M4 12h16" />
+                    <path d="M4 19h16" />
+                </svg>
+
+                <a href="./home.html">Página Inicial</a>
+            </button>
+
+            <button class="link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-clock-icon lucide-clock">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                </svg>
+                <a href="./agendamentos.html">Agendamentos</a>
+            </button>
+
+            <button class="link active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-arrow-left-right-icon lucide-arrow-left-right">
+                    <path d="M8 3 4 7l4 4" />
+                    <path d="M4 7h16" />
+                    <path d="m16 21 4-4-4-4" />
+                    <path d="M20 17H4" />
+                </svg>
+                <a href="./financeiro.html">Financeiro </a>
+            </button>
+
+            <button class="link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-package-icon lucide-package">
+                    <path
+                        d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" />
+                    <path d="M12 22V12" />
+                    <polyline points="3.29 7 12 12 20.71 7" />
+                    <path d="m7.5 4.27 9 5.15" />
+                </svg>
+                <a href="./estoque.html">Estoque </a>
+            </button>
+
+        </div>
+
+        <footer style="display: flex; flex-direction: row; gap: 1rem;">
+            <div>
+                <h3>
+                    Desenvolvido por:
+                </h3>
+                <h2>KORE © 2026</h2>
+            </div>
+            <div>
+                <button onclick="handleClickLogout()"
+                    style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #333; font-size: 1em; background-color: #fff; padding: 10px 14px; border-radius: 10px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-log-out-icon lucide-log-out">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+
+                    Sair
+                </button>
+            </div>
+        </footer>
+    </aside>
+
+    <main>
+
+
+        <section class="dash">
+            <div class="top">
+                <h1 class="title">
+                    Relatório financeiro
+                </h1>
+                <h3 class="sub-title">
+                    Kore SPTECH
+                </h3>
+            </div>
+            <section class="metrics">
+                <div class="sale-month">
+                    <h4 class="sub-title" style="color: white; font-weight: 600;">
+                        Saldo do mês
+                    </h4>
+                    <h4 id="h4_saldo_mensal" class="title" style="color: white;"></h4>
+                    <button onclick="showNewExpenseForm()" class="new-transaction">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: 8px;" width="28" height="28"
+                                viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide lucide-circle-star-icon lucide-circle-star">
+                                <circle cx="12" cy="12" r="10" />
+                                <path
+                                    d="M11.051 7.616a1 1 0 0 1 1.909.024l.737 1.452a1 1 0 0 0 .737.535l1.634.256a1 1 0 0 1 .588 1.806l-1.172 1.168a1 1 0 0 0-.282.866l.259 1.613a1 1 0 0 1-1.541 1.134l-1.465-.75a1 1 0 0 0-.912 0l-1.465.75a1 1 0 0 1-1.539-1.133l.258-1.613a1 1 0 0 0-.282-.867l-1.156-1.152a1 1 0 0 1 .572-1.822l1.633-.256a1 1 0 0 0 .737-.535z" />
+                            </svg>
+                        </span>
+                        <span>Nova Transação</span>
+                    </button>
+                </div>
+
+                <div class="metric-values">
+                    <div class="card">
+                        <div class="icon"></div>
+                        <div>
+
+                            <p class="card-title">Entradas</p>
+                            <p class="card-value" id="p_total_entradas"></p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon"></div>
+                        <div>
+
+                            <p class="card-title">Saídas</p>
+                            <p class="card-value" id="p_total_saidas"></p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon"></div>
+                        <div>
+
+                            <p class="card-title">Principais gasto</p>
+                            <p class="card-value" id="p_principal_gasto"></p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="spent">
+                <div class="recents">
+                    <div>
+                        <h2 class="card-title">
+                            Gastos recentes
+                        </h2>
+
+                    </div>
+
+                    <div id="div_gastos_recentes">
+
+                    </div>
+                </div>
+
+                <div class="category">
+                    <h2 class="card-title">
+                        Gastos por categoria
+                    </h2>
+
+
+                    <div
+                        style="display: flex; flex-direction: row; align-items: center;width: 100%; gap: 2rem; flex-wrap: wrap; height: 100%; justify-content: center;">
+                        <ul id="ul_gastos_categoria" style="margin-bottom: 3rem; list-style: none;">
+
+                        </ul>
+                        <div class="chart-container">
+                            <canvas id="chart_gastos_categoria">
+                            </canvas>
+                        </div>
+                    </div>
+
+                </div>
+                </div>
+
+                <dialog id="dialog_nova_transacao" close>
+                    <h2>
+                        Nova Transação
+                    </h2>
+                    <div class="inputs">
+                        <div>
+                            <input type="text" id="input_nome_gasto" name="input_nome_gasto" required minlength="1"
+                                maxlength="50" placeholder="Descrição" onkeypress="verify()" onchange="verify()">
+                            <div id="div_message_error_nome_gasto" style="color: red; font-size: 0.9em; display: none;">
+                            </div>
+
+
+                        </div>
+                        <div>
+                            <input type="number" id="input_valor_gasto" name="input_valor_gasto" minlength="1"
+                                maxlength="7" required placeholder="R$ 100.00" onkeypress="verify()"
+                                onchange="verify()">
+                            <div id="div_message_error_valor_gasto"
+                                style="color: red; font-size: 0.9em; display: none;">
+                            </div>
+                            <div>
+                                <select name="select_tipo" id="select_tipo" onchange="handleSelect()">
+                                    <option value="SAIDA" selected>Saída</option>
+                                    <option value="ENTRADA">Entrada</option>
+                                </select>
+
+                                <div id="div_message_error_tipo" style="color: red; font-size: 0.9em; display: none;">
+                                </div>
+
+                            </div>
+                            <div>
+                                <select name="select_categoria" id="select_categoria">
+                                </select>
+                                <div id="div_message_error_categoria"
+                                    style="color: red; font-size: 0.9em; display: none;">
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+                        <div class="actions">
+                            <button type="button"
+                                onclick="document.getElementById('dialog_nova_transacao').close()">Cancelar</button>
+                            <button type="submit" onclick="handleClickNewTransaction()">Salvar</button>
+                        </div>
+                </dialog>
+            </section>
+        </section>
+
+    </main>
+    <script>
+        let chartGastosCategoria = null;
+
+        function handleSelect() {
+            const tipo = select_tipo.value;
+            const element = document.getElementById("select_categoria");
+
+            if (tipo === "ENTRADA") {
+                element.style.display = "none";
+            } else {
+                element.style.display = "block";
+                fetchCategory();
+            }
+
+        }
+
+
+        function verify() {
+            const descricao = input_nome_gasto.value;
+            const valor = input_valor_gasto.value;
+            const tipo = select_tipo.value;
+            const categoria = select_categoria.value;
+
+            if (descricao !== "") {
+                handleErrors("nome_gasto", "");
+            }
+
+            if (valor !== "") {
+                handleErrors("valor_gasto", "");
+            }
+
+            if (tipo !== "") {
+                handleErrors("tipo", "");
+            }
+
+
+            p_message.textContent = "";
+        }
+
+        function handleErrors(field, message) {
+            const inputField = document.getElementById(`input_${field}`) || document.getElementById(`select_${field}`);
+            const errorDiv = document.getElementById(`div_message_error_${field}`);
+
+            if (inputField.value.trim() === "") {
+                errorDiv.textContent = message;
+                errorDiv.style.display = "block";
+                inputField.style.borderColor = "red";
+            } else {
+                errorDiv.textContent = "";
+                errorDiv.style.display = "none";
+                inputField.style.borderColor = "";
+            }
+        }
+
+
+        function handleClickLogout() {
+            localStorage.removeItem("auth");
+            window.location.href = "login.html";
+        }
+
+        function handleClickNewTransaction() {
+            const nome = input_nome_gasto.value;
+            const valor = parseFloat(input_valor_gasto.value);
+            const categoria = select_categoria.value;
+            const tipo = select_tipo.value;
+
+            if (nome === "") {
+                handleErrors("nome_gasto", "Descrição é obrigatória");
+            }
+
+            if (isNaN(valor)) {
+                handleErrors("valor_gasto", "Valor deve ser um número");
+            }
+
+            if (categoria === "") {
+                handleErrors("categoria", "Categoria é obrigatória");
+            }
+
+            if (tipo === "") {
+                handleErrors("tipo", "Tipo é obrigatório");
+            }
+
+
+
+            if (nome === "" || isNaN(valor) || categoria === "" || tipo === "") {
+                return;
+            }
+
+            fetch("http://localhost:8080/transacoes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ nome, valor, categoria, tipo })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert("Transação adicionada com sucesso!");
+                    document.getElementById("dialog_nova_transacao").close();
+                    loadMetrics();
+                    loadTransactions();
+
+                    input_nome_gasto.value = "";
+                    input_valor_gasto.value = "";
+                })
+                .catch(error => {
+                    console.error("Erro ao adicionar gasto:", error);
+                    alert("Ocorreu um erro. Tente novamente mais tarde.");
+                });
+        }
+
+        function fetchCategory() {
+            fetch("http://localhost:8080/transacoes/categorias")
+                .then(response => response.json())
+                .then(data => {
+                    let mensagem = "< option value='' disabled selected> Selecione uma categoria</ >";
+                    data.forEach(categoria => {
+                        mensagem += `<option value="${categoria}">${new String(categoria).toLocaleLowerCase().replace(/\b\w/g, l => l.toUpperCase())}</option>`;
+                    });
+
+                    select_categoria.innerHTML = mensagem;
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar categorias:", error);
+                    alert("Ocorreu um erro ao carregar as categorias. Tente novamente mais tarde.");
+                });
+        }
+
+        function
+            showNewExpenseForm() {
+            document.getElementById("dialog_nova_transacao").showModal();
+            fetchCategory();
+        }
+
+        function handleChart(data) {
+            let gastos_categoria = "";
+
+            const canvas = document.getElementById('chart_gastos_categoria');
+            const ctx = canvas.getContext('2d');
+
+            if (chartGastosCategoria) {
+                chartGastosCategoria.destroy();
+                chartGastosCategoria = null;
+            }
+
+            const colors = [
+                '#767676',
+                '#FFFFFF',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9370DB',
+                '#FF9F40'
+            ]
+
+
+            data.gastosPorCategoria.forEach((gasto, index) => {
+                gastos_categoria += `<li style="display: flex; align-items: center; gap: 8px; font-size: 1.1em;color: #767676"> 
+                        <span style="display: inline-block; width: 12px; height: 12px; background-color: ${colors[index]}; margin-right: 8px; border-radius: 50%;"></span>
+                        ${gasto.categoria}
+                    
+                    </li > `;
+            });
+
+            const categorias = data.gastosPorCategoria.map(gasto => gasto.categoria);
+            const valores = data.gastosPorCategoria.map(gasto => gasto.valor);
+
+
+            document.getElementById("ul_gastos_categoria").innerHTML = gastos_categoria;
+            // retirar as labels do gráfico
+
+            chartGastosCategoria = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categorias,
+                    datasets: [{
+                        label: 'Gastos por Categoria',
+                        data: valores,
+                        backgroundColor: colors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        /*retirar as labels do grafico*/
+
+
+                        legend: {
+                            display: false // Isso esconde a legenda
+                        },
+                        title: {
+                            display: true,
+                            text: 'Gastos por Categoria'
+                        }
+                    }
+                },
+            });
+        }
+
+        function loadMetrics() {
+            fetch("http://localhost:8080/transacoes/metricas")
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById("h4_saldo_mensal").textContent = `${formatCurrency(data.saldoAtual)}`;
+                    document.getElementById("p_total_entradas").textContent = `${formatCurrency(data.totalEntradas)}`;
+                    document.getElementById("p_total_saidas").textContent = `${formatCurrency(data.totalSaidas)}`;
+                    document.getElementById("p_principal_gasto").textContent = data.principalGasto || "Nenhum gasto registrado";
+
+                    handleChart(data);
+
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar métricas:", error);
+                    alert("Ocorreu um erro ao carregar as métricas. Tente novamente mais tarde.");
+                });
+        }
+
+        function loadTransactions() {
+            fetch("http://localhost:8080/transacoes")
+                .then(response => response.json())
+                .then(data => {
+
+                    let message = ''
+                    data.forEach(transacao => {
+                        message += `
+                            <div class='spent-category'>
+                                <span>
+                                    <button
+                                        onclick='deleteTransaction(${transacao.id})'
+                                        style="background: none; border: none; cursor: pointer;"
+                                        >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-minus-icon lucide-circle-minus"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"
+                                            /></svg>
+                                        </button>
+                                    <div>
+                                        <h4>${transacao.nome}</h4>
+                                        <p>${transacao.categoria} - ${formatDate(transacao.dataCriacao)}</p>
+                                    </div>
+                                </span>
+
+                                
+
+                                <p class='spent-amount'>
+                                ${transacao.tipo === "ENTRADA" ? "+" : "-"}
+                                    ${formatCurrency(transacao.valor)}
+                                </p>
+                            </div>
+                        
+                        `;
+                    });
+
+                    document.getElementById("div_gastos_recentes").innerHTML = message;
+
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar transações:", error);
+                    alert("Ocorreu um erro ao carregar as transações. Tente novamente mais tarde.");
+                });
+        }
+
+        function deleteTransaction(id) {
+            if (confirm("Tem certeza que deseja excluir essa transação?")) {
+                fetch(`http://localhost:8080/transacoes/${id}`, {
+                    method: "DELETE"
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert("Transação excluída com sucesso!");
+                            loadMetrics();
+                            loadTransactions();
+                        } else {
+                            alert("Erro ao excluir transação!");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Erro ao excluir transação:", error);
+                        alert("Ocorreu um erro. Tente novamente mais tarde.");
+                    });
+            }
+        }
+
+        function validSession() {
+            const auth = localStorage.getItem("auth");
+
+            if (!auth) {
+                alert("Faça login para acessar o relatório financeiro!");
+                window.location.href = "login.html";
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,40 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
+
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kore Login</title>
+    <link rel="stylesheet" href="./assets/css/login.css">
+    <link rel="shortcut icon" href="./assets/icons/logo-kore.png" type="image/x-icon">
+
 </head>
 
 <body>
 
-    <section>
+    <main class="container">
 
-        <form>
-            <label for="input_email">Email:</label>
-            <input type="email" name="input_email" id="input_email">
+        <section class="container-form">
+            <form>
+                <h2 class="title">
+                    Login
+                </h2>
+                <div class="controller">
+                    <label for="input_email">Email:</label>
+                    <input type="email" name="input_email" id="input_email" placeholder=" exemplo@gmail.com"
+                        onkeypress="verify()" onchange="verify()">
+                    <div id="div_message_error_email" style="color: red; font-size: 0.9em; display: none;"></div>
+                </div>
 
 
-            <label for="input_senha">Senha:</label>
-            <input type="password" name="input_senha" id="input_senha">
-            <button type="button" onclick="login()">
-                Entrar
-            </button>
-        </form>
-    </section>
+                <div class="controller">
+                    <label for="input_senha">Senha:</label>
+                    <input type="password" name="input_senha" id="input_senha" placeholder=" ..." onkeypress="verify()"
+                        onchange="verify()">
+
+                    <div id="div_message_error_senha" style="color: red; font-size: 0.9em; display: none;"></div>
+
+                </div>
+
+                <div>
+                    <p id="p_message">
+
+                    </p>
+                    <button type="button" class="button" onclick="login()">
+                        Entrar
+                    </button>
+                    <p>
+                        Não tem uma conta? <a href="cadastro.html" style="color: #767676;">Cadastre-se aqui</a>.
+                    </p>
+                </div>
+
+            </form>
+
+        </section>
+
+        <div>
+
+        </div>
+
+
+    </main>
 
     <script>
+
+        function verify() {
+            const email = input_email.value;
+            const senha = input_senha.value;
+
+            if (email !== "") {
+                handleErrors("email", "");
+            }
+
+            if (senha !== "") {
+                handleErrors("senha", "");
+            }
+
+            if (email.includes("@")) {
+                handleErrors("email", "");
+            }
+
+            p_message.textContent = "";
+        }
+
+        function handleErrors(field, message) {
+            const inputField = document.getElementById(`input_${field}`);
+            const errorDiv = document.getElementById(`div_message_error_${field}`);
+
+            if (inputField.value.trim() === "") {
+                errorDiv.textContent = message;
+                errorDiv.style.display = "block";
+                inputField.style.borderColor = "red";
+            } else {
+                errorDiv.textContent = "";
+                errorDiv.style.display = "none";
+                inputField.style.borderColor = "";
+            }
+        }
+
         function login() {
             const email = input_email.value;
             const senha = input_senha.value;
 
+            const erros = {
+                email: "Email é obrigatório",
+                senha: "Senha é obrigatória"
+            }
+
+            if (!email.includes("@")) {
+                handleErrors("email", "Email deve conter '@'");
+            }
+
+            if (email == "" || email.trim() === "") {
+                handleErrors("email", erros.email);
+            }
+
+            if (senha == "") {
+                handleErrors("senha", erros.senha);
+            }
+
             if (email === "" || senha === "") {
-                alert("Preencha todos os campos!");
                 return;
             }
 
-            fetch("http://localhost:8080/login", {
+            fetch("http://localhost:8080/auth/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -43,15 +130,18 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        alert("Login bem-sucedido!");
+
+                    if (data != null) {
+                        localStorage.setItem("auth", JSON.stringify(data));
+                        window.location.href = "financeiro.html";
                     } else {
-                        alert("Email ou senha incorretos!");
+                        p_message.textContent = "Email ou senha incorretos!";
                     }
                 })
                 .catch(error => {
                     console.error("Erro ao fazer login:", error);
-                    alert("Ocorreu um erro. Tente novamente mais tarde.");
+
+                    p_message.textContent = "Ocorreu um erro ao tentar fazer login. Tente novamente mais tarde.";
                 });
 
 

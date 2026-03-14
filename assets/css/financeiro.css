@@ -1,0 +1,382 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box !important;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box !important;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  gap: 28px;
+}
+
+aside {
+  width: 380px !important;
+  height: 100%;
+  background-color: #6e6e6e;
+  position: relative;
+}
+
+aside .logo {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  padding-top: 96px;
+  margin-bottom: 86px;
+}
+
+.line {
+  width: 80%;
+  margin: auto;
+  height: 1px;
+  background-color: #fff;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  padding: 20px;
+  gap: 24px;
+}
+
+.link {
+  all: unset;
+  text-align: center;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  color: white;
+  padding: 8px 16px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.link:hover {
+  background-color: #fff;
+  color: #6e6e6e;
+  border-radius: 8px;
+}
+
+.link:hover a {
+  color: #6e6e6e;
+}
+
+.link a {
+  color: white;
+  text-decoration: none;
+}
+
+.active {
+  background-color: #fff;
+  color: #6e6e6e;
+  border-radius: 8px;
+}
+
+.link.active a {
+  color: #6e6e6e;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 120px;
+  background-color: #6e6e6e;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+
+  color: hsl(0, 0%, 70%);
+}
+
+main {
+  padding-top: 24px;
+  height: 100%;
+  width: 100%;
+}
+
+.title {
+  color: #767676;
+  font-size: 64px;
+  font-weight: 700;
+}
+.sub-title {
+  font-size: 32px;
+  font-weight: 400;
+  color: #767676;
+}
+
+/* metrics */
+
+.dash {
+  max-height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-rows: repeat(10, 1fr);
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+
+.top {
+  grid-row: span 1;
+  grid-column: span 12;
+}
+
+.spent {
+  grid-row: span 5;
+  grid-column: span 12;
+  padding-bottom: 24px;
+
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  display: grid;
+  height: 100%;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+
+.spent-category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  background-color: white;
+  color: #767676;
+  padding: 12px 14px;
+  border-radius: 10px;
+}
+
+.spent-category span {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spent-category h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #767676;
+}
+
+.spent-amount {
+  background-color: #767676;
+  color: white;
+  border-radius: 5px;
+  font-weight: bold;
+  padding: 10px 4px;
+}
+
+.recents {
+  grid-column: span 6;
+  background-color: #d9d9d9;
+  border-radius: 20px;
+  height: 100%;
+  padding: 24px;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #767676;
+  margin-bottom: 12px;
+}
+
+.recents .spent-category {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.category {
+  grid-column: span 6;
+  background-color: #d9d9d9;
+  border-radius: 20px;
+  height: 100%;
+  padding: 24px;
+}
+
+.metrics {
+  grid-row: span 4;
+  grid-column: span 12;
+  display: grid;
+  gap: 24px;
+
+  grid-template-columns: repeat(12, 1fr);
+  width: 100%;
+}
+
+.sale-month {
+  grid-column: span 7;
+  background-color: #6e6e6e;
+  padding: 24px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  position: relative;
+}
+
+.sale-month .new-transaction {
+  all: unset;
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  background-color: #fff;
+  color: #767676;
+  border-radius: 50px;
+
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.metric-values {
+  grid-column: span 5;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.metric-values .card {
+  padding: 20px 24px;
+  border-radius: 20px;
+  border: 1px solid #767676;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.metric-values .card .icon {
+  background-color: #767676;
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+}
+
+.metric-values .card .card-title {
+  font-size: 18px;
+  font-weight: 400;
+  color: #767676;
+}
+
+.metric-values .card .card-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #767676;
+}
+
+#dialog_nova_transacao {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 40px 80px;
+  border-radius: 20px;
+  border: none;
+  gap: 24px;
+  background-color: #fff;
+}
+
+#dialog_nova_transacao::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#dialog_nova_transacao h2 {
+  margin-bottom: 24px;
+  font-size: 32px;
+  color: #767676;
+  font-weight: 800;
+}
+
+#dialog_nova_transacao .inputs {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+  gap: 18px;
+}
+
+#dialog_nova_transacao .inputs div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#dialog_nova_transacao .inputs input {
+  all: unset;
+  border: 1px solid #767676;
+  border-radius: 10px;
+  padding: 10px 40px;
+  color: hsl(0, 0%, 46%);
+  font-size: 24px;
+}
+
+input,
+select {
+  transition: all 0.2s ease-in-out;
+}
+
+input:focus,
+select:focus {
+  box-shadow: 0px 0px 0px 1px #767676 !important;
+}
+
+#dialog_nova_transacao .inputs select {
+  border: 1px solid #767676;
+  border-radius: 10px;
+  padding: 10px 40px;
+  color: hsl(0, 0%, 46%);
+  font-size: 24px;
+  background-color: white;
+}
+
+#dialog_nova_transacao .actions {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: end !important;
+  gap: 12px;
+}
+
+#dialog_nova_transacao .actions button {
+  all: unset;
+  padding: 12px 36px;
+  font-size: 24px;
+  background-color: #767676;
+  color: white;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.chart-container {
+  height: 90%;
+}

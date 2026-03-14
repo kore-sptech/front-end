@@ -1,49 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
+
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kore Cadastro</title>
+    <link rel="stylesheet" href="./assets/css/cadastro.css">
+    <link rel="shortcut icon" href="./assets/icons/logo-kore.png" type="image/x-icon">
+
 </head>
 
 <body>
 
-    <section>
+    <main class="container">
 
-        <form>
-
-            <h2>
-                Cadastro de Usuário
-            </h2>
-
-            <label for="input_email">Email:</label>
-            <input type="email" name="input_email" id="input_email">
-            <br>
-
-            <label for="input_nome">Nome:</label>
-            <input type="text" name="input_nome" id="input_nome">
-            <br>
+        <section class="container-form">
+            <form>
+                <h2 class="title">
+                    Cadastro de Usuário
+                </h2>
+                <div class="controller">
+                    <label for="input_nome">Nome:</label>
+                    <input type="text" name="input_nome" id="input_nome" placeholder="Seu nome completo" required
+                        onchange="verify()" onkeypress="verify()">
 
 
-            <label for="input_senha">Senha:</label>
-            <input type="password" name="input_senha" id="input_senha">
-            <br>
+                    <div id="div_message_error_nome" style="color: red; font-size: 0.9em; display: none;"></div>
+                </div>
 
-            <button type="button" onclick="cadastrar()">
-                Cadastrar
-            </button>
-        </form>
-    </section>
+
+                <div class="controller">
+
+                    <label for="input_email">Email:</label>
+                    <input type="email" name="input_email" id="input_email" placeholder="exemplo@gmail.com" required
+                        onchange="verify()" onkeypress="verify()">
+
+                    <div id="div_message_error_email" style="color: red; font-size: 0.9em; display: none;"></div>
+
+                </div>
+
+                <div class="controller">
+                    <label for="input_senha">Senha:</label>
+                    <input type="password" name="input_senha" id="input_senha" placeholder="..." required
+                        onchange="verify()" onkeypress="verify()">
+
+                    <div id="div_message_error_senha" style="color: red; font-size: 0.9em; display: none;"></div>
+                </div>
+
+                <div class="controller">
+                    <label for="input_confimcao_senha">Confirmar Senha:</label>
+                    <input type="password" name="input_confimcao_senha" id="input_confimcao_senha" placeholder="..."
+                        required onchange="verify()" onkeypress="verify()">
+
+                    <div id="div_message_error_confimcao_senha" style="color: red; font-size: 0.9em; display: none;">
+                    </div>
+                </div>
+
+                <div>
+                    <p id="p_message">
+
+                    </p>
+                    <button type="button" class="button" onclick="cadastrar()">
+                        Cadastrar
+                    </button>
+                    <p>
+                        Já tem uma conta? <a href="login.html">Faça login aqui</a>.
+                    </p>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <div>
+
+        </div>
+
+
+    </main>
+
 
     <script>
+
+        function verify() {
+            const email = input_email.value;
+            const senha = input_senha.value;
+            const nome = input_nome.value;
+            const confirmacaoSenha = input_confimcao_senha.value;
+
+            if (email !== "") {
+                handleErrors("email", "");
+            }
+
+            if (senha !== "") {
+                handleErrors("senha", "");
+            }
+
+            if (email.includes("@")) {
+                handleErrors("email", "");
+            }
+
+            if (nome !== "") {
+                handleErrors("nome", "");
+            }
+
+            if (confirmacaoSenha !== "") {
+                handleErrors("confimcao_senha", "");
+            }
+
+            if (senha != "" && senha === confirmacaoSenha) {
+                handleErrors("confimcao_senha", "");
+            }
+
+            p_message.textContent = "";
+        }
+
+        function handleErrors(field, message) {
+            const inputField = document.getElementById(`input_${field}`);
+            const errorDiv = document.getElementById(`div_message_error_${field}`);
+
+            if (inputField.value.trim() === "") {
+                errorDiv.textContent = message;
+                errorDiv.style.display = "block";
+                inputField.style.borderColor = "red";
+            } else {
+                errorDiv.textContent = "";
+                errorDiv.style.display = "none";
+                inputField.style.borderColor = "";
+            }
+        }
+
         function cadastrar() {
             const email = input_email.value;
             const nome = input_nome.value;
             const senha = input_senha.value;
+            const confirmacaoSenha = input_confimcao_senha.value;
+
+            if (email == "") {
+                handleErrors("email", "Email é obrigatório");
+            }
+
+            if (nome == "") {
+                handleErrors("nome", "Nome é obrigatório");
+            }
+
+            if (senha == "") {
+                handleErrors("senha", "Senha é obrigatória");
+            }
+
+            if (confirmacaoSenha == "") {
+                handleErrors("confimcao_senha", "Confirmação de senha é obrigatória");
+            }
+
+            if (senha !== confirmacaoSenha) {
+                handleErrors("confimcao_senha", "As senhas não coincidem");
+            }
+
+            if (!email.includes("@")) {
+                handleErrors("email", "Email deve conter '@'");
+            }
+
 
             if (email === "" || nome === "" || senha === "") {
-                alert("Preencha todos os campos!");
                 return;
             }
 
@@ -66,6 +186,8 @@
                         input_email.value = "";
                         input_nome.value = "";
                         input_senha.value = "";
+
+                        window.location.href = "login.html";
                     } else {
                         alert("Erro ao cadastrar usuário!");
                     }
