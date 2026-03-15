@@ -121,6 +121,8 @@
             const inputField = document.getElementById(`input_${field}`);
             const errorDiv = document.getElementById(`div_message_error_${field}`);
 
+            console.log("Campo:", field, "Mensagem:", message);
+
             if (inputField.value.trim() === "") {
                 errorDiv.textContent = message;
                 errorDiv.style.display = "block";
@@ -130,6 +132,7 @@
                 errorDiv.style.display = "none";
                 inputField.style.borderColor = "";
             }
+
         }
 
         function cadastrar() {
@@ -137,6 +140,12 @@
             const nome = input_nome.value;
             const senha = input_senha.value;
             const confirmacaoSenha = input_confimcao_senha.value;
+
+            if (senha !== confirmacaoSenha) {
+                alert("As senhas não coincidem!");
+                handleErrors("confimcao_senha", "As senhas não coincidem!");
+            }
+
 
             if (email == "") {
                 handleErrors("email", "Email é obrigatório");
@@ -154,16 +163,13 @@
                 handleErrors("confimcao_senha", "Confirmação de senha é obrigatória");
             }
 
-            if (senha !== confirmacaoSenha) {
-                handleErrors("confimcao_senha", "As senhas não coincidem");
-            }
 
             if (!email.includes("@")) {
                 handleErrors("email", "Email deve conter '@'");
             }
 
 
-            if (email === "" || nome === "" || senha === "") {
+            if (email === "" || nome === "" || senha === "" || senha !== confirmacaoSenha) {
                 return;
             }
 
@@ -189,7 +195,8 @@
 
                         window.location.href = "login.html";
                     } else {
-                        alert("Erro ao cadastrar usuário!");
+                        handleErrors("email", "Já existe um usuário cadastrado com esse email!");
+                        alert("Já existe um usuário cadastrado com esse email!");
                     }
                 })
                 .catch(error => {

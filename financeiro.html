@@ -349,7 +349,6 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    alert("Transação adicionada com sucesso!");
                     document.getElementById("dialog_nova_transacao").close();
                     loadMetrics();
                     loadTransactions();
@@ -458,7 +457,7 @@
                     document.getElementById("h4_saldo_mensal").textContent = `${formatCurrency(data.saldoAtual)}`;
                     document.getElementById("p_total_entradas").textContent = `${formatCurrency(data.totalEntradas)}`;
                     document.getElementById("p_total_saidas").textContent = `${formatCurrency(data.totalSaidas)}`;
-                    document.getElementById("p_principal_gasto").textContent = data.principalGasto || "Nenhum gasto registrado";
+                    document.getElementById("p_principal_gasto").textContent = data.principalGasto || "Nenhuma transação de saída registrada";
 
                     handleChart(data);
 
@@ -503,6 +502,10 @@
                         `;
                     });
 
+                    if (message == '') {
+                        message = "<p style='color: #767676; font-size: 1.1em;'>Nenhuma transação registrada</p>";
+                    }
+
                     document.getElementById("div_gastos_recentes").innerHTML = message;
 
                 })
@@ -519,7 +522,6 @@
                 })
                     .then(response => {
                         if (response.ok) {
-                            alert("Transação excluída com sucesso!");
                             loadMetrics();
                             loadTransactions();
                         } else {
