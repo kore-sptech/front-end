@@ -81,6 +81,7 @@ export default function SignUpPage() {
       setErrorMessage((prev) => ({
         ...prev,
         confirmPassword: "As senhas não coincidem. Tente novamente.",
+        password: "As senhas não coincidem. Tente novamente.",
       }));
       return;
     }
@@ -125,7 +126,7 @@ export default function SignUpPage() {
         <div className="flex flex-col gap-3">
           <label htmlFor="password">Nome:</label>
           <input
-            className=" px-4 py-3 bg-white rounded-lg text-[#061639]"
+            className={`border-2 px-4 py-3 bg-white rounded-lg text-[#061639] focus:outline-none focus:ring-2 focus:ring-[#061639] ${errorMessage.name ? "border border-red-500" : ""}`}
             type="text"
             name="name"
             id="name"
@@ -145,7 +146,7 @@ export default function SignUpPage() {
         <div className="flex flex-col gap-3">
           <label htmlFor="email">Email:</label>
           <input
-            className=" px-4 py-3 bg-white rounded-lg text-[#061639]"
+            className={`border-2 px-4 py-3 bg-white rounded-lg text-[#061639] focus:outline-none focus:ring-2 focus:ring-[#061639] ${errorMessage.email ? "border border-red-500" : ""}`}
             type="email"
             name="email"
             id="email"
@@ -165,7 +166,7 @@ export default function SignUpPage() {
         <div className="flex flex-col gap-3">
           <label htmlFor="password">Senha:</label>
           <input
-            className=" px-4 py-3 bg-white rounded-lg text-[#061639]"
+            className={`border-2 px-4 py-3 bg-white rounded-lg text-[#061639] focus:outline-none focus:ring-2 focus:ring-[#061639] ${errorMessage.password ? "border border-red-500" : ""}`}
             type="password"
             name="password"
             id="password"
@@ -188,7 +189,7 @@ export default function SignUpPage() {
         <div className="flex flex-col gap-3">
           <label htmlFor="password">Confirmar Senha:</label>
           <input
-            className=" px-4 py-3 bg-white rounded-lg text-[#061639]"
+            className={`border-2 px-4 py-3 bg-white rounded-lg text-[#061639] focus:outline-none focus:ring-2 focus:ring-[#061639] ${errorMessage.confirmPassword ? "border border-red-500" : ""}`}
             type="password"
             name="confirm-password"
             id="confirm-password"
