@@ -1,4 +1,5 @@
 import { ArrowLeftRight, Calendar, Home } from "lucide-react";
+
 import { useLocation } from "react-router-dom";
 
 export default function AsideBar() {
@@ -33,7 +34,7 @@ export default function AsideBar() {
         </p>
       </div>
 
-      <div className="flex flex-col font-medium flex-grow">
+      <div className="flex flex-col font-medium grow">
         {links.map((link, index) => (
           <AsideLink key={link.path} href={link.path} icon={link.icon}>
             {link.name}
