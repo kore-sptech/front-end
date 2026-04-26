@@ -45,9 +45,8 @@ export default function LoginPage() {
 
     fetch("http://localhost:8080/auth/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      
+      
       body: JSON.stringify({ email, senha: password }),
     })
       .then((response) => response.json())
