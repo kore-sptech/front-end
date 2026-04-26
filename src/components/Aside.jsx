@@ -1,4 +1,5 @@
 import { ArrowLeftRight, Calendar, Home } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 export default function AsideBar() {
   const links = [
@@ -9,7 +10,7 @@ export default function AsideBar() {
       icon: <Home />,
     },
     {
-      path: "/AgendamentosPage",
+      path: "/agendamentos",
       name: "Agendamento",
       target: false,
       icon: <Calendar />,
@@ -34,12 +35,7 @@ export default function AsideBar() {
 
       <div className="flex flex-col font-medium flex-grow">
         {links.map((link, index) => (
-          <AsideLink
-            key={link.path}
-            href={link.path}
-            isTarget={link.target}
-            icon={link.icon}
-          >
+          <AsideLink key={link.path} href={link.path} icon={link.icon}>
             {link.name}
           </AsideLink>
         ))}
@@ -50,7 +46,11 @@ export default function AsideBar() {
   );
 }
 
-function AsideLink({ href, isTarget, icon, children }) {
+function AsideLink({ href, icon, children }) {
+  const location = useLocation();
+
+  const isTarget = location.pathname.includes(href);
+
   return (
     <a
       href={href}
