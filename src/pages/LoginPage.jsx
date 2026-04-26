@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import koreLogo from "../assets/kore-logo.png";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -70,16 +69,16 @@ export default function LoginPage() {
       {/* Background */}
       <div className="absolute inset-0">
         <img
-          className="w-full h-full object-contain opacity-60"
+          className="w-full h-full object-cover opacity-60"
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVAHwfWG3ofPpCanodGmTWi4xuywGG2XIhrHwKHoyHFvZqwkbUJqrP89Wwdmp3rMOb6D93qtMEFwjxuXtO-JgPMo9jkg4LC7hVXegAC2EWgYOpDqUKjsdW-FkOcLJsPzYr_lVcx3Tb_2Ohqg9yeAO_8v2k8dIfWrC7PXVkbwEmO2kEP_4mETXxgODJ8F85S0PNVjUAXxKBWlZM869T7XjGb-Ijg9CPIvK1NxO3h951I0ZP5O2jEtK-oMzS3FXF829hwWATZNv3uGUK"
           alt="background"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/80"></div>
       </div>
 
-      {/* Header - Alterado para incluir a imagem do logo */}
+      {/* Header */}
       <header className="fixed top-0 w-full px-12 py-8 z-50">
-        <img src={koreLogo} alt="Kore" className="h-25 w-auto" />
+        <h1 className="text-2xl font-bold text-cyan-400">Kore</h1>
       </header>
 
       <main className="relative z-10 grid grid-cols-12 min-h-screen">
