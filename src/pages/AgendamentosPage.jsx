@@ -8,6 +8,7 @@ import { CalendarPlus } from "lucide-react";
 import { ModalAgendamentoContextProvider } from "../context/ModalAgendamentoContext";
 import ModalNovoAgendamento from "../components/ModalNovoAgendamento";
 import { SidePanel } from "../components/SidePainel";
+import Sidebar from "../components/Sidebar";
 import { WeeklyCalendar } from "../components/WeeklyCalendar";
 import { api } from "../utils/api";
 import { toast } from "sonner";
@@ -59,7 +60,7 @@ export default function AgendamentoPage() {
   return (
     <ModalAgendamentoContextProvider>
       <main className="flex h-screen w-full bg-[#000C24] text-[#DAE2FF]">
-        <AsideBar />
+        <Sidebar />
 
         <section className="h-full grow">
           {/* Cabeçalho da página */}

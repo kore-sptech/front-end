@@ -1,15 +1,19 @@
-import { createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter } from "react-router-dom";
 
+import AgendamentosPage from "./pages/AgendamentosPage";
+import DashboardFinanceiraPage from "./pages/DashboardFinanceiraPage";
+import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
-import DashboardPage from "./pages/DashboardPage";
 import TransacoesPage from "./pages/TransacoesPage";
-import DashboardFinanceiraPage from "./pages/DashboardFinanceiraPage";
-import AgendamentosPage from "./pages/AgendamentosPage";
 
 const router = createBrowserRouter([
   {
     children: [
+      {
+        path: "/",
+        element: <Navigate to="/login" replace />,
+      },
       {
         path: "/login", // carol
         element: <LoginPage />,
