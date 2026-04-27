@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import koreLogo from "../assets/kore-logo.png";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -76,9 +77,9 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/80"></div>
       </div>
 
-      {/* Header */}
+      {/* Header - Alterado para incluir a imagem do logo */}
       <header className="fixed top-0 w-full px-12 py-8 z-50">
-        <h1 className="text-2xl font-bold text-cyan-400">Kore</h1>
+        <img src={koreLogo} alt="Kore" className="h-25 w-auto" />
       </header>
 
       <main className="relative z-10 grid grid-cols-12 min-h-screen">
