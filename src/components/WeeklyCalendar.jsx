@@ -5,8 +5,9 @@ import {
   ROW_HEIGHT_PX,
 } from "../const/Day";
 import { differenceInHours, isSameDay } from "date-fns";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
+import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { Clock } from "lucide-react";
 import { isOld } from "../utils/date";
 
@@ -22,19 +23,14 @@ export function WeeklyCalendar({ sessions, colorByClient, weekDays }) {
   }, []);
 
   return (
-    <section className="grow h-full w-full flex flex-col border border-[#3C494D]/10 rounded-3xl bg-[#0A1A3D] overflow-hidden">
+    <section className="flex h-full w-full grow flex-col overflow-hidden rounded-3xl border border-[#3C494D]/10 bg-[#0A1A3D]">
       {/* Cabeçalho fixo com dias da semana */}
       <WeekHeader weekDays={weekDays} />
 
       {/* Corpo scrollável */}
       <div
         ref={scrollRef}
-        className="flex overflow-y-auto grow      [&::-webkit-scrollbar]:w-1
-            [&::-webkit-scrollbar-track]:rounded-full 
-            [&::-webkit-scrollbar-track]:bg-[#48DCFC]/20 
-            [&::-webkit-scrollbar-thumb]:rounded-full 
-            [&::-webkit-scrollbar-thumb]:bg-[#48DCFC] 
-            hover:[&::-webkit-scrollbar-thumb]:bg-[#48DCFC]"
+        className="flex grow overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#48DCFC] hover:[&::-webkit-scrollbar-thumb]:bg-[#48DCFC] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-[#48DCFC]/20"
       >
         <TimeColumn />
         <EventsGrid sessions={sessions} colorByClient={colorByClient} />
@@ -49,9 +45,9 @@ export function WeekHeader({ weekDays }) {
   const today = new Date();
 
   return (
-    <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-[#3C494D]/10 shrink-0 rounded-t-3xl overflow-hidden">
+    <div className="grid shrink-0 grid-cols-[80px_repeat(7,1fr)] overflow-hidden rounded-t-3xl border-b border-[#3C494D]/10">
       {/* Ícone de relógio no canto */}
-      <div className="flex justify-center items-center bg-[#1A294C]/50 border-r border-[#3C494D]/10 p-3">
+      <div className="flex items-center justify-center border-r border-[#3C494D]/10 bg-[#1A294C]/50 p-3">
         <Clock width={15} height={15} />
       </div>
 
@@ -72,15 +68,14 @@ export function WeekHeader({ weekDays }) {
 export function WeekDayCell({ label, day, isActive, isLast }) {
   return (
     <div
-      className={`flex justify-center items-center flex-col border-b border-r border-[#3C494D]/10 bg-[#1A294C]/50 py-2
-        ${isLast ? "rounded-tr-3xl" : ""}`}
+      className={`flex flex-col items-center justify-center border-r border-b border-[#3C494D]/10 bg-[#1A294C]/50 py-2 ${isLast ? "rounded-tr-3xl" : ""}`}
     >
       <p
-        className={`font-bold text-xs ${isActive ? "text-[#48DCFC]" : "text-[#BBC9CD]"}`}
+        className={`text-xs font-bold ${isActive ? "text-[#48DCFC]" : "text-[#BBC9CD]"}`}
       >
         {label}
       </p>
-      <p className="font-bold text-lg">{String(day).padStart(2, "0")}</p>
+      <p className="text-lg font-bold">{String(day).padStart(2, "0")}</p>
     </div>
   );
 }
@@ -94,7 +89,7 @@ export function TimeColumn() {
   );
 
   return (
-    <div className="w-[80px] shrink-0 flex flex-col">
+    <div className="flex w-20 shrink-0 flex-col">
       {times.map((time) => (
         <TimeSlot key={time}>{time}</TimeSlot>
       ))}
@@ -105,10 +100,10 @@ export function TimeColumn() {
 export function TimeSlot({ children }) {
   return (
     <div
-      className="flex justify-center pt-4 border-b border-r border-[#3C494D]/10"
+      className="flex justify-center border-r border-b border-[#3C494D]/10 pt-4"
       style={{ minHeight: ROW_HEIGHT_PX }}
     >
-      <p className="font-bold text-sm text-[#BBC9CD]/40">{children}</p>
+      <p className="text-sm font-bold text-[#BBC9CD]/40">{children}</p>
     </div>
   );
 }
@@ -117,12 +112,12 @@ export function TimeSlot({ children }) {
 
 export function EventsGrid({ sessions, colorByClient }) {
   return (
-    <div className="relative grow grid grid-cols-7">
+    <div className="relative grid grow grid-cols-7">
       {/* Células de fundo da grade (24h × 7 dias) */}
       {Array.from({ length: 24 * 7 }, (_, i) => (
         <div
           key={i}
-          className="border-b border-r border-[#3C494D]/10"
+          className="border-r border-b border-[#3C494D]/10"
           style={{ minHeight: ROW_HEIGHT_PX }}
         />
       ))}
@@ -162,13 +157,13 @@ export function CurrentTimeLine() {
 
   return (
     <div
-      className={`absolute left-0 right-0 z-20 flex items-center pointer-events-none`}
+      className={`pointer-events-none absolute right-0 left-0 z-20 flex items-center`}
       style={{ top: topPx }}
     >
       {/* Bolinha indicadora no lado esquerdo */}
-      <div className="w-2.5 h-2.5 rounded-full bg-[#48DCFC] shrink-0 shadow-[0_0_6px_2px_rgba(72,220,252,0.5)]" />
+      <div className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#48DCFC] shadow-[0_0_6px_2px_rgba(72,220,252,0.5)]" />
       {/* Linha */}
-      <div className=" h-px bg-[#48DCFC] shadow-[0_0_6px_2px_rgba(72,220,252,0.3)] w-full" />
+      <div className="h-px w-full bg-[#48DCFC] shadow-[0_0_6px_2px_rgba(72,220,252,0.3)]" />
     </div>
   );
 }
@@ -181,6 +176,8 @@ export function EventBlock({
   durationHours,
   dayLabel,
 }) {
+  const { openModal } = useContext(AgendamentoContext);
+
   let style = COLOR_STYLES[color] ?? COLOR_STYLES.ghost;
   const dayIndex = DAY_COLUMN_INDEX[dayLabel] ?? 0;
 
@@ -190,7 +187,7 @@ export function EventBlock({
 
   return (
     <div
-      className="absolute p-1 z-10"
+      className="absolute z-10 p-1"
       style={{
         top: startHour * ROW_HEIGHT_PX,
         height: durationHours * ROW_HEIGHT_PX,
@@ -199,8 +196,11 @@ export function EventBlock({
       }}
     >
       <div
-        className={`w-full h-full ${style.bg} rounded-lg p-2 pl-4 border-l-4 ${style.border}
-          flex flex-col justify-between cursor-pointer ${style.extra ?? ""}`}
+        className={`h-full w-full ${style.bg} rounded-lg border-l-4 p-2 pl-4 ${style.border} flex cursor-pointer flex-col justify-between ${style.extra ?? ""}`}
+        onClick={() => {
+          console.log(session);
+          openModal(session);
+        }}
       >
         <h3 className={`text-xs font-bold ${style.title}`}>
           {session.servico}
