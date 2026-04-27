@@ -1,3 +1,4 @@
+import { Logo } from "../components/Logo";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -80,7 +81,7 @@ export default function LoginPage() {
 
       {/* Header */}
       <header className="fixed top-0 z-50 w-full px-12 py-8">
-        <h1 className="text-2xl font-bold text-cyan-400">Kore</h1>
+        <Logo />
       </header>
 
       <main className="relative z-10 grid min-h-screen grid-cols-12">

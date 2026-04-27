@@ -1,5 +1,6 @@
 import { ArrowLeftRight, Calendar, Home } from "lucide-react";
 
+import { Logo } from "./Logo";
 import { useLocation } from "react-router-dom";
 
 export default function AsideBar() {
@@ -27,7 +28,7 @@ export default function AsideBar() {
   return (
     <aside className="flex w-1/7 min-w-[256px] flex-col bg-[#0A1A3D] py-6">
       <div className="mb-10 px-6">
-        <h2 className="text-xl font-bold">KORE</h2>
+        <Logo />
 
         <p className="text-xs font-normal opacity-60">
           Gerenciamento de estúdio

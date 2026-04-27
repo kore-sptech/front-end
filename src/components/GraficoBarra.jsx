@@ -1,12 +1,12 @@
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
+  BarChart,
+  Cell,
   Legend,
   ResponsiveContainer,
-  Cell 
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 
 const data = [
@@ -18,15 +18,19 @@ const data = [
 
 export default function Grafico() {
   return (
-    <div className="w-full h-72">
+    <div className="h-72 w-full">
       <ResponsiveContainer>
         <BarChart data={data}>
-          <XAxis dataKey="mes" axisLine={false} tick={{ fill: "#FFFFFF", fontSize: 12 }}/>
-          <YAxis axisLine={false} tick={{ fill: "#FFFFFF", fontSize: 12 }}/>
+          <XAxis
+            dataKey="mes"
+            axisLine={false}
+            tick={{ fill: "#FFFFFF", fontSize: 12 }}
+          />
+          <YAxis axisLine={false} tick={{ fill: "#FFFFFF", fontSize: 12 }} />
           <Tooltip />
 
-          <Legend verticalAlign="top" align="right" iconType="circle" />
-          
+          {/* <Legend verticalAlign="top" align="right" iconType="circle" /> */}
+
           <Bar dataKey="Ganhos" radius={[20, 20, 0, 0]}>
             {data.map((entry, index) => {
               const opacity = entry.Ganhos / 7000; // ajusta escala

@@ -84,11 +84,11 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="flex min-h-screen w-full overflow-x-hidden bg-[#021134] text-[#DAE2FF]">
+    <main className="relative flex min-h-screen w-full overflow-x-hidden bg-[#021134] text-[#DAE2FF]">
       <Sidebar></Sidebar>
 
       <div className="flex flex-1 flex-col">
-        <Navbar></Navbar>
+        {/* <Navbar></Navbar> */}
         <div className="mt-10 grid h-30 w-full grid-cols-3 gap-5 px-5">
           <Kpi {...kpi1}></Kpi>
 

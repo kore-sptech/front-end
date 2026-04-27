@@ -168,7 +168,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         const formData = new FormData();
         formData.append("foto", file);
 
-        const { data } = await api.postForm("/fotos", formData);
+        const { data } = await api.postForm("/fotos", formData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         const { id } = data;
 
         const reader = new FileReader();
@@ -205,10 +209,23 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
     if (agendamento?.id) {
       api
-        .put(`/agendamentos/${agendamento.id}`, {
-          ...data,
-          preco: precoNumerico,
-        })
+        .put(
+          `/agendamentos/${agendamento.id}`,
+          {
+            ...data,
+
+            preco: precoNumerico,
+            formaPagamento: data.pagamento,
+            inicio: data.de,
+            fim: data.ate,
+            referencias: images.map((img) => img.id),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        )
         .then(() => {
           toast.success("Agendamento atualizado com sucesso!");
           onClose();
@@ -220,16 +237,25 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     }
 
     api
-      .post("/agendamentos", {
-        ...data,
-        preco: precoNumerico,
-        formaPagamento: data.pagamento,
-        inicio: data.de,
-        fim: data.ate,
-        referencias: images.map((img) => img.id),
-      })
+      .post(
+        "/agendamentos",
+        {
+          ...data,
+          preco: precoNumerico,
+          formaPagamento: data.pagamento,
+          inicio: data.de,
+          fim: data.ate,
+          referencias: images.map((img) => img.id),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      )
       .then(() => {
         toast.success("Agendamento adicionado com sucesso!");
+
         onClose();
       })
       .catch(() => {
@@ -325,7 +351,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <option value="">Selecione...</option>
                   <option value="PIX">PIX</option>
                   <option value="DINHEIRO">Dinheiro</option>
-                  <option value="CARTAO">Cartão</option>
                 </select>
               </Field>
             </div>
