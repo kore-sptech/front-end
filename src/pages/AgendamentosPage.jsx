@@ -39,7 +39,11 @@ export default function AgendamentoPage() {
     const url = `agendamentos?inicio=${primaryDay.date.toISOString()}&fim=${lastDay.date.toISOString()}`;
 
     api
-      .get(url)
+      .get(url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
       .then((response) => {
         setSessions(response.data);
       })
