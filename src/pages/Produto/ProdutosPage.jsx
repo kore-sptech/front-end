@@ -7,10 +7,44 @@ import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
 
 export default function ProdutoPage(){
+    const produtosMocados = [
+    {
+        id: 1,
+        nome: "Monitor Gamer 24'",
+        descricao: "Monitor 144hz Full HD",
+        possuiValidade: false,
+        qtdMinAlerta: 5,
+        quantidade: 12
+    },
+    {
+        id: 2,
+        nome: "Teclado Mecânico RGB",
+        descricao: "Switch Blue, Layout ABNT2",
+        possuiValidade: false,
+        qtdMinAlerta: 10,
+        quantidade: 8
+    },
+    {
+        id: 3,
+        nome: "Cabo HDMI 2.0",
+        descricao: "Cabo de 2 metros reforçado",
+        possuiValidade: false,
+        qtdMinAlerta: 20,
+        quantidade: 45
+    },
+    {
+        id: 4,
+        nome: "Pasta Térmica Silver",
+        descricao: "Seringa de 5g",
+        possuiValidade: true,
+        qtdMinAlerta: 2,
+        quantidade: 3
+    }
+];
     const navigate = useNavigate();
 
     const[pesquisa, setPesquisa] = useState("")
-    const[produtos, setProduto] = useState([])
+    const[produtos, setProduto] = useState(produtosMocados)
     useEffect(() => {
         fetch("http://localhost:8080/produtos",{
             method: "GET",
@@ -18,9 +52,11 @@ export default function ProdutoPage(){
                 "Content-Type": "application/json",
             },
         })
-        .then((response)=>{response.json()})
-        .then((data) => setProduto(data))
-        console.log(data)
+        .then((response)=>response.json())
+        .then((data) => {
+            setProduto(data)
+            console.log(data)
+        })
     }, [])
 
     return(
@@ -36,12 +72,12 @@ export default function ProdutoPage(){
                     + Registrar
                     </button>
                 </div>
-                <div className="p-6 flex-wrap w-full justify-between">
+                <div className="p-6 flex w-full justify-between gap-4">
                     {produtos?.map((produto) => {
                         return(
                             <CardProduto 
                                 key={produto.id}
-                                name={produto.nome}
+                                nome={produto.nome}
                                 quantidade={produto.quantidade}
                                 />
                             )

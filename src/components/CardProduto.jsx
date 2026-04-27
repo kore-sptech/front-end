@@ -7,17 +7,16 @@ export default function CardProduto(props){
             onClick={() => navigate("editar")}>
             <figure className="px-10 pt-10">
                 <img
-                src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+                src="https://tattoounleashed.com/cdn/shop/articles/the-pros-and-cons-of-different-tattoo-machines-198448.jpg?v=1715856207"
                 alt="Shoes"
                 className="rounded-xl" />
             </figure>
             <div className="card-body items-center text-center">
                 <h2 className="card-title">{props.nome}</h2>
                  <div className="card-actions justify-end">
-                    <div className="badge badge-outline">CAT:</div>
-                    <div className="badge badge-primary">Quantidade: {props.quantidade} </div>
-                    
-                </div>
+                    <div className="badge bg-[#48dbfc1a] ">
+                        <p className="text-[#48DCFC]">Quantidade: {props.quantidade}</p> </div>
+                    </div>
             </div>
         </div>
     )
