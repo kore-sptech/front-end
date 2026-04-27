@@ -1,5 +1,7 @@
 import { ArrowLeftRight, Calendar, Home } from "lucide-react";
 
+import { useLocation } from "react-router-dom";
+
 export default function AsideBar() {
   const links = [
     {
@@ -9,7 +11,7 @@ export default function AsideBar() {
       icon: <Home />,
     },
     {
-      path: "/AgendamentosPage",
+      path: "/agendamentos",
       name: "Agendamento",
       target: false,
       icon: <Calendar />,
@@ -23,23 +25,18 @@ export default function AsideBar() {
   ];
 
   return (
-    <aside className="w-1/7 min-w-[256px] bg-[#0A1A3D] py-6 flex flex-col text-white text-1xl shadow-2xl shadow-cyan-950">
-      <div className="px-6 mb-10">
-        <h2 className="font-bold text-4xl">KORE</h2>
+    <aside className="flex w-1/7 min-w-[256px] flex-col bg-[#0A1A3D] py-6">
+      <div className="mb-10 px-6">
+        <h2 className="text-xl font-bold">KORE</h2>
 
-        <p className="opacity-60 text-xs font-normal">
+        <p className="text-xs font-normal opacity-60">
           Gerenciamento de estúdio
         </p>
       </div>
 
-      <div className="flex flex-col font-medium flex-grow">
+      <div className="flex grow flex-col font-medium">
         {links.map((link, index) => (
-          <AsideLink
-            key={link.path}
-            href={link.path}
-            isTarget={link.target}
-            icon={link.icon}
-          >
+          <AsideLink key={link.path} href={link.path} icon={link.icon}>
             {link.name}
           </AsideLink>
         ))}
@@ -50,11 +47,15 @@ export default function AsideBar() {
   );
 }
 
-function AsideLink({ href, isTarget, icon, children }) {
+function AsideLink({ href, icon, children }) {
+  const location = useLocation();
+
+  const isTarget = location.pathname.includes(href);
+
   return (
     <a
       href={href}
-      className={`flex gap-3 items-center justify-start py-3 px-4 ${isTarget ? "opacity-100 text-[#0CC0DF] border-l-4 border-[#0CC0DF] bg-[#263457]/30" : "opacity-60"} hover:opacity-100  hover:text-[#0CC0DF]  hover:border-l-4  hover:border-[#0CC0DF]  hover:bg-[#263457]/30 transition-all`}
+      className={`flex items-center justify-start gap-3 px-4 py-3 ${isTarget ? "border-l-4 border-[#0CC0DF] bg-[#263457]/30 text-[#0CC0DF] opacity-100" : "opacity-60"} transition-all hover:border-l-4 hover:border-[#0CC0DF] hover:bg-[#263457]/30 hover:text-[#0CC0DF] hover:opacity-100`}
     >
       <span>{icon}</span>
       <span>{children}</span>
@@ -64,7 +65,7 @@ function AsideLink({ href, isTarget, icon, children }) {
 
 function AsideFooter() {
   return (
-    <footer className="flex items-center gap-2 text-xs opacity-40 justify-center">
+    <footer className="flex items-center justify-center gap-2 text-xs opacity-40">
       <svg
         width="10"
         height="10"
