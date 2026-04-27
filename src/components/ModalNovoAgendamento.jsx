@@ -7,13 +7,13 @@ import {
   X,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { url, z } from "zod";
 import { useContext, useEffect, useRef, useState } from "react";
 
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { IMaskInput } from "react-imask";
 import { api } from "../utils/api";
 import { toast } from "sonner";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const shakeStyle = `

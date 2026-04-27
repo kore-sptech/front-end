@@ -57,8 +57,8 @@ export default function DashboardPage() {
 
   const notificacao1 = {
     icone: Pagamento,
-    titulo: "Pagamento recebido!",
-    descricao: "Sessão finalizada - Valor R$ 850,00",
+    titulo: "Proxima sessao em 20 minutos",
+    descricao: "",
     tempo: "Há 20 minutos",
   };
 
