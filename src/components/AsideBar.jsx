@@ -1,6 +1,6 @@
 import { ArrowLeftRight, Calendar, Home } from "lucide-react";
 
-export default function AsideBar() {
+export default function AsideBar({value, onChange}) {
   const links = [
     {
       path: "/dashboard",

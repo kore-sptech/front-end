@@ -45,6 +45,7 @@ export default function ProdutoPage(){
 
     const[pesquisa, setPesquisa] = useState("")
     const[produtos, setProduto] = useState(produtosMocados)
+    const[produtosFiltrados, setProdutosFiltrados] = useState(produtosMocados)
     useEffect(() => {
         fetch("http://localhost:8080/produtos",{
             method: "GET",
@@ -55,9 +56,27 @@ export default function ProdutoPage(){
         .then((response)=>response.json())
         .then((data) => {
             setProduto(data)
+            setProdutosFiltrados(data)
             console.log(data)
         })
     }, [])
+    useEffect(() => {
+        if (!pesquisa.trim()) {
+            // Se pesquisa estiver vazia, mostra todos os produtos
+            setProdutosFiltrados(produtos);
+        } else {
+            // Filtra produtos baseado no nome (case insensitive)
+            const filtrados = produtos.filter(produto =>
+                produto.nome.toLowerCase().includes(pesquisa.toLowerCase())
+            );
+            setProdutosFiltrados(filtrados);
+            
+            // Opcional: mostrar toast se nenhum resultado for encontrado
+            if (filtrados.length === 0) {
+                toast.info("Nenhum produto encontrado");
+            }
+        }
+    }, [pesquisa, produtos]);
 
     return(
         <main className="h-screen w-full flex bg-[#000C24] overflow-hidden">
@@ -65,15 +84,18 @@ export default function ProdutoPage(){
             <section className="flex-grow h-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
                     <h1 className="text-4xl font-bold">INVENTÁRIO</h1>
-                    <SearchBar></SearchBar>
+                    <SearchBar
+                        value={pesquisa}
+                        onChange={setPesquisa}
+                    ></SearchBar>
                     <button
                         onClick={() => navigate("cadastro")} 
                         className="flex gap-2 px-6 py-2.5 bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/20 cursor-pointer">
                     + Registrar
                     </button>
                 </div>
-                <div className="p-6 flex w-full justify-between gap-4">
-                    {produtos?.map((produto) => {
+                <div className="p-6 flex w-full justify-between gap-4" id="produtos_listagem">
+                    {produtosFiltrados?.map((produto) => {
                         return(
                             <CardProduto 
                                 key={produto.id}

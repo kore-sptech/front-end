@@ -1,17 +1,70 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { data, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import AsideBar from "../../components/AsideBar";
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
+import {
+  AlertCircle,
+  ArrowRight,
+  ImageOff,
+  Phone,
+  Plus,
+  X,
+} from "lucide-react";
+
 
 export default function CadastroProdutoPage() {
     const navigate = useNavigate();
+
+    // imagem
+    const [images, setImages] = useState([]); // Armazena as imagens {id, url}
+    const [imageError, setImageError] = useState(false); // Controle de validação
+    const [imageShaking, setImageShaking] = useState(false); // Efeito visual de erro
+    const fileInputRef = useRef();
 
     const [nome, setNome] = useState("");
     const [descricao, setDescricao] = useState("");
     const [possuiValidade, setPossuiValidade] = useState(false);
     const [qtdMinAlerta, setQtdMinAlerta] = useState(0);
+    // Abre a janela de seleção de arquivos do sistema
+    const handleClickAdd = () => fileInputRef.current.click();
+
+    // Processa os arquivos selecionados
+    const handleFileChange = async (e) => {
+        await Promise.all(
+            Array.from(e.target.files).map(async (file) => {
+                const formData = new FormData();
+                formData.append("foto", file);
+
+                // Faz o upload para o servidor
+                const { data } = await api.postForm("/fotos", formData);
+                const { id } = data;
+
+                // Gera o preview local para o usuário ver na hora
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    setImages((prev) => [...prev, { id, url: ev.target.result }]);
+                };
+                reader.readAsDataURL(file);
+            }),
+        );
+
+        e.target.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo de novo
+        setImageError(false);
+    };
+
+    // Remove a imagem da lista
+    const handleRemoveImage = (id) => {
+        setImages((prev) => {
+            const next = prev.filter((img) => img.id !== id);
+            if (next.length === 0) {
+                setImageError(true);
+                setImageShaking(true);
+            }
+            return next;
+        });
+    };
     async function cadastrar() {
         if (nome.trim().length < 3) {
             toast.error("O nome deve ter no mínimo 3 caracteres.");
@@ -113,7 +166,46 @@ export default function CadastroProdutoPage() {
                                 />
                             </div>
                         </div>
+
+
+                    </fieldset>
+                    <fieldset className="fieldset bg-[#0A1A3D] border-base-300 rounded-box flex-grow max-w-2xl border p-6">
                         <div className="flex flex-col gap-4">
+                            <div>
+                                <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
+                                    Referência Visual
+                                </label>
+
+                                <div className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""} ${imageError ? "border-red-500/50 bg-red-500/5" : "border-[#3C494D]/10 bg-[#263457]/20"}`}>
+                                    <div className="flex flex-wrap gap-3">
+                                        {/* Listagem das Imagens */}
+                                        {images.map((img) => (
+                                            <div key={img.id} className="group relative h-24 w-24 overflow-hidden rounded-lg border border-gray-700/50">
+                                                <img src={img.url} alt="Referência" className="h-full w-full object-cover" />
+                                                <button type="button" onClick={() => handleRemoveImage(img.id)} className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <X size={18} className="text-white" />
+                                                </button>
+                                            </div>
+                                        ))}
+
+                                        {/* Botão de Adicionar */}
+                                        <button type="button" onClick={handleClickAdd} className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]">
+                                            <Plus size={20} className="text-gray-500" />
+                                            <span className="text-[10px] text-gray-600">Adicionar</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* O Input Real (Escondido) */}
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                            </div>
                             <button
                                 onClick={cadastrar}
                                 className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/30 cursor-pointer transition-transform hover:scale-105 active:scale-95 min-w-[220px]"
