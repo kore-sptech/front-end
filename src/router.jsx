@@ -10,6 +10,7 @@ import ProdutoPage from "./pages/Produto/ProdutosPage";
 import CadastroProdutoPage from "./pages/Produto/CadastroProdutoPage";
 import EditarProdutoPage from "./pages/Produto/EditarProdutoPage";
 import EstoquePage from "./pages/Estoque/EstoquePage";
+import AdicionarEstoquePage from "./pages/Estoque/AdicionarEstoquePage";
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
       {
         path: "/estoque/:id",
         element: <EstoquePage/>
+      },
+      {
+        path: "/estoque/:id/adicionar",
+        element: <AdicionarEstoquePage/>
       }
     ],
   },

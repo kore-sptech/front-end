@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AsideBar from "../../components/AsideBar";
 import SearchBar from "../../components/SearchBar";
 export default function EstoquePage() {
     const location = useLocation();
     const { id } = useParams();
+    const navigate = useNavigate();
     const [estoque, setEstoque] = useState(null);
 
     useEffect(() => {
@@ -32,7 +34,7 @@ export default function EstoquePage() {
 
                     ></SearchBar>
                     <button
-                        onClick={() => navigate("cadastro")}
+                        onClick={() => navigate(`adicionar`)}
                         className="flex gap-2 px-6 py-2.5 bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/20 cursor-pointer">
                         + Registrar
                     </button>
