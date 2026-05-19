@@ -52,6 +52,7 @@ function UpcomingSessionsList({ sessions, colorByClient }) {
     <div className="flex flex-col gap-3">
       {sessions
         .filter((session) => !isOld(session))
+        .slice(0, 5)
         .map((session) => (
           <SessionCard
             key={session.id}

@@ -1,11 +1,14 @@
 import "react-day-picker/style.css";
 
+import {
+  AgendamentoContext,
+  ModalAgendamentoContextProvider,
+} from "../context/ModalAgendamentoContext";
 import { buildColorMapByClient, buildWeekDays } from "../utils/build";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import AsideBar from "../components/Aside";
 import { CalendarPlus } from "lucide-react";
-import { ModalAgendamentoContextProvider } from "../context/ModalAgendamentoContext";
 import ModalNovoAgendamento from "../components/ModalNovoAgendamento";
 import { SidePanel } from "../components/SidePainel";
 import Sidebar from "../components/Sidebar";
@@ -21,7 +24,12 @@ export default function AgendamentoPage() {
 
   const onOpenModal = () => setIsModalOpen(true);
 
-  const onCloseModal = () => setIsModalOpen(false);
+  const { isOpen, agendamento } = useContext(AgendamentoContext);
+
+  const onCloseModal = () => {
+    console.log("------------------------Modal closed------------------------");
+    setIsModalOpen(false);
+  };
 
   const onChangeDate = (date) => {
     if (date != null && date != undefined && date != "") {
@@ -39,6 +47,8 @@ export default function AgendamentoPage() {
 
     const url = `agendamentos?inicio=${primaryDay.date.toISOString()}&fim=${lastDay.date.toISOString()}`;
 
+    console.log(`Fetching sessions for ${selectedDate.toDateString()}`);
+
     api
       .get(url, {
         headers: {
@@ -46,6 +56,8 @@ export default function AgendamentoPage() {
         },
       })
       .then((response) => {
+        console.log(`Sessions for ${selectedDate.toDateString()}:`);
+        console.log(response.data);
         setSessions(response.data);
       })
       .catch(() => {
@@ -57,8 +69,17 @@ export default function AgendamentoPage() {
     fetchSessions();
   }, [selectedDate]);
 
+  useEffect(() => {
+    console.log({
+      isOpen,
+      agendamento,
+    });
+    if (!isOpen && agendamento == null) {
+      fetchSessions();
+    }
+  }, [isOpen]);
+
   return (
-    <ModalAgendamentoContextProvider>
       <main className="flex h-screen w-full bg-[#000C24] text-[#DAE2FF]">
         <Sidebar />
 
@@ -87,7 +108,6 @@ export default function AgendamentoPage() {
 
         <ModalNovoAgendamento isOpen={isModalOpen} onClose={onCloseModal} />
       </main>
-    </ModalAgendamentoContextProvider>
   );
 }
 

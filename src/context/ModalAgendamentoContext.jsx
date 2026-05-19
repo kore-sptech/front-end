@@ -10,7 +10,6 @@ export const ModalAgendamentoContextProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const openModal = (agendamento) => {
-    console.log(agendamento);
     setAgendamento(agendamento);
     setIsOpen(true);
   };

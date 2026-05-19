@@ -63,7 +63,7 @@ export default function LoginPage() {
         }
       })
       .catch(() => {
-        toast.error("Erro ao fazer login.");
+        toast.error("Email ou senha incorretos.");
       });
   };
 

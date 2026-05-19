@@ -137,9 +137,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     preco: agendamento?.preco != null ? String(agendamento.preco) : "",
     telefone: str(agendamento?.telefone),
     pagamento: str(agendamento?.formaPagamento),
-    de: str(agendamento?.inicio),
-    ate: str(agendamento?.fim),
+    de: agendamento?.inicio?.replace(" ", "T").slice(0, 16),
+    ate: agendamento?.fim?.replace(" ", "T").slice(0, 16),
   };
+
+  console.log(defaultValues);
 
   const [images, setImages] = useState(imagesDoAgendamento);
   const [imageError, setImageError] = useState(false);
@@ -233,34 +235,33 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         .catch(() => {
           toast.error("Erro ao atualizar agendamento.");
         });
-      return;
-    }
-
-    api
-      .post(
-        "/agendamentos",
-        {
-          ...data,
-          preco: precoNumerico,
-          formaPagamento: data.pagamento,
-          inicio: data.de,
-          fim: data.ate,
-          referencias: images.map((img) => img.id),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+    } else {
+      api
+        .post(
+          "/agendamentos",
+          {
+            ...data,
+            preco: precoNumerico,
+            formaPagamento: data.pagamento,
+            inicio: data.de,
+            fim: data.ate,
+            referencias: images.map((img) => img.id),
           },
-        },
-      )
-      .then(() => {
-        toast.success("Agendamento adicionado com sucesso!");
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        )
+        .then(() => {
+          toast.success("Agendamento adicionado com sucesso!");
 
-        onClose();
-      })
-      .catch(() => {
-        toast.error("Erro ao adicionar agendamento.");
-      });
+          onClose();
+        })
+        .catch(() => {
+          toast.error("Erro ao adicionar agendamento.");
+        });
+    }
   };
 
   const onInvalid = () => {
