@@ -4,7 +4,7 @@ export default function CardProduto(props) {
     const navigate = useNavigate();
 
     return (
-        <div className="card bg-[#0A1A3D] w-96 shadow-sm "
+        <div className="card h-65 rounded-2xl bg-[#0A1A3D] w-96 shadow-sm "
             onClick={() => navigate(`/estoque/${props.id}`)}>
             <figure className="px-10 pt-10">
                 <img
@@ -12,7 +12,7 @@ export default function CardProduto(props) {
                     alt="Shoes"
                     className="rounded-xl" />
             </figure>
-            <div className="card-body items-center text-center">
+            <div className="card-body h-auto flex-col justify-between items-center text-center">
                 <h2 className="card-title">{props.nome}</h2>
                 <div className="card-actions justify-end">
                     <div className="badge bg-[#48dbfc1a] ">

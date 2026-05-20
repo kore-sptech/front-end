@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { data, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import CadastroProdutoPage from "./CadastroProdutoPage";
-import AsideBar from "../../components/AsideBar";
+import SideBar from "../../components/SideBar";
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
 
@@ -14,7 +14,8 @@ export default function ProdutoPage() {
             descricao: "Monitor 144hz Full HD",
             possuiValidade: false,
             qtdMinAlerta: 5,
-            quantidade: 12
+            quantidade: 12,
+            tipo: "agulha"
         },
         {
             id: 2,
@@ -22,7 +23,8 @@ export default function ProdutoPage() {
             descricao: "Switch Blue, Layout ABNT2",
             possuiValidade: false,
             qtdMinAlerta: 10,
-            quantidade: 8
+            quantidade: 8,
+            tipo: "agulha"
         },
         {
             id: 3,
@@ -30,7 +32,8 @@ export default function ProdutoPage() {
             descricao: "Cabo de 2 metros reforçado",
             possuiValidade: false,
             qtdMinAlerta: 20,
-            quantidade: 45
+            quantidade: 45,
+            tipo: "tinta"
         },
         {
             id: 4,
@@ -38,7 +41,8 @@ export default function ProdutoPage() {
             descricao: "Seringa de 5g",
             possuiValidade: true,
             qtdMinAlerta: 2,
-            quantidade: 3
+            quantidade: 3,
+            tipo: "pintura"
         }
     ];
     const navigate = useNavigate();
@@ -79,22 +83,27 @@ export default function ProdutoPage() {
     }, [pesquisa, produtos]);
 
     return (
-        <main className="h-screen w-full flex bg-[#000C24] overflow-hidden">
-            <AsideBar></AsideBar>
+        <main className="h-screen w-full flex bg-[#021134] overflow-x-hidden">
+            <SideBar />
             <section className="flex-grow h-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
-                    <h1 className="text-4xl font-bold">INVENTÁRIO</h1>
+                    <h1 className="text-3xl font-bold">INVENTÁRIO</h1>
                     <SearchBar
                         value={pesquisa}
                         onChange={setPesquisa}
                     ></SearchBar>
                     <button
                         onClick={() => navigate("cadastro")}
-                        className="flex gap-2 px-6 py-2.5 bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/20 cursor-pointer">
+                        className="flex gap-2 px-9 py-2.5 bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/20 cursor-pointer font-bold">
                         + Registrar
                     </button>
                 </div>
-                <div className="p-6 flex w-full justify-between gap-4" id="produtos_listagem">
+                <div className="p-6 flex w-85 justify-between text-[#dae2ffb4] font-medium text-sm">
+                    <button>Todos</button>
+                    <button>Tintas e pinturas</button>
+                    <button>Agulhas</button>
+                </div>
+                <div className="p-6 flex w-full h-full justify-between gap-4" id="produtos_listagem">
                     {produtosFiltrados?.map((produto) => {
                         return (
                             <CardProduto
