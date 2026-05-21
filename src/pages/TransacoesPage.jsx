@@ -10,10 +10,12 @@ import {
   User,
   Zap,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import ModalNovaTransacao from "../components/ModalNovaTransacao";
 import Sidebar from "../components/Sidebar";
-import { useState } from "react";
+import { api } from "../utils/api";
+import { da } from "date-fns/locale/da";
 
 // Dados fictícios para a tabela
 const transacoes = [
@@ -66,6 +68,57 @@ const transacoes = [
 
 export default function TransacoesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [metricas, setMetricas] = useState({
+    saldoAtual: 0,
+    totalEntradas: 0,
+    totalSaidas: 0,
+  });
+
+  const [transacoes, setTransacoes] = useState({});
+
+  const formatarNumeroParaDinheiro = (numero) => {
+    return numero.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  };
+
+  const obterMetricas = () => {
+    api
+      .get("/transacoes/metricas", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((response) => {
+        const { data } = response;
+
+        setMetricas({
+          ...data,
+        });
+      });
+  };
+
+  const obterTransacoes = () => {
+    api
+      .get("/transacoes", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((response) => {
+        const { data } = response;
+        console.log(data);
+        setTransacoes(data);
+      });
+  };
+
+  useEffect(() => {
+    obterMetricas();
+    obterTransacoes();
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-[#000C24] text-white">
       <Sidebar />
@@ -88,7 +141,9 @@ export default function TransacoesPage() {
             <p className="mb-2 text-xs font-bold text-cyan-400 uppercase">
               Receita Mensal
             </p>
-            <h2 className="text-3xl font-bold">R$ 42.890,00</h2>
+            <h2 className="text-3xl font-bold">
+              {formatarNumeroParaDinheiro(metricas.totalEntradas)}
+            </h2>
             <p className="mt-2 text-xs text-gray-500">
               +12.4% em relação ao mês passado
             </p>
@@ -97,7 +152,9 @@ export default function TransacoesPage() {
             <p className="mb-2 text-xs font-bold text-red-400 uppercase">
               Despesas Mensais
             </p>
-            <h2 className="text-3xl font-bold">R$ 12.430,50</h2>
+            <h2 className="text-3xl font-bold">
+              {formatarNumeroParaDinheiro(metricas.totalSaidas)}
+            </h2>
             <p className="mt-2 text-xs text-gray-500">
               -4.2% em relação ao mês passado
             </p>
@@ -106,7 +163,9 @@ export default function TransacoesPage() {
             <p className="mb-2 text-xs font-bold text-gray-300 uppercase">
               Saldo em Conta
             </p>
-            <h2 className="text-3xl font-bold">R$ 84.120,45</h2>
+            <h2 className="text-3xl font-bold">
+              {formatarNumeroParaDinheiro(metricas.saldoAtual)}
+            </h2>
             <button className="mt-2 text-xs text-cyan-400 hover:underline">
               VER EXTRATO DETALHADO →
             </button>
@@ -157,7 +216,7 @@ export default function TransacoesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800/50">
-              {transacoes.map((item) => (
+              {transacoes?.content?.map((item) => (
                 <tr
                   key={item.id}
                   className="group transition-colors hover:bg-white/5"
