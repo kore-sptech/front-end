@@ -84,9 +84,9 @@ export default function ModalNovaTransacao({
       <div className="relative w-full max-w-md rounded-2xl border border-gray-800 bg-[#061639] p-8 shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 transition-colors hover:text-white"
+          className="absolute top-4 right-4 cursor-pointer text-gray-500 transition-colors hover:text-white"
         >
-          <X size={24} className="cursor-pointer" />
+          <X size={24} />
         </button>
 
         <h2 className="mb-6 text-center text-2xl font-bold text-cyan-400">

@@ -1,22 +1,46 @@
-import { Calendar, Download, Filter, Plus, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  Calendar,
+  Download,
+  Filter,
+  ListFilter,
+  Plus,
+  Search,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 import { KpiTransacoes } from "../components/KpiTransacoes";
 import ModalNovaTransacao from "../components/ModalNovaTransacao";
 import Sidebar from "../components/Sidebar";
 import { TableTransacoes } from "../components/TableTransacoes";
 import { api } from "../utils/api";
+import { useSearchParams } from "react-router-dom";
 
 export default function TransacoesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [transacoes, setTransacoes] = useState({});
 
-  const obterTransacoes = () => {
+  const [filters, setFilters] = useState({
+    tipo: "",
+    nome: "",
+    dataCriacao: "",
+  });
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  if (searchParams.get("page") == null) {
+    setSearchParams({ ...searchParams, page: 1 });
+  }
+
+  const obterTransacoes = useCallback(() => {
+    // TODO: pequisar sobre compoertamento do use Callback
     api
       .get("/transacoes", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        params: {
+          page: searchParams.get("page") || 0,
         },
       })
       .then((response) => {
@@ -24,11 +48,11 @@ export default function TransacoesPage() {
         console.log(data);
         setTransacoes(data);
       });
-  };
+  }, [searchParams]);
 
   useEffect(() => {
     obterTransacoes();
-  }, []);
+  }, [obterTransacoes]);
 
   return (
     <div className="flex min-h-screen bg-[#000C24] text-white">
@@ -37,7 +61,12 @@ export default function TransacoesPage() {
       <main className="flex-1 p-10">
         {/* Header */}
         <header className="mb-10 flex items-center justify-between">
-          <h1 className="text-4xl font-bold">Transações financeiras</h1>
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl font-bold">Transações financeiras</h1>
+
+            <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
+          </div>
+
           <button
             onClick={() => setIsModalOpen(true)}
             className="flex cursor-pointer items-center gap-2 rounded-full bg-cyan-400 px-6 py-2 font-bold text-black transition-all hover:bg-cyan-300"
@@ -50,35 +79,65 @@ export default function TransacoesPage() {
         {/* Filtros */}
         <div className="mb-8 flex gap-4">
           <div className="flex rounded-lg border border-gray-800 bg-[#061639] p-1">
-            <button className="flex items-center gap-2 rounded-md bg-[#1e293b] px-4 py-2 text-sm">
-              <Calendar size={16} /> Data
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400">
-              Status: Todos
-            </button>
+            <input
+              id="dataCriacao"
+              name="dataCriacao"
+              type="date"
+              className="input border-none bg-[#061639] text-white shadow-none outline-none placeholder:text-gray-500 focus:border-cyan-400"
+              value={filters.dataCriacao}
+              onChange={(e) =>
+                setFilters({ ...filters, dataCriacao: e.target.value })
+              }
+            />
+
+            <select
+              className="select cursor-pointer border-none bg-[#061639] shadow-none outline-none focus:border-cyan-400"
+              value={filters.tipo}
+              onChange={(e) => setFilters({ ...filters, tipo: e.target.value })}
+            >
+              <option value={""}>Todos</option>
+              <option value={"ENTRADA"}>Entrada</option>
+              <option value={"SAIDA"}>Saída</option>
+            </select>
+            {/* <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400">
+              Todos
+            </button> */}
           </div>
 
           <div className="relative flex-1">
             <Search
-              className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-500"
+              className="absolute top-1/2 left-4 -translate-y-1/2 cursor-pointer text-gray-500"
               size={18}
             />
             <input
               type="text"
               placeholder="Nome, descrição ou categoria..."
-              className="w-full rounded-full border border-gray-800 bg-[#061639] py-3 pr-4 pl-12 focus:border-cyan-400 focus:outline-none"
+              className="w-full rounded-lg border border-gray-800 bg-[#061639] py-3 pr-4 pl-12 focus:border-cyan-400 focus:outline-none"
             />
           </div>
 
-          <button className="rounded-lg border border-gray-800 bg-[#061639] p-3 text-gray-400 hover:text-white">
-            <Filter size={20} />
-          </button>
-          <button className="rounded-lg border border-gray-800 bg-[#061639] p-3 text-gray-400 hover:text-white">
+          <div className="flex rounded-lg border border-gray-800 bg-[#061639] p-1 focus:border-cyan-400 selection:focus:border-cyan-400">
+            <select className="select w-44 cursor-pointer rounded-lg border border-none border-gray-800 bg-[#061639] p-3 text-gray-400 shadow-none outline-none hover:text-white focus:border-cyan-400">
+              <option>Mais Recentes</option>
+              <option>Mais Antigos</option>
+              <option>Do Maior ao Menor</option>
+              <option>Do Menor ao Maior</option>
+            </select>
+          </div>
+          <button
+            className="rounded-lg border border-gray-800 bg-[#061639] p-3 text-gray-400 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            disabled
+          >
             <Download size={20} />
           </button>
         </div>
         {/* Tabela de Transações */}
-        <TableTransacoes transacoes={transacoes} />
+        <TableTransacoes
+          transacoes={transacoes}
+          itemPorPagina={transacoes.numberOfElements}
+          totalPaginas={transacoes.totalPages}
+          totalElementos={transacoes.totalElements}
+        />
       </main>
       <ModalNovaTransacao
         isOpen={isModalOpen}

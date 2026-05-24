@@ -1,20 +1,50 @@
-import { Calendar, LayoutGrid, MoreVertical, Package, Zap } from "lucide-react";
+import {
+  Calendar,
+  LayoutGrid,
+  MoreVertical,
+  Package,
+  Pen,
+  Trash,
+  Zap,
+} from "lucide-react";
 import { formatCurrecy, formatDate } from "../utils/formmaters";
 
-// Dados fictícios para a tabela
+import { useSearchParams } from "react-router-dom";
 
-export function TableTransacoes({ transacoes }) {
+export function TableTransacoes({
+  transacoes,
+  totalPaginas,
+  itemPorPagina,
+  totalElementos,
+}) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const paginaAtual = searchParams.get("page")
+    ? parseInt(searchParams.get("page"))
+    : 1;
+
+  const mudarDePagina = (pagina) => {
+    setSearchParams((prev) => {
+      prev.set("page", pagina);
+      return prev;
+    });
+  };
+
   return (
     <>
       <div className="overflow-hidden rounded-2xl border border-gray-800 bg-[#061639]/50">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-gray-800 text-xs text-gray-500 uppercase">
-              <th className="px-8 py-5 font-semibold">Nome</th>
-              <th className="px-8 py-5 font-semibold">Valor</th>
-              <th className="px-8 py-5 text-center font-semibold">Tipo</th>
-              <th className="px-8 py-5 font-semibold">Data</th>
-              <th className="px-8 py-5 text-right font-semibold">Ações</th>
+              <th className="w-[40%] px-8 py-5 font-semibold">Nome</th>
+              <th className="w-[15%] px-8 py-5 font-semibold">Valor</th>
+              <th className="w-[15%] px-8 py-5 text-center font-semibold">
+                Tipo
+              </th>
+              <th className="w-[15%] px-8 py-5 font-semibold">Data</th>
+              <th className="w-[15%] px-8 py-5 text-right font-semibold">
+                Ações
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-800/50">
@@ -26,21 +56,36 @@ export function TableTransacoes({ transacoes }) {
 
         {/* Paginação */}
         <div className="flex items-center justify-between border-t border-gray-800 p-6 text-xs text-gray-500">
-          <p>Exibindo 1 - 5 de 128 transações</p>
+          <p>
+            Exibindo {paginaAtual * itemPorPagina + 1} -{" "}
+            {Math.min(
+              paginaAtual * itemPorPagina + itemPorPagina,
+              totalElementos,
+            )}{" "}
+            de {totalElementos} transações
+          </p>
           <div className="flex gap-2">
-            <button className="flex h-8 w-8 items-center justify-center rounded bg-cyan-400 font-bold text-black">
-              1
-            </button>
-            <button className="flex h-8 w-8 items-center justify-center rounded hover:bg-white/10">
-              2
-            </button>
-            <button className="flex h-8 w-8 items-center justify-center rounded hover:bg-white/10">
-              3
-            </button>
-            <span className="flex items-center px-1">...</span>
-            <button className="flex h-8 w-8 items-center justify-center rounded hover:bg-white/10">
-              12
-            </button>
+            {Array.from({
+              length: totalPaginas,
+            }).map((_, index) => {
+              if (index == paginaAtual)
+                return (
+                  <button className="flex h-8 w-8 cursor-pointer items-center justify-center rounded bg-cyan-400 font-bold text-black">
+                    {index + 1}
+                  </button>
+                );
+
+              return (
+                <button
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded hover:bg-white/10"
+                  onClick={() => mudarDePagina(index)}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
+
+            {/* <span className="flex items-center px-1">...</span> */}
           </div>
         </div>
       </div>
@@ -70,7 +115,7 @@ function TransacaoRow({ item }) {
           </div>
         </td>
         <td
-          className={`px-8 py-5 font-bold ${item.valor > 0 ? "text-cyan-400" : "text-red-400"}`}
+          className={`px-8 py-5 font-bold ${item.tipo === "ENTRADA" ? "text-cyan-400" : "text-red-400"}`}
         >
           {formatCurrecy(item.valor)}
         </td>
@@ -85,9 +130,32 @@ function TransacaoRow({ item }) {
           {formatDate(item.dataCriacao)}
         </td>
         <td className="px-8 py-5 text-right">
-          <button className="text-gray-500 hover:text-white">
-            <MoreVertical size={20} />
-          </button>
+          <div className="dropdown dropdown-top dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn m-1 border-none bg-transparent shadow-none outline-none"
+            >
+              <MoreVertical size={20} />
+            </div>
+            <ul
+              tabIndex="-1"
+              className="dropdown-content menu rounded-box z-1 w-32 bg-[#061639] p-2 text-gray-500 shadow-sm"
+            >
+              <li>
+                <button className="flex gap-1 hover:bg-red-400/20 hover:text-red-400">
+                  <Trash />
+                  <span>Excluir</span>
+                </button>
+              </li>
+              <li>
+                <button className="flex gap-1 hover:bg-cyan-400/20 hover:text-cyan-400">
+                  <Pen />
+                  <span>Editar</span>
+                </button>
+              </li>
+            </ul>
+          </div>
         </td>
       </tr>
     </>

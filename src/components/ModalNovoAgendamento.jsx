@@ -280,7 +280,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 text-gray-600 transition-colors hover:text-white"
+            className="absolute top-4 right-4 cursor-pointer text-gray-600 transition-colors hover:text-white"
           >
             <X size={22} />
           </button>
@@ -384,7 +384,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(img.id)}
-                        className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100"
+                        className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100"
                       >
                         <X size={18} className="text-white" />
                       </button>
