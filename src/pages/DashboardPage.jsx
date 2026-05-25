@@ -2,7 +2,6 @@ import "../index.css";
 
 import Agendamentos from "../assets/Agendamentos.png";
 import Alerta from "../assets/alerta.png";
-import AsideBar from "../components/Aside";
 import Barra from "../components/Barra";
 import GraficoBarra from "../components/GraficoBarra";
 import ItemCritico from "../components/ItemCritico";
@@ -84,7 +83,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen w-full overflow-x-hidden bg-[#021134] text-[#DAE2FF]">
+    <main className="relative flex min-h-screen w-full overflow-x-hidden bg-[#000C24] text-[#DAE2FF]">
       <Sidebar></Sidebar>
 
       <div className="flex flex-1 flex-col">
@@ -98,7 +97,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="mt-10 mb-5 grid w-full grid-cols-3 gap-5 px-5">
-          <div className="col-span-2 h-100 min-h-auto rounded-2xl border-1 border-white/10 bg-[#132247] p-4.5 text-xs font-bold text-white">
+          <div className="col-span-2 h-100 min-h-auto rounded-2xl border border-white/10 bg-[#132247] p-4.5 text-xs font-bold text-white">
             <h1 className="m-5 text-2xl">Receita total do mês</h1>
 
             <GraficoBarra />
@@ -114,7 +113,7 @@ export default function DashboardPage() {
               <h1>Itens críticos</h1>
             </div>
 
-            <div className="flex max-h-[300px] flex-col items-center overflow-y-auto">
+            <div className="flex max-h-75 flex-col items-center overflow-y-auto">
               <ItemCritico {...alerta1}></ItemCritico>
               <ItemCritico {...alerta2}></ItemCritico>
               <ItemCritico {...alerta3}></ItemCritico>
@@ -134,7 +133,7 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="flex max-h-[300px] flex-col items-center overflow-y-auto">
+            <div className="flex max-h-75 flex-col items-center overflow-y-auto">
               <Notificacao {...notificacao1}></Notificacao>
               <Notificacao {...notificacao2}></Notificacao>
               <Notificacao {...notificacao3}></Notificacao>

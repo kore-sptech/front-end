@@ -1,7 +1,5 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 
-import AgendamentosPage from "./pages/AgendamentosPage";
-import DashboardFinanceiraPage from "./pages/DashboardFinanceiraPage";
 import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -46,7 +44,7 @@ const router = createBrowserRouter([
         element: <AgendamentosPage />,
       },
       {
-        path: "/produtos", // vitor
+        path: "/produtos", // vitor & mira
         element: <ProdutoPage />,
       },
       {

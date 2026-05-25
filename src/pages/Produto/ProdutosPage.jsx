@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { data, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import CadastroProdutoPage from "./CadastroProdutoPage";
-import SideBar from "../../components/SideBar";
+import Sidebar from "../../components/Sidebar";
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
 
@@ -83,9 +83,9 @@ export default function ProdutoPage() {
     }, [pesquisa, produtos]);
 
     return (
-        <main className="h-screen w-full flex bg-[#021134] overflow-x-hidden">
-            <SideBar />
-            <section className="flex-grow h-full overflow-auto">
+        <main className="h-screen w-full flex bg-[#000C24] overflow-x-hidden">
+            <Sidebar />
+            <section className="grow h-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
                     <h1 className="text-3xl font-bold">INVENTÁRIO</h1>
                     <SearchBar

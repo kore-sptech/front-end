@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { data, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import AsideBar from "../../components/AsideBar";
+import Sidebar from "../../components/Sidebar";
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
 import {
@@ -106,8 +106,8 @@ export default function CadastroProdutoPage() {
 
     return (
         <main className="h-screen w-full flex bg-[#000C24] overflow-hidden">
-            <AsideBar></AsideBar>
-            <section className="flex-grow h-full overflow-auto">
+            <Sidebar></Sidebar>
+            <section className="grow h-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
                     <div className="breadcrumbs text-sm">
                         <ul>
@@ -121,7 +121,7 @@ export default function CadastroProdutoPage() {
                 </div>
                 <div className="p-6 flex w-full justify-between items-end gap-8">
 
-                    <fieldset className="fieldset bg-[#0A1A3D] border-base-300 rounded-box flex-grow max-w-2xl border p-6">
+                    <fieldset className="fieldset bg-[#0A1A3D] border-base-300 rounded-box grow max-w-2xl border p-6">
                         <label className="label">
                             <span>NOME DO PRODUTO</span>
                             <span className="label-text-alt text-gray-400">{nome.length}/45 (mín. 3)</span>
@@ -169,7 +169,7 @@ export default function CadastroProdutoPage() {
 
 
                     </fieldset>
-                    <fieldset className="fieldset bg-[#0A1A3D] border-base-300 rounded-box flex-grow max-w-2xl border p-6">
+                    <fieldset className="fieldset bg-[#0A1A3D] border-base-300 rounded-box grow max-w-2xl border p-6">
                         <div className="flex flex-col gap-4">
                             <div>
                                 <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
@@ -208,14 +208,14 @@ export default function CadastroProdutoPage() {
                             </div>
                             <button
                                 onClick={cadastrar}
-                                className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/30 cursor-pointer transition-transform hover:scale-105 active:scale-95 min-w-[220px]"
+                                className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/30 cursor-pointer transition-transform hover:scale-105 active:scale-95 min-w-55"
                             >
                                 + Registrar
                             </button>
 
                             <button
                                 onClick={() => navigate("/produtos")}
-                                className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-transparent text-gray-400 border border-gray-600 rounded-xl cursor-pointer hover:bg-gray-800 transition-all min-w-[220px]"
+                                className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-transparent text-gray-400 border border-gray-600 rounded-xl cursor-pointer hover:bg-gray-800 transition-all min-w-55"
                             >
                                 Cancelar
                             </button>

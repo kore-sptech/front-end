@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import AsideBar from "../../components/AsideBar";
+import Sidebar from "../../components/Sidebar";
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
 import {
@@ -19,8 +19,8 @@ export default function AdicionarEstoquePage() {
     const [valor, setValor] = useState('');
     return (
         <main className="h-screen w-full flex bg-[#000C24] overflow-hidden">
-            <AsideBar></AsideBar>
-            <section className="flex-grow h-full overflow-auto">
+            <Sidebar></Sidebar>
+            <section className="grow h-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
                     <div className="breadcrumbs text-sm">
                         <ul>
@@ -35,7 +35,7 @@ export default function AdicionarEstoquePage() {
                 </div>
                 <div className="p-6 flex w-full justify-between items-end gap-8">
 
-                    <fieldset className="fieldset bg-[#0A1A3D] border-base-300 rounded-box flex-grow max-w-2xl border p-6">
+                    <fieldset className="fieldset bg-[#0A1A3D] border-base-300 rounded-box grow max-w-2xl border p-6">
                         <div className="flex flex-col md:flex-row gap-4 mb-4">
                             <div className={`flex-1 transition-opacity`}>
                                 <label className="label text-xs font-bold opacity-70">QUANTIDADE</label>

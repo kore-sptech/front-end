@@ -18,7 +18,7 @@ export default function Sidebar() {
     { path: "/agendamentos", name: "Agendamentos", icon: <Clock /> },
     { path: "/dashboard-financeiro", name: "Financeiro", icon: <PiggyBank /> },
     { path: "/transacoes", name: "Transações", icon: <ArrowLeftRight /> },
-    { path: "/estoque", name: "Estoque", icon: <Package /> },
+    { path: "/produtos", name: "Produtos", icon: <Package /> },
     { path: "/notificacoes", name: "Notificações", icon: <Bell /> },
   ];
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import AsideBar from "../../components/AsideBar";
+import Sidebar from "../../components/Sidebar";
 import SearchBar from "../../components/SearchBar";
 export default function EstoquePage() {
     const location = useLocation();
@@ -26,8 +26,8 @@ export default function EstoquePage() {
         , [id])
     return (
         <main className="h-screen w-full flex bg-[#000C24] overflow-hidden">
-            <AsideBar></AsideBar>
-            <section className="flex-grow h-full overflow-auto">
+            <Sidebar></Sidebar>
+            <section className="grow h-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
                     <h1 className="text-4xl font-bold">INVENTÁRIO</h1>
                     <SearchBar

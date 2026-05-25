@@ -3,7 +3,7 @@
 @import "tailwindcss";
 /* @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap"); */
 
-@plugin "daisyui/index.js"
+@plugin "daisyui/index.js";
 
 ::-webkit-scrollbar {
   width: 7px;
