@@ -77,11 +77,11 @@ export default function DashboardFinanceiraPage() {
             <div className="grid grid-cols-2 gap-4 mt-10">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Faturamento Bruto</p>
-                <p className="text-2xl font-bold">R$ 5.420,00</p>
+                <p className="text-2xl font-bold">R$ 5.420,00</p> {/* TODO: aguardando backend */}
               </div>
               <div>
                 <p className="text-xs text-gray-400 uppercase">Previsão Próximo Mês</p>
-                <p className="text-2xl font-bold text-gray-300">R$ 6.100,00</p>
+                <p className="text-2xl font-bold text-gray-300">R$ 6.100,00</p> {/* TODO: aguardando backend */}
               </div>
             </div>
           </div>
@@ -149,7 +149,24 @@ export default function DashboardFinanceiraPage() {
               <h3 className="text-xl font-bold">Transações recentes</h3>
               <button className="text-cyan-400 text-sm hover:underline">Ver tudo</button>
             </div>
-            <p className="text-gray-500 italic">Lista de transações aparecerá aqui...</p>
+            {transacoes.length === 0 ? (
+  <p className="text-gray-500 italic">Nenhuma transação encontrada.</p>
+) : (
+  <ul className="space-y-3">
+    {transacoes.map((t) => (
+      <li key={t.id} className="flex items-center justify-between py-3 border-b border-gray-800">
+        <div>
+          <p className="font-semibold text-sm">{t.nome}</p>
+          <p className="text-xs text-gray-500">{t.categoria}</p>
+        </div>
+        <span className={`font-bold text-sm ${t.tipo === "ENTRADA" ? "text-cyan-400" : "text-red-400"}`}>
+          {t.tipo === "ENTRADA" ? "+ " : "- "}
+          {t.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+        </span>
+      </li>
+    ))}
+  </ul>
+)}
           </div>
 
         </div>
