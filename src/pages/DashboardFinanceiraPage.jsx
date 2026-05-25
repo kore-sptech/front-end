@@ -6,37 +6,45 @@ import { api } from "../utils/api";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
-const dataPizza = [
-  { name: "Materiais", value: 65, color: "#22d3ee" },
-  { name: "Insumos", value: 25, color: "#334155" },
-  { name: "Outros", value: 10, color: "#1e293b" },
-];
+const CORES_CATEGORIA = {
+  MATERIAS: "#22d3ee",
+  INSUMOS: "#334155",
+  OUTROS: "#1e293b",
+};
 
 export default function DashboardFinanceiraPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [metricas, setMetricas] = useState(null);
   const [transacoes, setTransacoes] = useState([]);
 
+  const dataPizza = metricas
+  ? metricas.gastosPorCategoria.map((item) => ({
+      name: item.categoria,
+      value: item.percentual,
+      color: CORES_CATEGORIA[item.categoria] ?? "#555",
+    }))
+  : [];
+
   const fetchMetricas = () => {
-  api.get("/transacoes/metricas", {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-  })
-  .then(res => setMetricas(res.data))
-  .catch(() => toast.error("Erro ao carregar métricas"));
-};
+    api.get("/transacoes/metricas", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    })
+      .then(res => setMetricas(res.data))
+      .catch(() => toast.error("Erro ao carregar métricas"));
+  };
 
-const fetchTransacoes = () => {
-  api.get("/transacoes", {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-  })
-  .then(res => setTransacoes(res.data.content)) // ← Page<T> do Spring retorna .content
-  .catch(() => toast.error("Erro ao carregar transações"));
-};
+  const fetchTransacoes = () => {
+    api.get("/transacoes", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    })
+      .then(res => setTransacoes(res.data.content)) // ← Page<T> do Spring retorna .content
+      .catch(() => toast.error("Erro ao carregar transações"));
+  };
 
-useEffect(() => {
-  fetchMetricas();
-  fetchTransacoes();
-}, []);
+  useEffect(() => {
+    fetchMetricas();
+    fetchTransacoes();
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-[#000C24] text-white">
@@ -59,7 +67,9 @@ useEffect(() => {
           <div className="col-span-8 bg-[#061639] p-8 rounded-2xl border border-gray-800 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-cyan-400"></div>
             <p className="text-gray-400 uppercase text-sm font-semibold mb-2">Saldo do Mês</p>
-            <h2 className="text-6xl font-bold mb-4">R$ 2.100,00</h2>
+            <h2 className="text-6xl font-bold mb-4">
+              {metricas ? metricas.saldoAtual.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}
+            </h2>
             <p className="text-cyan-400 flex items-center gap-2 text-sm">
               <TrendingUp size={16} /> +12% em relação ao mês anterior
             </p>
@@ -81,7 +91,9 @@ useEffect(() => {
             <div className="bg-[#061639] p-6 rounded-2xl border border-gray-800 flex items-center justify-between">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Entradas</p>
-                <p className="text-2xl font-bold">R$ 3.000,00</p>
+                <p className="text-2xl font-bold">
+                  {metricas ? metricas.totalEntradas.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}
+                </p>
               </div>
               <div className="bg-cyan-500/10 p-3 rounded-full text-cyan-400"><TrendingUp /></div>
             </div>
@@ -89,7 +101,9 @@ useEffect(() => {
             <div className="bg-[#061639] p-6 rounded-2xl border border-gray-800 flex items-center justify-between">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Saídas</p>
-                <p className="text-2xl font-bold text-red-400 text-opacity-80">R$ 900,00</p>
+                <p className="text-2xl font-bold text-red-400 text-opacity-80">
+                  {metricas ? metricas.totalSaidas.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}
+                </p>
               </div>
             </div>
           </div>
