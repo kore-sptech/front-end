@@ -5,6 +5,7 @@ import {
   ListFilter,
   Plus,
   Search,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -28,10 +29,35 @@ export default function TransacoesPage() {
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const page = searchParams.get("page") || 0;
 
-  if (searchParams.get("page") == null) {
-    setSearchParams({ ...searchParams, page: 0 });
-  }
+  useEffect(() => {
+    if (searchParams.get("page") == null) {
+      setSearchParams({ page: 0 });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const [metricas, setMetricas] = useState({
+    saldoAtual: 0,
+    totalEntradas: 0,
+    totalSaidas: 0,
+  });
+
+  const obterMetricas = useCallback(() => {
+    api
+      .get("/transacoes/metricas", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((response) => {
+        const { data } = response;
+
+        setMetricas({
+          ...data,
+        });
+      });
+  }, []);
 
   const obterTransacoes = useCallback(() => {
     // TODO: pequisar sobre compoertamento do use Callback
@@ -41,9 +67,8 @@ export default function TransacoesPage() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         params: {
-          page: searchParams.get("page") || 0,
+          page: page,
           tipo: filters.tipo,
-          nome: filters.nome,
           dataCriacao: filters.dataCriacao,
           sort: filters.sort,
         },
@@ -53,11 +78,27 @@ export default function TransacoesPage() {
         console.log(data);
         setTransacoes(data);
       });
-  }, [searchParams, filters]);
+  }, [page, filters]);
 
   useEffect(() => {
+    obterMetricas();
     obterTransacoes();
-  }, [obterTransacoes]);
+  }, [obterMetricas, obterTransacoes]);
+
+  const limparFiltros = () => {
+    setFilters({
+      tipo: "",
+      nome: "",
+      dataCriacao: "",
+      sort: "id,DESC",
+    });
+  };
+
+  const algumFiltroSelecionado =
+    filters.nome != "" ||
+    filters.dataCriacao != "" ||
+    filters.tipo != "" ||
+    filters.sort != "id,DESC";
 
   return (
     <div className="flex min-h-screen bg-[#000C24] text-white">
@@ -80,7 +121,7 @@ export default function TransacoesPage() {
           </button>
         </header>
         {/* KPIs */}
-        <KpiTransacoes />
+        <KpiTransacoes metricas={metricas} />
         {/* Filtros */}
         <div className="mb-8 flex gap-4">
           <div className="flex rounded-lg border border-gray-800 bg-[#061639] p-1">
@@ -117,6 +158,10 @@ export default function TransacoesPage() {
             <input
               type="text"
               placeholder="Nome, descrição ou categoria..."
+              value={filters.nome}
+              onChange={(ev) => {
+                setFilters((prev) => ({ ...prev, nome: ev.target.value }));
+              }}
               className="w-full rounded-lg border border-gray-800 bg-[#061639] py-3 pr-4 pl-12 focus:border-cyan-400 focus:outline-none"
             />
           </div>
@@ -139,15 +184,40 @@ export default function TransacoesPage() {
           >
             <Download size={20} />
           </button>
+
+          <button
+            className="rounded-lg border border-gray-800 bg-[#061639] p-3 text-gray-400 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={limparFiltros}
+            disabled={!algumFiltroSelecionado}
+          >
+            <X size={20} />
+          </button>
         </div>
         {/* Tabela de Transações */}
-        <TableTransacoes
-          transacoes={transacoes}
-          itemPorPagina={transacoes.numberOfElements}
-          totalPaginas={transacoes.totalPages}
-          totalElementos={transacoes.totalElements}
-          obterTransacoes={obterTransacoes}
-        />
+
+        {transacoes.content?.length != 0 && (
+          <TableTransacoes
+            transacoes={transacoes}
+            itemPorPagina={transacoes.numberOfElements}
+            totalPaginas={transacoes.totalPages}
+            totalElementos={transacoes.totalElements}
+            obterTransacoes={obterTransacoes}
+            obterMetricas={obterMetricas}
+          />
+        )}
+
+        {transacoes.content?.length == 0 && (
+          <div className="mt-44 flex flex-col items-center justify-center text-center text-gray-400">
+            <h1 className="text-4xl font-semibold text-[#DAE2FF]">
+              NENHUM ITEM NO INVENTÁRIO
+            </h1>
+
+            <h2 className="text-2xl font-light text-[#DAE2FF]">
+              Resgitre seus itens,{" "}
+              <span className="text-[#23CBEA] underline">clicando aqui</span>
+            </h2>
+          </div>
+        )}
       </main>
       <ModalNovaTransacao
         isOpen={isModalOpen}

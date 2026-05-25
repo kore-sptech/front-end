@@ -20,6 +20,7 @@ export function TableTransacoes({
   itemPorPagina,
   totalElementos,
   obterTransacoes,
+  obterMetricas,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -57,6 +58,7 @@ export function TableTransacoes({
                 key={item.id}
                 item={item}
                 obterTransacoes={obterTransacoes}
+                obterMetricas={obterMetricas}
               />
             ))}
           </tbody>
@@ -101,7 +103,7 @@ export function TableTransacoes({
   );
 }
 
-function TransacaoRow({ item, obterTransacoes }) {
+function TransacaoRow({ item, obterTransacoes, obterMetricas }) {
   console.log(item);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -118,6 +120,7 @@ function TransacaoRow({ item, obterTransacoes }) {
         setIsLoading(false);
         toast.success("Transação excluída com sucesso!");
         obterTransacoes();
+        obterMetricas();
       })
       .catch(() => {
         toast.error("Erro ao excluir transação!");
@@ -200,14 +203,39 @@ function TransacaoRow({ item, obterTransacoes }) {
 
       <dialog id={`my_modal_${item.id}`} className="modal">
         <div className="modal-box bg-[#0A1F4B]">
-          <h3 className="text-lg font-bold">Hello!</h3>
-          <p className="py-4">
-            Press ESC key or click the button below to close
+          <h2 className="text-lg font-bold">Excluir Transação</h2>
+          <p className="py-4 text-sm font-light">
+            Tem certeza de que deseja excluir este produto do inventario ?
+            <br />
+            <br />
+            <span className="text-[#48DCFC]">Atenção:</span> Essa ação é
+            permanente e não pode ser desfeita.
           </p>
           <div className="modal-action">
-            <form method="dialog">
+            <form method="dialog ">
               {/* if there is a button in form, it will close the modal */}
-              <button className="btn">Close</button>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    document.getElementById(`my_modal_${item.id}`).close();
+                  }}
+                  className="flex cursor-pointer gap-2 rounded-xl border border-[#48DCFC] px-6 py-2.5 font-normal text-[#48DCFC]"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-normal text-[#003640] opacity-65 shadow-xl transition-all hover:opacity-100 hover:shadow-cyan-500/20"
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    deletarTransacao(item.id);
+                  }}
+                >
+                  Excluir
+                </button>
+              </div>
             </form>
           </div>
         </div>

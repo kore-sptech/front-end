@@ -118,7 +118,7 @@ function PageHeader({ onOpenModal }) {
     <div className="flex w-full justify-between p-6">
       <h1 className="text-4xl font-bold">AGENDAMENTO</h1>
       <button
-        cl  assName="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
+        className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
         onClick={onOpenModal}
       >
         <CalendarPlus />

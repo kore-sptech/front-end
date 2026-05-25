@@ -1,35 +1,6 @@
-import { useEffect, useState } from "react";
-
-import { api } from "../utils/api";
 import { formatCurrecy } from "../utils/formmaters";
 
-export function KpiTransacoes() {
-  const [metricas, setMetricas] = useState({
-    saldoAtual: 0,
-    totalEntradas: 0,
-    totalSaidas: 0,
-  });
-
-  const obterMetricas = () => {
-    api
-      .get("/transacoes/metricas", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((response) => {
-        const { data } = response;
-
-        setMetricas({
-          ...data,
-        });
-      });
-  };
-
-  useEffect(() => {
-    obterMetricas();
-  }, []);
-
+export function KpiTransacoes({ metricas }) {
   return (
     <>
       <div className="mb-10 grid grid-cols-3 gap-6">
