@@ -4,13 +4,13 @@ export default function CardProduto(props) {
     const navigate = useNavigate();
 
     return (
-        <div className="card h-65 rounded-2xl bg-[#0A1A3D] w-96 shadow-sm "
+        <div className="card h-70 rounded-2xl bg-[#0A1A3D] w-55 shadow-sm "
             onClick={() => navigate(`/estoque/${props.id}`)}>
             <figure className="px-10 pt-10">
                 <img
                     src="https://tattoounleashed.com/cdn/shop/articles/the-pros-and-cons-of-different-tattoo-machines-198448.jpg?v=1715856207"
                     alt="Shoes"
-                    className="rounded-xl" />
+                    className="rounded-xl h-25" />
             </figure>
             <div className="card-body h-auto flex-col justify-between items-center text-center">
                 <h2 className="card-title">{props.nome}</h2>

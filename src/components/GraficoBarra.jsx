@@ -27,7 +27,16 @@ export default function Grafico() {
             tick={{ fill: "#FFFFFF", fontSize: 12 }}
           />
           <YAxis axisLine={false} tick={{ fill: "#FFFFFF", fontSize: 12 }} />
-          <Tooltip />
+          <Tooltip cursor={false} /* Mantém a barra sem aquele foco cinza/branco no fundo */
+                  contentStyle={{ 
+                    backgroundColor: "#48DCFC80",
+                    border: "none",
+                    boxShadow: "none",
+                    borderRadius: "10px"
+                  }}
+                  itemStyle={{ color: "#FFFFFF", fontWeight: "bold" }} /* Cor do texto "Ganhos: 4000" */
+                    labelStyle={{ color: "#FFFFFF" }}
+  />
 
           {/* <Legend verticalAlign="top" align="right" iconType="circle" /> */}
 

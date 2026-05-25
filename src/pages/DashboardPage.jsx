@@ -83,12 +83,15 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen w-full overflow-x-hidden bg-[#000C24] text-[#DAE2FF]">
-      <Sidebar></Sidebar>
+    <main className="h-screen w-full flex bg-[#000C24] overflow-x-hidden">
+      <Sidebar />
+      <section className="grow h-full w-full overflow-auto">
+      <div className="p-6 flex w-full justify-between">
+        <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">DASHBOARD GERAL</h1>
+      </div>
 
       <div className="flex flex-1 flex-col">
-        {/* <Navbar></Navbar> */}
-        <div className="mt-10 grid h-30 w-full grid-cols-3 gap-5 px-5">
+        <div className="grid h-30 w-full grid-cols-3 gap-5 px-5">
           <Kpi {...kpi1}></Kpi>
 
           <Kpi {...kpi2}></Kpi>
@@ -142,6 +145,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      </section>
+
     </main>
   );
 }

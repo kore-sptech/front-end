@@ -1,6 +1,6 @@
 export default function SearchBar({value, onChange}){
     return(
-        <label className="input bg-[#0A1A3D] border-0 shadow-none rounded-2xl w-100 mr-40">
+        <label className="input bg-[#0A1A3D] border-0 shadow-none rounded-2xl w-90 mr-40 hover:duration-150">
             <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <g
                     strokeLinejoin="round"

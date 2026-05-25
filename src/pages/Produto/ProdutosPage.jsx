@@ -5,6 +5,7 @@ import CadastroProdutoPage from "./CadastroProdutoPage";
 import Sidebar from "../../components/Sidebar";
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
+import { Link } from "react-router-dom";
 
 export default function ProdutoPage() {
     const produtosMocados = [
@@ -65,6 +66,7 @@ export default function ProdutoPage() {
             })
     }, [])
     useEffect(() => {
+
         if (!pesquisa.trim()) {
             // Se pesquisa estiver vazia, mostra todos os produtos
             setProdutosFiltrados(produtos);
@@ -74,27 +76,22 @@ export default function ProdutoPage() {
                 produto.nome.toLowerCase().includes(pesquisa.toLowerCase())
             );
             setProdutosFiltrados(filtrados);
-
-            // Opcional: mostrar toast se nenhum resultado for encontrado
-            if (filtrados.length === 0) {
-                toast.info("Nenhum produto encontrado");
-            }
         }
     }, [pesquisa, produtos]);
 
     return (
         <main className="h-screen w-full flex bg-[#000C24] overflow-x-hidden">
             <Sidebar />
-            <section className="grow h-full overflow-auto">
+            <section className="grow h-full w-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
-                    <h1 className="text-3xl font-bold">INVENTÁRIO</h1>
+                    <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">INVENTÁRIO</h1>
                     <SearchBar
                         value={pesquisa}
                         onChange={setPesquisa}
                     ></SearchBar>
                     <button
                         onClick={() => navigate("cadastro")}
-                        className="flex gap-2 px-9 py-2.5 bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/20 cursor-pointer font-bold">
+                        className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 text-[#003640] shadow-xl shadow-cyan-500/20 font-bold">
                         + Registrar
                     </button>
                 </div>
@@ -103,17 +100,28 @@ export default function ProdutoPage() {
                     <button>Tintas e pinturas</button>
                     <button>Agulhas</button>
                 </div>
-                <div className="p-6 flex w-full h-full justify-between gap-4" id="produtos_listagem">
-                    {produtosFiltrados?.map((produto) => {
-                        return (
-                            <CardProduto
-                                key={produto.id}
-                                id={produto.id}
-                                nome={produto.nome}
-                                quantidade={produto.quantidade}
-                            />
-                        )
-                    })}
+                <div className="p-6 grid grid-cols-4 w-full h-full text-center justify-between" id="produtos_listagem">
+                    
+                    {produtosFiltrados.length == 0 && (
+                        <div className="w-100 text-center">
+                            <h1>NENHUM ITEM NO INVENTÁRIO PARA <span className="text-[#48DCFC] font-bold">{pesquisa}</span>!</h1>
+                            <p>Regriste seus produtos <Link className="underline text-[#48DCFC]">clicando aqui!</Link></p>
+                        </div> 
+                     ) }
+
+                    {produtosFiltrados.length != 0 && (
+                        produtosFiltrados.map((produto) => {
+                            return (
+                                <CardProduto
+                                    key={produto.id}
+                                    id={produto.id}
+                                    nome={produto.nome}
+                                    quantidade={produto.quantidade}
+                                />
+                            )
+                        })
+                    )}
+                     
                 </div>
             </section>
         </main>

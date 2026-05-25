@@ -24,7 +24,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <div className="flex h-screen w-64"></div>
+      <div className="flex h-screen w-64 shrink-0"></div>
 
       <aside className="fixed top-0 flex h-screen w-64 flex-col border-r border-gray-800 bg-[#061639] px-5 py-10 text-white">
         <h1 className="mb-10 flex flex-col justify-center text-center text-4xl font-normal">
