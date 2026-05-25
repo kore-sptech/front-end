@@ -1,9 +1,10 @@
 import Sidebar from "../components/Sidebar";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Plus, TrendingUp } from "lucide-react";
-import { useState } from "react";
 import ModalNovaTransacao from "../components/ModalNovaTransacao";
 import { api } from "../utils/api";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 const dataPizza = [
   { name: "Materiais", value: 65, color: "#22d3ee" },
@@ -13,30 +14,29 @@ const dataPizza = [
 
 export default function DashboardFinanceiraPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sessions, setSessions] = useState([]);
+  const [metricas, setMetricas] = useState(null);
+  const [transacoes, setTransacoes] = useState([]);
 
-   const url = `financeamentos?inicio=${primaryDay.date.toISOString()}&fim=${lastDay.date.toISOString()}`;
+  const fetchMetricas = () => {
+  api.get("/transacoes/metricas", {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  })
+  .then(res => setMetricas(res.data))
+  .catch(() => toast.error("Erro ao carregar métricas"));
+};
 
-  const fetchSessions = async () => {
+const fetchTransacoes = () => {
+  api.get("/transacoes", {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  })
+  .then(res => setTransacoes(res.data.content)) // ← Page<T> do Spring retorna .content
+  .catch(() => toast.error("Erro ao carregar transações"));
+};
 
-    api.get(url, {
-       headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((response) => {
-        setSessions(response.data);
-      })
-      .catch(() => {
-        toast.error("Erro ao carregar os financeamentos");
-      });
-  };
-
-
-    useEffect(() => {
-    fetchSessions();
-  }, [selectedDate]); // mudar o selectedDate para algo da tela financeira
-
+useEffect(() => {
+  fetchMetricas();
+  fetchTransacoes();
+}, []);
 
   return (
     <div className="flex min-h-screen bg-[#000C24] text-white">
@@ -68,7 +68,7 @@ export default function DashboardFinanceiraPage() {
               <div>
                 <p className="text-xs text-gray-400 uppercase">Faturamento Bruto</p>
                 <p className="text-2xl font-bold">R$ 5.420,00</p>
-              </div> 
+              </div>
               <div>
                 <p className="text-xs text-gray-400 uppercase">Previsão Próximo Mês</p>
                 <p className="text-2xl font-bold text-gray-300">R$ 6.100,00</p>
