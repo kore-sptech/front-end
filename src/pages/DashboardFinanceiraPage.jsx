@@ -18,12 +18,12 @@ export default function DashboardFinanceiraPage() {
   const [transacoes, setTransacoes] = useState([]);
 
   const dataPizza = metricas
-  ? metricas.gastosPorCategoria.map((item) => ({
+    ? metricas.gastosPorCategoria.map((item) => ({
       name: item.categoria,
       value: item.percentual,
       color: CORES_CATEGORIA[item.categoria] ?? "#555",
     }))
-  : [];
+    : [];
 
   const fetchMetricas = () => {
     api.get("/transacoes/metricas", {
@@ -150,28 +150,36 @@ export default function DashboardFinanceiraPage() {
               <button className="text-cyan-400 text-sm hover:underline">Ver tudo</button>
             </div>
             {transacoes.length === 0 ? (
-  <p className="text-gray-500 italic">Nenhuma transação encontrada.</p>
-) : (
-  <ul className="space-y-3">
-    {transacoes.map((t) => (
-      <li key={t.id} className="flex items-center justify-between py-3 border-b border-gray-800">
-        <div>
-          <p className="font-semibold text-sm">{t.nome}</p>
-          <p className="text-xs text-gray-500">{t.categoria}</p>
-        </div>
-        <span className={`font-bold text-sm ${t.tipo === "ENTRADA" ? "text-cyan-400" : "text-red-400"}`}>
-          {t.tipo === "ENTRADA" ? "+ " : "- "}
-          {t.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-        </span>
-      </li>
-    ))}
-  </ul>
-)}
+              <p className="text-gray-500 italic">Nenhuma transação encontrada.</p>
+            ) : (
+              <ul className="space-y-3">
+                {transacoes.map((t) => (
+                  <li key={t.id} className="flex items-center justify-between py-3 border-b border-gray-800">
+                    <div>
+                      <p className="font-semibold text-sm">{t.nome}</p>
+                      <p className="text-xs text-gray-500">{t.categoria}</p>
+                    </div>
+                    <span className={`font-bold text-sm ${t.tipo === "ENTRADA" ? "text-cyan-400" : "text-red-400"}`}>
+                      {t.tipo === "ENTRADA" ? "+ " : "- "}
+                      {t.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
         </div>
       </main>
-      <ModalNovaTransacao isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <ModalNovaTransacao
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          fetchMetricas();
+          fetchTransacoes();
+        }}
+      />
+
     </div>
   );
 }

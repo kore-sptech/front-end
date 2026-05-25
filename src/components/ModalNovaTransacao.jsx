@@ -1,19 +1,39 @@
 import { X } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
+import { api } from "../utils/api";
 
 export default function ModalNovaTransacao({ isOpen, onClose }) {
-  if (!isOpen) return null; 
+  const [nome, setNome] = useState("");
+  const [valor, setValor] = useState("");
+  const [tipo, setTipo] = useState("ENTRADA");
+  const [categoria, setCategoria] = useState("INSUMOS");
+  if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = (e) => {
+  e.preventDefault();
+
+  api.post("/transacoes", {
+    nome,
+    valor: parseFloat(valor),
+    tipo,
+    categoria,
+  }, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  })
+  .then(() => {
     toast.success("Transação adicionada com sucesso!");
     onClose();
-  };
+  })
+  .catch(() => {
+    toast.error("Erro ao adicionar transação");
+  });
+};
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
       <div className="bg-[#061639] border border-gray-800 w-full max-w-md rounded-2xl p-8 shadow-2xl relative">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
         >
@@ -25,8 +45,10 @@ export default function ModalNovaTransacao({ isOpen, onClose }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs uppercase text-gray-400 font-bold mb-1 block">Descrição</label>
-            <input 
-              type="text" 
+            <input
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              type="text"
               placeholder="Ex: Tatuagem Realista"
               className="w-full bg-[#000C24] border border-gray-800 rounded-lg py-3 px-4 focus:outline-none focus:border-cyan-400 text-sm"
               required
@@ -36,8 +58,10 @@ export default function ModalNovaTransacao({ isOpen, onClose }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs uppercase text-gray-400 font-bold mb-1 block">Valor (R$)</label>
-              <input 
-                type="number" 
+              <input
+                value={valor}
+                onChange={(e) => setValor(e.target.value)}
+                type="number"
                 step="0.01"
                 placeholder="0,00"
                 className="w-full bg-[#000C24] border border-gray-800 rounded-lg py-3 px-4 focus:outline-none focus:border-cyan-400 text-sm text-white"
@@ -46,7 +70,11 @@ export default function ModalNovaTransacao({ isOpen, onClose }) {
             </div>
             <div>
               <label className="text-xs uppercase text-gray-400 font-bold mb-1 block">Tipo</label>
-              <select className="w-full bg-[#000C24] border border-gray-800 rounded-lg py-3 px-4 focus:outline-none focus:border-cyan-400 text-sm text-gray-300">
+              <select
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value)}
+                className="w-full bg-[#000C24] border border-gray-800 rounded-lg py-3 px-4 focus:outline-none focus:border-cyan-400 text-sm text-gray-300"
+              >
                 <option value="ENTRADA">Entrada</option>
                 <option value="SAIDA">Saída</option>
               </select>
@@ -55,14 +83,18 @@ export default function ModalNovaTransacao({ isOpen, onClose }) {
 
           <div>
             <label className="text-xs uppercase text-gray-400 font-bold mb-1 block">Categoria</label>
-            <input 
-              type="text" 
-              placeholder="Ex: Serviço / Tatuagem"
-              className="w-full bg-[#000C24] border border-gray-800 rounded-lg py-3 px-4 focus:outline-none focus:border-cyan-400 text-sm"
-            />
+            <select
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value)}
+              className="w-full bg-[#000C24] border border-gray-800 rounded-lg py-3 px-4 focus:outline-none focus:border-cyan-400 text-sm text-gray-300"
+            >
+              <option value="INSUMOS">Insumos</option>
+              <option value="MATERIAS">Materiais</option>
+              <option value="OUTROS">Outros</option>
+            </select>
           </div>
 
-          <button 
+          <button
             type="submit"
             className="w-full bg-cyan-400 text-black font-bold py-4 rounded-lg mt-4 hover:bg-cyan-300 transition-all uppercase text-sm tracking-widest shadow-lg shadow-cyan-400/10"
           >
