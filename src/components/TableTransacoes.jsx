@@ -9,13 +9,17 @@ import {
 } from "lucide-react";
 import { formatCurrecy, formatDate } from "../utils/formmaters";
 
+import { api } from "../utils/api";
+import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
+import { useState } from "react";
 
 export function TableTransacoes({
   transacoes,
   totalPaginas,
   itemPorPagina,
   totalElementos,
+  obterTransacoes,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -49,7 +53,11 @@ export function TableTransacoes({
           </thead>
           <tbody className="divide-y divide-gray-800/50">
             {transacoes?.content?.map((item) => (
-              <TransacaoRow key={item.id} item={item} />
+              <TransacaoRow
+                key={item.id}
+                item={item}
+                obterTransacoes={obterTransacoes}
+              />
             ))}
           </tbody>
         </table>
@@ -93,8 +101,29 @@ export function TableTransacoes({
   );
 }
 
-function TransacaoRow({ item }) {
+function TransacaoRow({ item, obterTransacoes }) {
   console.log(item);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const deletarTransacao = (id) => {
+    setIsLoading(true);
+    api
+      .delete(`/transacoes/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(() => {
+        setIsLoading(false);
+        toast.success("Transação excluída com sucesso!");
+        obterTransacoes();
+      })
+      .catch(() => {
+        toast.error("Erro ao excluir transação!");
+      });
+  };
+
   return (
     <>
       <tr key={item.id} className="group transition-colors hover:bg-white/5">
@@ -143,8 +172,18 @@ function TransacaoRow({ item }) {
               className="dropdown-content menu rounded-box z-1 w-32 bg-[#061639] p-2 text-gray-500 shadow-sm"
             >
               <li>
-                <button className="flex gap-1 hover:bg-red-400/20 hover:text-red-400">
-                  <Trash />
+                <button
+                  className="flex gap-1 hover:bg-red-400/20 hover:text-red-400"
+                  onClick={() =>
+                    document.getElementById(`my_modal_${item.id}`).showModal()
+                  }
+                >
+                  {isLoading && (
+                    <span className="loading loading-spinner"></span>
+                  )}
+
+                  {!isLoading && <Trash />}
+
                   <span>Excluir</span>
                 </button>
               </li>
@@ -158,6 +197,21 @@ function TransacaoRow({ item }) {
           </div>
         </td>
       </tr>
+
+      <dialog id={`my_modal_${item.id}`} className="modal">
+        <div className="modal-box bg-[#0A1F4B]">
+          <h3 className="text-lg font-bold">Hello!</h3>
+          <p className="py-4">
+            Press ESC key or click the button below to close
+          </p>
+          <div className="modal-action">
+            <form method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <button className="btn">Close</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </>
   );
 }

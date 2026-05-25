@@ -35,7 +35,11 @@ export default function ModalNovaTransacao({
 
   if (!isOpen) return null;
 
-  const enabledForm = form.nome !== "" && valorFloat > 0 && form.tipo !== "";
+  const enabledForm =
+    form.nome !== "" &&
+    form.nome.length > 3 &&
+    valorFloat > 0 &&
+    form.tipo !== "";
 
   function handleValorChange(e) {
     const apenasDigitos = e.target.value.replace(/\D/g, "");
@@ -46,6 +50,16 @@ export default function ModalNovaTransacao({
     setValorDisplay("R$ " + formatado);
     setValorFloat(limpo);
   }
+
+  const cleanForm = () => {
+    setForm({
+      nome: "",
+      tipo: "ENTRADA",
+      categoria: "MATERIAS",
+    });
+    setValorDisplay("");
+    setValorFloat(0);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -69,6 +83,7 @@ export default function ModalNovaTransacao({
       .then(() => {
         toast.success("Transação adicionada com sucesso!");
         obterTransacoes();
+        cleanForm();
         onClose();
       })
       .catch(() => {

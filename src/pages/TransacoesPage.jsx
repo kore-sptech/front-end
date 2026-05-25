@@ -24,12 +24,13 @@ export default function TransacoesPage() {
     tipo: "",
     nome: "",
     dataCriacao: "",
+    sort: "id,DESC",
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
 
   if (searchParams.get("page") == null) {
-    setSearchParams({ ...searchParams, page: 1 });
+    setSearchParams({ ...searchParams, page: 0 });
   }
 
   const obterTransacoes = useCallback(() => {
@@ -41,6 +42,10 @@ export default function TransacoesPage() {
         },
         params: {
           page: searchParams.get("page") || 0,
+          tipo: filters.tipo,
+          nome: filters.nome,
+          dataCriacao: filters.dataCriacao,
+          sort: filters.sort,
         },
       })
       .then((response) => {
@@ -48,7 +53,7 @@ export default function TransacoesPage() {
         console.log(data);
         setTransacoes(data);
       });
-  }, [searchParams]);
+  }, [searchParams, filters]);
 
   useEffect(() => {
     obterTransacoes();
@@ -68,8 +73,8 @@ export default function TransacoesPage() {
           </div>
 
           <button
+            className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
             onClick={() => setIsModalOpen(true)}
-            className="flex cursor-pointer items-center gap-2 rounded-full bg-cyan-400 px-6 py-2 font-bold text-black transition-all hover:bg-cyan-300"
           >
             <Plus size={20} /> Nova Transação
           </button>
@@ -117,11 +122,15 @@ export default function TransacoesPage() {
           </div>
 
           <div className="flex rounded-lg border border-gray-800 bg-[#061639] p-1 focus:border-cyan-400 selection:focus:border-cyan-400">
-            <select className="select w-44 cursor-pointer rounded-lg border border-none border-gray-800 bg-[#061639] p-3 text-gray-400 shadow-none outline-none hover:text-white focus:border-cyan-400">
-              <option>Mais Recentes</option>
-              <option>Mais Antigos</option>
-              <option>Do Maior ao Menor</option>
-              <option>Do Menor ao Maior</option>
+            <select
+              className="select w-44 cursor-pointer rounded-lg border border-none border-gray-800 bg-[#061639] p-3 text-gray-400 shadow-none outline-none hover:text-white focus:border-cyan-400"
+              value={filters.sort}
+              onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
+            >
+              <option value={"id,DESC"}>Mais Recentes</option>
+              <option value={"id,ASC"}>Mais Antigos</option>
+              <option value={"valor,DESC"}>Do Maior ao Menor</option>
+              <option value={"valor,ASC"}>Do Menor ao Maior</option>
             </select>
           </div>
           <button
@@ -137,6 +146,7 @@ export default function TransacoesPage() {
           itemPorPagina={transacoes.numberOfElements}
           totalPaginas={transacoes.totalPages}
           totalElementos={transacoes.totalElements}
+          obterTransacoes={obterTransacoes}
         />
       </main>
       <ModalNovaTransacao
