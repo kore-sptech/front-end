@@ -1,6 +1,7 @@
+import { Link, useNavigate } from "react-router-dom";
+
 import { Logo } from "../components/Logo";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export default function LoginPage() {
@@ -60,10 +61,18 @@ export default function LoginPage() {
           navigate("/dashboard");
         } else {
           toast.error("Email ou senha incorretos.");
+          setErrorMessage((prev) => ({
+            ...prev,
+            email: "Email ou senha incorretos.",
+          }));
         }
       })
       .catch(() => {
         toast.error("Email ou senha incorretos.");
+        setErrorMessage((prev) => ({
+          ...prev,
+          email: "Email ou senha incorretos.",
+        }));
       });
   };
 
@@ -159,9 +168,9 @@ export default function LoginPage() {
             {/* Footer */}
             <p className="mt-6 text-center text-sm text-gray-400">
               Não tem conta?{" "}
-              <a href="/signup" className="text-cyan-400">
+              <Link to="/signup" className="text-cyan-400">
                 Cadastre-se
-              </a>
+              </Link>
             </p>
           </div>
         </div>
