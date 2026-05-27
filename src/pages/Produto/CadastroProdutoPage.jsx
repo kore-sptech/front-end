@@ -5,12 +5,12 @@ import Sidebar from "../../components/Sidebar";
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
 import {
-  AlertCircle,
-  ArrowRight,
-  ImageOff,
-  Phone,
-  Plus,
-  X,
+    AlertCircle,
+    ArrowRight,
+    ImageOff,
+    Phone,
+    Plus,
+    X,
 } from "lucide-react";
 
 
@@ -38,7 +38,11 @@ export default function CadastroProdutoPage() {
                 formData.append("foto", file);
 
                 // Faz o upload para o servidor
-                const { data } = await api.postForm("/fotos", formData);
+                const { data } = await api.postForm("/fotos", formData, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
                 const { id } = data;
 
                 // Gera o preview local para o usuário ver na hora
@@ -92,6 +96,7 @@ export default function CadastroProdutoPage() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
             },
             body: JSON.stringify(produto)
         })
