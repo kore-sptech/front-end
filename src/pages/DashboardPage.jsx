@@ -83,8 +83,35 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="h-screen w-full flex bg-[#000C24] overflow-x-hidden">
+    <main className="h-auto w-full flex bg-[#000C24] overflow-x-hidden">
       <Sidebar />
+
+      <svg className="right-0 top-0 absolute pointer-events-none" width="745" height="721" viewBox="0 0 745 721" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_f_460_506)">
+                    <rect x="120" y="68" width="532" height="533" rx="266" fill="#48DCFC" fill-opacity="0.05" />
+                </g>
+                <defs>
+                    <filter id="filter0_f_460_506" x="0" y="-52" width="772" height="773" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feGaussianBlur stdDeviation="60" result="effect1_foregroundBlur_460_506" />
+                    </filter>
+                </defs>
+            </svg>
+
+            <svg className="bottom-5 left-0 absolute pointer-events-none" width="745" height="721" viewBox="0 0 745 721" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_f_460_506)">
+                    <rect x="120" y="68" width="532" height="533" rx="266" fill="#48DCFC" fill-opacity="0.05" />
+                </g>
+                <defs>
+                    <filter id="filter0_f_460_506" x="0" y="-52" width="772" height="773" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feGaussianBlur stdDeviation="60" result="effect1_foregroundBlur_460_506" />
+                    </filter>
+                </defs>
+            </svg>
+
       <section className="grow h-full w-full overflow-auto">
       <div className="p-6 flex w-full justify-between">
         <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">DASHBOARD GERAL</h1>
