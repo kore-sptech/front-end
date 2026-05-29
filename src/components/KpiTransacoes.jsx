@@ -12,7 +12,10 @@ export function KpiTransacoes({ metricas }) {
             {formatCurrecy(metricas.totalEntradas)}
           </h2>
           <p className="mt-2 text-xs text-gray-500">
-            +12.4% em relação ao mês passado
+            {metricas.mesPassado.variacaoReceita > 0
+              ? `+${metricas.mesPassado.variacaoReceita.toFixed(2)}%`
+              : `${metricas.mesPassado.variacaoReceita.toFixed(2)}%`}{" "}
+            em relação ao mês passado
           </p>
         </div>
         <div className="rounded-2xl border border-gray-800 bg-[#061639] p-6">
@@ -23,7 +26,10 @@ export function KpiTransacoes({ metricas }) {
             {formatCurrecy(metricas.totalSaidas)}
           </h2>
           <p className="mt-2 text-xs text-gray-500">
-            -4.2% em relação ao mês passado
+            {metricas.mesPassado.variacaoDespesa > 0
+              ? `+${metricas.mesPassado.variacaoDespesa.toFixed(2)}%`
+              : `${metricas.mesPassado.variacaoDespesa.toFixed(2)}%`}{" "}
+            em relação ao mês passado
           </p>
         </div>
         <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-[#061639] to-cyan-900/30 p-6 shadow-lg">

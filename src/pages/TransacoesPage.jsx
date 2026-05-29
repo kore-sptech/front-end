@@ -52,6 +52,10 @@ export default function TransacoesPage() {
     saldoAtual: 0,
     totalEntradas: 0,
     totalSaidas: 0,
+    mesPassado: {
+      variacaoReceita: 0,
+      variacaoDespesa: 0,
+    },
   });
 
   const obterMetricas = useCallback(() => {
@@ -68,7 +72,7 @@ export default function TransacoesPage() {
           ...data,
         });
       });
-  }, []);
+  }, [transacoes]);
 
   const obterTransacoes = useCallback(() => {
     // TODO: pequisar sobre compoertamento do use Callback
