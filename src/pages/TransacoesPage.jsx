@@ -28,6 +28,8 @@ export default function TransacoesPage() {
     sort: "id,DESC",
   });
 
+  const [searchNome, setSearchNome] = useState(filters.nome);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const page = searchParams.get("page") || 0;
 
@@ -36,6 +38,15 @@ export default function TransacoesPage() {
       setSearchParams({ page: 0 });
     }
   }, [searchParams, setSearchParams]);
+
+  // Debounce search input: only update filters.nome after user stops typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, nome: searchNome }));
+    }, 250);
+
+    return () => clearTimeout(handler);
+  }, [searchNome]);
 
   const [metricas, setMetricas] = useState({
     saldoAtual: 0,
@@ -71,6 +82,7 @@ export default function TransacoesPage() {
           tipo: filters.tipo,
           dataCriacao: filters.dataCriacao,
           sort: filters.sort,
+          busca: filters.nome,
         },
       })
       .then((response) => {
@@ -78,7 +90,7 @@ export default function TransacoesPage() {
         console.log(data);
         setTransacoes(data);
       });
-  }, [page, filters]);
+  }, [page, filters.nome, filters.dataCriacao, filters.tipo, filters.sort]);
 
   useEffect(() => {
     obterMetricas();
@@ -92,6 +104,7 @@ export default function TransacoesPage() {
       dataCriacao: "",
       sort: "id,DESC",
     });
+    setSearchNome("");
   };
 
   const algumFiltroSelecionado =
@@ -158,9 +171,9 @@ export default function TransacoesPage() {
             <input
               type="text"
               placeholder="Nome, descrição ou categoria..."
-              value={filters.nome}
+              value={searchNome}
               onChange={(ev) => {
-                setFilters((prev) => ({ ...prev, nome: ev.target.value }));
+                setSearchNome(ev.target.value);
               }}
               className="w-full rounded-lg border border-gray-800 bg-[#061639] py-3 pr-4 pl-12 focus:border-cyan-400 focus:outline-none"
             />
@@ -209,12 +222,17 @@ export default function TransacoesPage() {
         {transacoes.content?.length == 0 && (
           <div className="mt-44 flex flex-col items-center justify-center text-center text-gray-400">
             <h1 className="text-4xl font-semibold text-[#DAE2FF]">
-              NENHUM ITEM NO INVENTÁRIO
+              NENHUMA TRANSAÇÃO ENCONTRADA
             </h1>
 
             <h2 className="text-2xl font-light text-[#DAE2FF]">
-              Resgitre seus itens,{" "}
-              <span className="text-[#23CBEA] underline">clicando aqui</span>
+              Cadestre{"  "}
+              <span
+                className="cursor-pointer text-[#23CBEA] underline"
+                onClick={() => setIsModalOpen(true)}
+              >
+                clicando aqui
+              </span>
             </h2>
           </div>
         )}

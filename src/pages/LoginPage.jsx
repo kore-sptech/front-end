@@ -14,6 +14,8 @@ export default function LoginPage() {
     password: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   function verifyErrors() {
     if (email !== "") {
       setErrorMessage((prev) => ({ ...prev, email: "" }));
@@ -26,6 +28,7 @@ export default function LoginPage() {
 
   const onSubmit = (event) => {
     event.preventDefault();
+    setIsLoading(true);
 
     if (!email) {
       toast.error("O campo de email é obrigatório.");
@@ -33,6 +36,9 @@ export default function LoginPage() {
         ...prev,
         email: "O campo de email é obrigatório.",
       }));
+
+      setIsLoading(false);
+
       return;
     }
 
@@ -42,6 +48,9 @@ export default function LoginPage() {
         ...prev,
         password: "O campo de senha é obrigatório.",
       }));
+
+      setIsLoading(false);
+
       return;
     }
 
@@ -73,16 +82,18 @@ export default function LoginPage() {
           ...prev,
           email: "Email ou senha incorretos.",
         }));
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#021134] text-white">
       {/* Background */}
       <div className="absolute inset-0">
         <img
           className="h-full w-full object-cover opacity-60"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVAHwfWG3ofPpCanodGmTWi4xuywGG2XIhrHwKHoyHFvZqwkbUJqrP89Wwdmp3rMOb6D93qtMEFwjxuXtO-JgPMo9jkg4LC7hVXegAC2EWgYOpDqUKjsdW-FkOcLJsPzYr_lVcx3Tb_2Ohqg9yeAO_8v2k8dIfWrC7PXVkbwEmO2kEP_4mETXxgODJ8F85S0PNVjUAXxKBWlZM869T7XjGb-Ijg9CPIvK1NxO3h951I0ZP5O2jEtK-oMzS3FXF829hwWATZNv3uGUK"
+          src="/back-ground-login.png"
           alt="background"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/80"></div>
@@ -159,9 +170,17 @@ export default function LoginPage() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 py-4 font-semibold hover:brightness-110"
+                className="w-full rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 py-4 font-semibold hover:brightness-110 disabled:opacity-75"
+                disabled={isLoading}
               >
-                ENTRAR
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></span>
+                    Entrando...
+                  </span>
+                ) : (
+                  "ENTRAR"
+                )}
               </button>
             </form>
 
