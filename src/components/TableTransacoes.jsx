@@ -21,6 +21,7 @@ export function TableTransacoes({
   totalElementos,
   obterTransacoes,
   obterMetricas,
+  selecionarTransacao,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -56,6 +57,7 @@ export function TableTransacoes({
             {transacoes?.content?.map((item) => (
               <TransacaoRow
                 key={item.id}
+                selecionarTransacao={selecionarTransacao}
                 item={item}
                 obterTransacoes={obterTransacoes}
                 obterMetricas={obterMetricas}
@@ -103,9 +105,12 @@ export function TableTransacoes({
   );
 }
 
-function TransacaoRow({ item, obterTransacoes, obterMetricas }) {
-  console.log(item);
-
+function TransacaoRow({
+  item,
+  obterTransacoes,
+  obterMetricas,
+  selecionarTransacao,
+}) {
   const [isLoading, setIsLoading] = useState(false);
 
   const deletarTransacao = (id) => {
@@ -191,7 +196,12 @@ function TransacaoRow({ item, obterTransacoes, obterMetricas }) {
                 </button>
               </li>
               <li>
-                <button className="flex gap-1 hover:bg-cyan-400/20 hover:text-cyan-400">
+                <button
+                  className="flex gap-1 hover:bg-cyan-400/20 hover:text-cyan-400"
+                  onClick={() => {
+                    selecionarTransacao(item);
+                  }}
+                >
                   <Pen />
                   <span>Editar</span>
                 </button>

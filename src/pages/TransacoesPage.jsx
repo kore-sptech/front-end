@@ -10,6 +10,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 
 import { KpiTransacoes } from "../components/KpiTransacoes";
+import ModalAtualizaTransacao from "../components/ModalAtualizaTransacao";
 import ModalNovaTransacao from "../components/ModalNovaTransacao";
 import Sidebar from "../components/Sidebar";
 import { TableTransacoes } from "../components/TableTransacoes";
@@ -19,6 +20,8 @@ import { useSearchParams } from "react-router-dom";
 export default function TransacoesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [isModalAtualizaOpen, setIsModalAtualizaOpen] = useState(false);
+
   const [transacoes, setTransacoes] = useState({});
 
   const [filters, setFilters] = useState({
@@ -27,6 +30,8 @@ export default function TransacoesPage() {
     dataCriacao: "",
     sort: "id,DESC",
   });
+
+  const [transacaoAtual, setTransacaoAtual] = useState(null);
 
   const [searchNome, setSearchNome] = useState(filters.nome);
 
@@ -72,7 +77,7 @@ export default function TransacoesPage() {
           ...data,
         });
       });
-  }, [transacoes]);
+  }, []);
 
   const obterTransacoes = useCallback(() => {
     // TODO: pequisar sobre compoertamento do use Callback
@@ -95,6 +100,11 @@ export default function TransacoesPage() {
         setTransacoes(data);
       });
   }, [page, filters.nome, filters.dataCriacao, filters.tipo, filters.sort]);
+
+  const selecionarTransacao = (transacao) => {
+    setTransacaoAtual(transacao);
+    setIsModalAtualizaOpen(true);
+  };
 
   useEffect(() => {
     obterMetricas();
@@ -220,6 +230,7 @@ export default function TransacoesPage() {
             totalElementos={transacoes.totalElements}
             obterTransacoes={obterTransacoes}
             obterMetricas={obterMetricas}
+            selecionarTransacao={selecionarTransacao}
           />
         )}
 
@@ -244,6 +255,13 @@ export default function TransacoesPage() {
       <ModalNovaTransacao
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        obterTransacoes={obterTransacoes}
+      />
+
+      <ModalAtualizaTransacao
+        isOpen={isModalAtualizaOpen}
+        onClose={() => setIsModalAtualizaOpen(false)}
+        transacao={transacaoAtual}
         obterTransacoes={obterTransacoes}
       />
     </div>
