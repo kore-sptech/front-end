@@ -89,7 +89,7 @@ function SessionCard({ session, color }) {
 
       <div className="flex flex-col items-end gap-1">
         <p className={`font-bold ${style.title}`}>
-          {formatCurrecy.format(session.preco)}
+          {formatCurrecy(session.preco)}
         </p>
         <p
           className={`w-fit rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold ${style.title}`}

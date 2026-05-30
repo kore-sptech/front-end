@@ -80,34 +80,34 @@ export default function AgendamentoPage() {
   }, [isOpen]);
 
   return (
-      <main className="flex h-screen w-full bg-[#000C24] text-[#DAE2FF]">
-        <Sidebar />
+    <main className="flex h-screen w-full bg-[#000C24] text-[#DAE2FF]">
+      <Sidebar />
 
-        <section className="h-full grow">
-          {/* Cabeçalho da página */}
-          <PageHeader onOpenModal={onOpenModal} />
+      <section className="h-full grow">
+        {/* Cabeçalho da página */}
+        <PageHeader onOpenModal={onOpenModal} />
 
-          {/* Conteúdo principal */}
-          <div className="flex h-[85%] grow gap-6 px-6">
-            {/* Painel esquerdo — calendário mensal + lista */}
-            <SidePanel
-              sessions={sessions}
-              colorByClient={colorByClient}
-              selectedDate={selectedDate}
-              onSelectDate={onChangeDate}
-            />
+        {/* Conteúdo principal */}
+        <div className="flex h-[85%] grow gap-6 px-6">
+          {/* Painel esquerdo — calendário mensal + lista */}
+          <SidePanel
+            sessions={sessions}
+            colorByClient={colorByClient}
+            selectedDate={selectedDate}
+            onSelectDate={onChangeDate}
+          />
 
-            {/* Painel direito — grade semanal */}
-            <WeeklyCalendar
-              sessions={sessions}
-              colorByClient={colorByClient}
-              weekDays={weekDays}
-            />
-          </div>
-        </section>
+          {/* Painel direito — grade semanal */}
+          <WeeklyCalendar
+            sessions={sessions}
+            colorByClient={colorByClient}
+            weekDays={weekDays}
+          />
+        </div>
+      </section>
 
-        <ModalNovoAgendamento isOpen={isModalOpen} onClose={onCloseModal} />
-      </main>
+      <ModalNovoAgendamento isOpen={isModalOpen} onClose={onCloseModal} />
+    </main>
   );
 }
 
@@ -118,7 +118,7 @@ function PageHeader({ onOpenModal }) {
     <div className="flex w-full justify-between p-6">
       <h1 className="text-4xl font-bold">AGENDAMENTO</h1>
       <button
-        className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 text-[#003640] shadow-xl shadow-cyan-500/20"
+        className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
         onClick={onOpenModal}
       >
         <CalendarPlus />
