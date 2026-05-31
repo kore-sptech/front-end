@@ -11,7 +11,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ModalAgendamentoContextProvider>
       <RouterProvider router={router} />
-      <Toaster />
+      <Toaster />prova
     </ModalAgendamentoContextProvider>
   </StrictMode>,
 );
