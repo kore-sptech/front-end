@@ -87,6 +87,7 @@ export default function ProdutoPage() {
                 produto.nome.toLowerCase().includes(pesquisa.toLowerCase())
             );
             setProdutosFiltrados(filtrados);
+            console.log(pesquisa);
         }
     }, [pesquisa, produtos]);
 
@@ -191,19 +192,39 @@ export default function ProdutoPage() {
                     <button id="agulhas" onClick={() => filtrarPor("agulha")} className="px-5 py-2 rounded-2xl hover:cursor-pointer hover:text-[#48DCFC] hover:transition-colors transition-colors">Agulhas</button>
                 </div>
 
-                <div className="p-6 grid grid-cols-4 w-full h-full text-center justify-between" id="produtos_listagem">
+                <div className="p-6 grid grid-cols-4 gap-y-15 w-full h-full text-center justify-between place-items-center" id="produtos_listagem">
 
                     {produtosFiltrados.length == 0 && pesquisa.length == 0 && (
                         <div className="col-span-4 text-center mt-25">
-                            <h1 className="font-bold text-2xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO</h1>
-                            <p className="">Regriste seus produtos <Link className="underline text-[#48DCFC]" onClick={() => navigate("cadastro")}>clicando aqui!</Link></p>
+                            <h1 className="font-bold text-3xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO</h1>
+                            <p className="text-2xl">Regriste seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
+                                onClick={() => {
+                                    console.log("Enviando:", pesquisa);
+
+                                    navigate("cadastro", {
+                                        state: { pesquisa }
+                                    });
+                                }}
+                            >
+                                clicando aqui!
+                            </button></p>
                         </div>
                     )}
 
                     {produtosFiltrados.length == 0 && pesquisa.length > 0 && (
                         <div className="col-span-4 text-center mt-25">
                             <h1 className="font-bold text-3xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO PARA <span className="text-[#48DCFC] font-bold">"{pesquisa}"</span>!</h1>
-                            <p className="text-2xl">Regriste seus produtos <Link className="underline text-[#48DCFC]" onClick={() => navigate("cadastro")}>clicando aqui!</Link></p>
+                            <p className="text-2xl">Regriste seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
+                                onClick={() => {
+                                    console.log("Enviando:", pesquisa);
+
+                                    navigate("cadastro", {
+                                        state: { pesquisa }
+                                    });
+                                }}
+                            >
+                                clicando aqui!
+                            </button></p>
                         </div>
                     )}
 

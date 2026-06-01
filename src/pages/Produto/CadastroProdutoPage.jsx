@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import Sidebar from "../../components/Sidebar";
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
+import { useLocation } from "react-router-dom";
 import {
     AlertCircle,
     ArrowRight,
@@ -15,7 +16,11 @@ import {
 
 
 export default function CadastroProdutoPage() {
+
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const pesquisa = location.state?.pesquisa || "";
 
     // imagem
     const [images, setImages] = useState([]); // Armazena as imagens {id, url}
@@ -24,6 +29,11 @@ export default function CadastroProdutoPage() {
     const fileInputRef = useRef();
 
     const [nome, setNome] = useState("");
+
+    useEffect(() => {
+        setNome(pesquisa);
+    }, [pesquisa]);
+
     const [descricao, setDescricao] = useState("");
     const [possuiValidade, setPossuiValidade] = useState(false);
     const [qtdMinAlerta, setQtdMinAlerta] = useState(0);
@@ -111,25 +121,52 @@ export default function CadastroProdutoPage() {
 
     return (
         <main className="h-screen w-full flex bg-[#000C24] overflow-hidden">
-            <Sidebar></Sidebar>
+            <Sidebar />
+
+            <svg className="right-0 top-0 absolute pointer-events-none" width="745" height="721" viewBox="0 0 745 721" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_f_460_506)">
+                    <rect x="120" y="68" width="532" height="533" rx="266" fill="#48DCFC" fill-opacity="0.05" />
+                </g>
+                <defs>
+                    <filter id="filter0_f_460_506" x="0" y="-52" width="772" height="773" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feGaussianBlur stdDeviation="60" result="effect1_foregroundBlur_460_506" />
+                    </filter>
+                </defs>
+            </svg>
+
+            <svg className="bottom-5 left-0 absolute pointer-events-none" width="745" height="721" viewBox="0 0 745 721" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_f_460_506)">
+                    <rect x="120" y="68" width="532" height="533" rx="266" fill="#48DCFC" fill-opacity="0.05" />
+                </g>
+                <defs>
+                    <filter id="filter0_f_460_506" x="0" y="-52" width="772" height="773" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feGaussianBlur stdDeviation="60" result="effect1_foregroundBlur_460_506" />
+                    </filter>
+                </defs>
+            </svg>
+
             <section className="grow h-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
                     <div className="breadcrumbs text-sm">
                         <ul>
-                            <li><a>INVENTÁRIO</a></li>
-                            <li><a>CADASTRAR</a></li>
+                            <li><a onClick={() => navigate("/produtos")}>PRODUTOS</a></li>
+                            <li><a><u>CADASTRAR</u></a></li>
                         </ul>
                     </div>
                 </div>
                 <div className="p-6 flex-wrap w-full justify-between">
                     <h1 className="text-4xl font-bold">CADASTRAR PRODUTO</h1>
                 </div>
-                <div className="p-6 flex w-full justify-between items-end gap-8">
+                <div className="p-6 flex justify-center items-start gap-5 flex-wrap">
 
-                    <fieldset className="fieldset bg-[#0A1A3D] border-base-300 rounded-box grow max-w-2xl border p-6">
+                    <fieldset className="fieldset bg-[#0A1A3D] border-none rounded-box grow max-w-2xl border p-6 text-[#BBC9CD]">
                         <label className="label">
-                            <span>NOME DO PRODUTO</span>
-                            <span className="label-text-alt text-gray-400">{nome.length}/45 (mín. 3)</span>
+                            <span className="text-[#BBC9CD]">NOME DO PRODUTO</span>
+                            <span className="label-text-alt text-[#BBC9CD]">{nome.length}/45 (mín. 3)</span>
                         </label>
                         <input
                             type="text"
@@ -139,8 +176,8 @@ export default function CadastroProdutoPage() {
                         />
 
                         <label className="label mt-4">
-                            <span>DESCRIÇÃO</span>
-                            <span className="label-text-alt text-gray-400">{descricao.length}/80</span>
+                            <span className="text-[#BBC9CD]">DESCRIÇÃO</span>
+                            <span className="label-text-alt text-[#BBC9CD]">{descricao.length}/80</span>
                         </label>
                         <textarea
                             className={`textarea h-24 bg-[#0A1A3D] w-full ${descricao.length > 80 ? 'border-error' : ''}`}
@@ -150,7 +187,7 @@ export default function CadastroProdutoPage() {
 
                         <div className="flex justify-between gap-4 mt-4 mb-2">
                             <div className="flex-1">
-                                <label className="label">POSSUI VALIDADE?</label>
+                                <label className="label text-[#BBC9CD]">POSSUI VALIDADE?</label>
                                 <select
                                     className="select bg-[#0A1A3D] w-full"
                                     value={possuiValidade}
@@ -162,7 +199,7 @@ export default function CadastroProdutoPage() {
                             </div>
 
                             <div className="flex-1 ">
-                                <label className="label">QUANTIDADE MÍNIMA</label>
+                                <label className="label text-[#BBC9CD]">QUANTIDADE MÍNIMA</label>
                                 <input
                                     type="number"
                                     className="input bg-[#0A1A3D] w-full"
@@ -174,10 +211,10 @@ export default function CadastroProdutoPage() {
 
 
                     </fieldset>
-                    <fieldset className="fieldset bg-[#0A1A3D] border-base-300 rounded-box grow max-w-2xl border p-6">
+                    <fieldset className="fieldset bg-[#0A1A3D] border-none rounded-box grow max-w-50 border p-6">
                         <div className="flex flex-col gap-4">
                             <div>
-                                <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
+                                <label className="mb-2 block text-xs font-bold tracking-widest text-[#BBC9CD] uppercase">
                                     Referência Visual
                                 </label>
 
@@ -194,7 +231,7 @@ export default function CadastroProdutoPage() {
                                         ))}
 
                                         {/* Botão de Adicionar */}
-                                        <button type="button" onClick={handleClickAdd} className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]">
+                                        <button type="button" onClick={handleClickAdd} className="flex h-48 w-48 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]">
                                             <Plus size={20} className="text-gray-500" />
                                             <span className="text-[10px] text-gray-600">Adicionar</span>
                                         </button>
