@@ -6,6 +6,7 @@ import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import TransacoesPage from "./pages/TransacoesPage";
+import NotificationsPage from "./pages/NotificationsPage";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
       {
         path: "/agendamentos", // henry
         element: <AgendamentosPage />,
+      },
+      {
+        path: "/notificacoes",
+        element: <NotificationsPage />,
       },
     ],
   },
