@@ -9,6 +9,7 @@ import TransacoesPage from "./pages/TransacoesPage";
 
 const router = createBrowserRouter([
   {
+    
     children: [
       {
         path: "/",

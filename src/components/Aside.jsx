@@ -36,7 +36,7 @@ export default function AsideBar() {
       </div>
 
       <div className="flex grow flex-col font-medium">
-        {links.map((link, index) => (
+        {links.map((link) => (
           <AsideLink key={link.path} href={link.path} icon={link.icon}>
             {link.name}
           </AsideLink>

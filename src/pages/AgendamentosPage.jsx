@@ -45,7 +45,15 @@ export default function AgendamentoPage() {
     const primaryDay = weekDays[0];
     const lastDay = weekDays[weekDays.length - 1];
 
-    const url = `agendamentos?inicio=${primaryDay.date.toISOString()}&fim=${lastDay.date.toISOString()}`;
+    let initialDate = new Date(primaryDay.date);
+    initialDate = initialDate.setHours(0, 0, 0, 0);
+    initialDate = new Date(initialDate);
+
+    let finalDate = new Date(lastDay.date);
+    finalDate = finalDate.setHours(23, 59, 59, 999);
+    finalDate = new Date(finalDate);
+
+    const url = `agendamentos?inicio=${initialDate.toISOString()}&fim=${finalDate.toISOString()}`;
 
     console.log(`Fetching sessions for ${selectedDate.toDateString()}`);
 
