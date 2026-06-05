@@ -3,6 +3,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import SearchBar from "../../components/SearchBar";
+import CardItemEstoque from "../../components/CardItemEstoque";
 export default function EstoquePage() {
     const location = useLocation();
     const { id } = useParams();
@@ -16,7 +17,7 @@ export default function EstoquePage() {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
+            }
         })
             .then((response) => response.json())
             .then((data) => {
@@ -43,7 +44,12 @@ export default function EstoquePage() {
                 <div className="p-6 flex w-full justify-between gap-4" id="produtos_listagem">
                     {estoque?.map((estoque) => {
                         return (
-                        <h1>{estoque.nome}</h1>
+                            <CardItemEstoque
+
+                                key={estoque.id}
+                                dataValidade={estoque.dataValidade ? new Date(estoque.dataValidade).toLocaleDateString() : "Sem validade"}
+                                quantidade={estoque.quantidade}
+                            />
                         )
                     })
                     }

@@ -12,6 +12,7 @@ import { useLocation } from "react-router-dom";
 import {
     AlertCircle,
     ArrowRight,
+    Delete,
     ImageOff,
     Phone,
     Plus,
@@ -123,6 +124,21 @@ export default function EditarProdutoPage(){
                     console.log(response.status)
                 }
             })
+    }
+    async function deletar(){
+        await fetch(`http://localhost:8080/produtos/${id}`,{
+            method: "DELETE",
+             headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        }).then((response)=>{
+            if (response.status === 201) {
+                    //document.getElementById('modal_sucesso').showModal();
+                } else {
+                    console.log(response.status)
+                }
+        })
     }
 
     return(
@@ -250,12 +266,18 @@ export default function EditarProdutoPage(){
                             >
                                 Alterar
                             </button>
-
+                            
                             <button
                                 onClick={() => navigate("/produtos")}
                                 className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-transparent text-gray-400 border border-gray-600 rounded-xl cursor-pointer hover:bg-gray-800 transition-all min-w-55"
                             >
                                 Cancelar
+                            </button>
+                            <button
+                                onClick={deletar}
+                                className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-transparent text-[#48DCFC] border border-[#48DCFC] rounded-xl cursor-pointer transition-transform hover:scale-105 active:scale-95 min-w-55"
+                            >
+                                Deletar
                             </button>
                         </div>
                     </fieldset>

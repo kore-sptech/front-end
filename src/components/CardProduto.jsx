@@ -2,8 +2,8 @@ import stat from "daisyui/components/stat";
 import { useNavigate } from "react-router-dom";
 export default function CardProduto(props) {
     const navigate = useNavigate();
-    console.log("AAAAAAAAAAAAAAAAAAa")
-    console.log(props)
+    
+    
     return (
         <div className="card h-65 rounded-2xl bg-[#0A1A3D] w-80 shadow-sm mb-6 hover:cursor-pointer hover:shadow-cyan-300 hover:transition-all transition-all"
             onClick={() => navigate(`/estoque/${props.id}`)}>
