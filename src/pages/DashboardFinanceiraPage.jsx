@@ -70,18 +70,24 @@ export default function DashboardFinanceiraPage() {
             <h2 className="text-6xl font-bold mb-4">
               {metricas ? metricas.saldoAtual.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}
             </h2>
-            <p className="text-cyan-400 flex items-center gap-2 text-sm">
-              <TrendingUp size={16} /> +12% em relação ao mês anterior
-            </p>
+            {metricas?.variacaoPercentual != null && (
+              <p className="text-cyan-400 flex items-center gap-2 text-sm">
+                <TrendingUp size={16} /> {metricas.variacaoPercentual > 0 ? "+" : ""}{metricas.variacaoPercentual}% em relação ao mês anterior
+              </p>
+            )}
 
             <div className="grid grid-cols-2 gap-4 mt-10">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Faturamento Bruto</p>
-                <p className="text-2xl font-bold">R$ 5.420,00</p> {/* TODO: aguardando backend */}
+                <p className="text-2xl font-bold">
+                  {metricas ? metricas.totalEntradas.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-400 uppercase">Previsão Próximo Mês</p>
-                <p className="text-2xl font-bold text-gray-300">R$ 6.100,00</p> {/* TODO: aguardando backend */}
+                <p className="text-2xl font-bold text-gray-300">
+                  {metricas ? metricas.previsaoProximoMes?.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}
+                </p>
               </div>
             </div>
           </div>
