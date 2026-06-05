@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { data, useNavigate } from "react-router-dom";
+import { data, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import CadastroProdutoPage from "./CadastroProdutoPage";
 import Sidebar from "../../components/Sidebar";
@@ -8,6 +8,7 @@ import SearchBar from "../../components/SearchBar";
 import { Link } from "react-router-dom";
 import "../../index.css";
 import { useLocation } from "react-router-dom";
+
 import {
     AlertCircle,
     ArrowRight,
@@ -18,23 +19,33 @@ import {
 } from "lucide-react";
 
 export default function EditarProdutoPage(){
-
+    const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+    
+    const { 
+    
+    nome: nomeParams, 
+    descricao: descricaoParams, 
+    quantidade: quantidadeParams,
+    possuiValidade: possuiValidadeParams 
+} = location.state || {};
 
     const [images, setImages] = useState([]); // Armazena as imagens {id, url}
     const [imageError, setImageError] = useState(false); // Controle de validação
     const [imageShaking, setImageShaking] = useState(false); // Efeito visual de erro
     const fileInputRef = useRef();
 
-    const [nome, setNome] = useState("");
+    const [nome, setNome] = useState(nomeParams||"");
 
-    const [descricao, setDescricao] = useState("");
-    const [possuiValidade, setPossuiValidade] = useState(false);
-    const [qtdMinAlerta, setQtdMinAlerta] = useState(0);
+    const [descricao, setDescricao] = useState(descricaoParams || "");
+    const [possuiValidade, setPossuiValidade] = useState(possuiValidadeParams || false);
+    const [qtdMinAlerta, setQtdMinAlerta] = useState(quantidadeParams ||0);
     // Abre a janela de seleção de arquivos do sistema
     const handleClickAdd = () => fileInputRef.current.click();
-
+    useEffect (() => {
+        console.log(nomeParams)
+    },[nomeParams])
     // Processa os arquivos selecionados
     const handleFileChange = async (e) => {
         await Promise.all(
@@ -97,8 +108,8 @@ export default function EditarProdutoPage(){
             possuiValidade,
             qtdMinAlerta: parseInt(qtdMinAlerta)
         };
-        await fetch("http://localhost:8080/produtos", {
-            method: "POST",
+        await fetch(`http://localhost:8080/produtos/${id}`, {
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -107,7 +118,7 @@ export default function EditarProdutoPage(){
         })
             .then((response) => {
                 if (response.status === 201) {
-                    document.getElementById('modal_sucesso').showModal();
+                    //document.getElementById('modal_sucesso').showModal();
                 } else {
                     console.log(response.status)
                 }
@@ -181,17 +192,7 @@ export default function EditarProdutoPage(){
                         />
 
                         <div className="flex justify-between gap-4 mt-4 mb-2">
-                            <div className="flex-1">
-                                <label className="label text-[#BBC9CD]">POSSUI VALIDADE?</label>
-                                <select
-                                    className="select bg-[#0A1A3D] w-full"
-                                    value={possuiValidade}
-                                    onChange={(e) => setPossuiValidade(e.target.value === "true")}
-                                >
-                                    <option value="false">Não</option>
-                                    <option value="true">Sim</option>
-                                </select>
-                            </div>
+                            
 
                             <div className="flex-1 ">
                                 <label className="label text-[#BBC9CD]">QUANTIDADE MÍNIMA</label>
@@ -247,7 +248,7 @@ export default function EditarProdutoPage(){
                                 onClick={cadastrar}
                                 className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/30 cursor-pointer transition-transform hover:scale-105 active:scale-95 min-w-55"
                             >
-                                + Registrar
+                                Alterar
                             </button>
 
                             <button

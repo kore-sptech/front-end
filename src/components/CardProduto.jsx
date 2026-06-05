@@ -2,7 +2,8 @@ import stat from "daisyui/components/stat";
 import { useNavigate } from "react-router-dom";
 export default function CardProduto(props) {
     const navigate = useNavigate();
-
+    console.log("AAAAAAAAAAAAAAAAAAa")
+    console.log(props)
     return (
         <div className="card h-65 rounded-2xl bg-[#0A1A3D] w-80 shadow-sm mb-6 hover:cursor-pointer hover:shadow-cyan-300 hover:transition-all transition-all"
             onClick={() => navigate(`/estoque/${props.id}`)}>
@@ -13,7 +14,14 @@ export default function CardProduto(props) {
                     className="rounded-xl w-full h-50 object-cover" />
             </figure>
             <svg className="absolute right-1 top-1 border rounded-sm border-transparent transition-all hover:border-cyan-300" onClick={(e) => {e.stopPropagation();
-                                                                                                navigate(`/produtos/editar/${props.id}`);}}
+                                                                                                navigate(`/produtos/editar/${props.id}`,{
+                                                                                                    state:{
+                                                                                                        nome: props.nome,
+                                                                                                        quantidade: props.quantidade,
+                                                                                                        descricao: props.descricao,
+                                                                                                        possuiValidade: props.possuiValidade
+                                                                                                    }
+                                                                                                });}}
             width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g filter="url(#filter0_d_400_1630)">
                     <rect x="2" y="1" width="40" height="40" rx="8" fill="#263457" shape-rendering="crispEdges" />

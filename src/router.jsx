@@ -49,7 +49,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/produtos/cadastro", // vitor
-        element: <CadastroProdutoPage />,
+        element: <CadastroProdutoPage/>,
       },
       {
         path: "/produtos/editar/:id", // vitor & mira
