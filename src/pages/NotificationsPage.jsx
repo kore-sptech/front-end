@@ -158,6 +158,18 @@ export default function NotificationsPage() {
     return true;
   });
 
+  const critico = notificationsFiltradas.filter(
+  (n) => n.tipo === "CRITICO"
+).length;
+
+const atencao = notificationsFiltradas.filter(
+  (n) => n.tipo === "ATENCAO"
+).length;
+
+const informativo = notificationsFiltradas.filter(
+  (n) => n.tipo === "INFORMATIVO"
+).length;
+
   const totalNotifications = notificationsFiltradas.length;
   const totalPages = Math.ceil(totalNotifications / ITEMS_PER_PAGE);
 
@@ -195,15 +207,14 @@ export default function NotificationsPage() {
     <div className="flex min-h-screen bg-[#000C24] text-[#DAE2FF]">
       <Sidebar />
 
-      <main className="flex-1 p-10 flex flex-col justify-between">
+      <main className="flex-1 p-6 flex flex-col justify-between">
         <div>
           {/* Header com Filtros superiores */}
           <header className="mb-8 flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-4xl font-bold tracking-wide text-white uppercase">Notificações</h1>
-              <p className="text-xs uppercase tracking-widest text-gray-400 font-medium">
-                Monitoramento de Precisão Clínica
-              </p>
+            <div className="flex flex-col gap-2">
+              <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">NOTIFICAÇÕES</h1>
+
+              <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
             </div>
 
             {/* Abas de Filtro*/}
@@ -211,8 +222,8 @@ export default function NotificationsPage() {
               {["TODAS", "ESTOQUE", "SESSÕES", "VALIDADE"].map((aba) => (
                 <button
                   key={aba}
-                  onClick={() => { setFiltroAtivo(aba); setPaginaAtual(1); }}
-                  className={`cursor-pointer rounded-md px-4 py-1.5 text-xs font-bold tracking-wider transition-all ${
+                  onClick={() => { setFiltroAtivo(aba); setPaginaAtual(1);}}
+                  className={`cursor-pointer rounded-md px-4 py-1.5 text-xs border border-transparent font-bold tracking-wider transition-all ${
                     filtroAtivo === aba
                       ? "bg-[#1E3A8A]/50 text-[#22D3EE] border border-[#22D3EE]/30"
                       : "text-gray-400 hover:text-white"
@@ -242,19 +253,19 @@ export default function NotificationsPage() {
                 {/* Indicador Críticos */}
                 <div className="flex items-center justify-between rounded-xl bg-[#021134] px-5 py-4">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#F87171]">Críticos</span>
-                  <span className="text-xl font-black text-white">02</span>
+                  <span className="text-xl font-black text-white">{critico}</span>
                 </div>
 
                 {/* Indicador Atenção */}
                 <div className="flex items-center justify-between rounded-xl bg-[#021134] px-5 py-4">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#FB923C]">Atenção</span>
-                  <span className="text-xl font-black text-white">05</span>
+                  <span className="text-xl font-black text-white">{atencao}</span>
                 </div>
 
                 {/* Indicador Informativos */}
                 <div className="flex items-center justify-between rounded-xl bg-[#021134] px-5 py-4">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#22D3EE]">Informativos</span>
-                  <span className="text-xl font-black text-white">12</span>
+                  <span className="text-xl font-black text-white">{informativo}</span>
                 </div>
               </div>
             </div>
