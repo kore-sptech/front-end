@@ -1,24 +1,44 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { NotificationProviderContext } from "../context/NotificationContext";
 
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
+  const retryTimeout = useRef(null);
+  const eventSourceRef = useRef(null);
 
   useEffect(() => {
-    const eventSource = new EventSource("http://localhost:8080/sse/stream");
-    eventSource.onmessage = (event) => {
-      const newNotification = event.data;
-      setNotifications((prev) => [...prev, newNotification]);
-    };
+    function connect() {
+      const eventSource = new EventSource("http://localhost:8080/sse/stream");
+      eventSourceRef.current = eventSource;
 
-    eventSource.onerror = (err) => {
-      console.error("Erro na conexão SSE: ", err);
-      eventSource.close();
-    };
+      eventSource.onmessage = (event) => {
+        // ignora heartbeat — não exibe como notificação real
+        if (event.data === "heartbeat") return;
+
+        setNotifications((prev) => [...prev, event.data]);
+
+        console.log(event.data);
+      };
+
+      eventSource.onerror = (err) => {
+        console.error("Erro na conexão SSE:", err);
+        eventSource.close();
+
+        // reconecta após 5 segundos em vez de parar para sempre
+        retryTimeout.current = setTimeout(() => {
+          console.info("Tentando reconectar SSE...");
+          connect();
+        }, 5000);
+      };
+    }
+
+    connect();
 
     return () => {
-      eventSource.close();
+      // cleanup: fecha conexão e cancela retry pendente ao desmontar
+      eventSourceRef.current?.close();
+      clearTimeout(retryTimeout.current);
     };
   }, []);
 
