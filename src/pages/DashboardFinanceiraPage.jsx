@@ -1,6 +1,6 @@
 import Sidebar from "../components/Sidebar";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { Plus, TrendingUp } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown } from "lucide-react";
 import ModalNovaTransacao from "../components/ModalNovaTransacao";
 import { api } from "../utils/api";
 import { useState, useEffect } from "react";
@@ -73,8 +73,12 @@ export default function DashboardFinanceiraPage() {
               {metricas ? metricas.saldoAtual.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}
             </h2>
             {metricas?.variacaoPercentual != null && (
-              <p className="text-cyan-400 flex items-center gap-2 text-sm">
-                <TrendingUp size={16} /> {metricas.variacaoPercentual > 0 ? "+" : ""}{metricas.variacaoPercentual.toFixed(1)}% em relação ao mês anterior
+              <p className={`flex items-center gap-2 text-sm ${metricas.variacaoPercentual >= 0 ? "text-cyan-400" : "text-red-400"}`}>
+                {metricas.variacaoPercentual >= 0
+                  ? <TrendingUp size={16} />
+                  : <TrendingDown size={16} />
+                }
+                {metricas.variacaoPercentual > 0 ? "+" : ""}{metricas.variacaoPercentual.toFixed(1)}% em relação ao mês anterior
               </p>
             )}
 
@@ -112,6 +116,9 @@ export default function DashboardFinanceiraPage() {
                 <p className="text-2xl font-bold text-red-400 text-opacity-80">
                   {metricas ? metricas.totalSaidas.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}
                 </p>
+              </div>
+              <div className="bg-red-500/10 p-3 rounded-full text-red-400">
+                <TrendingDown />
               </div>
             </div>
           </div>
