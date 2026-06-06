@@ -6,16 +6,14 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
 import { useContext, useEffect, useRef, useState } from "react";
 
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { IMaskInput } from "react-imask";
 import { api } from "../utils/api";
 import { toast } from "sonner";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
+// ─── Shake animation ──────────────────────────────────────────────────────────
 const shakeStyle = `
   @keyframes shake {
     0%   { transform: translateX(0); }
@@ -30,44 +28,63 @@ const shakeStyle = `
   .shake { animation: shake 0.45s ease; }
 `;
 
-const schema = z
-  .object({
-    cliente: z
-      .string()
-      .min(1, "Nome é obrigatório")
-      .min(3, "Mínimo 3 caracteres"),
-
-    preco: z
-      .string()
-      .min(1, "Preço é obrigatório")
-      .refine(
-        (v) => {
-          const num = parseFloat(v);
-          return !isNaN(num) && num > 0;
-        },
-        { message: "Informe um valor maior que zero" },
-      ),
-
-    telefone: z
-      .string()
-      .min(1, "Telefone é obrigatório")
-      .refine((v) => v.replace(/\D/g, "").length === 11, {
-        message: "Telefone incompleto — use (99) 99999-9999",
-      }),
-
-    pagamento: z.string().min(1, "Selecione a forma de pagamento"),
-
-    de: z.string().min(1, "Informe o horário de início"),
-    ate: z.string().min(1, "Informe o horário de término"),
-  })
-  .refine((d) => !d.de || !d.ate || d.ate > d.de, {
-    message: "Horário de término deve ser após o início",
-    path: ["ate"],
-  });
-
 // ─── Garante string vazia se valor for null/undefined ─────────────────────────
 const str = (v) => (v != null ? String(v) : "");
 
+// ─── Validação pura (substitui o schema Zod) ─────────────────────────────────
+function validate(fields) {
+  const errors = {};
+
+  // cliente
+  if (!fields.cliente || fields.cliente.trim().length === 0) {
+    errors.cliente = "Nome é obrigatório";
+  } else if (fields.cliente.trim().length < 3) {
+    errors.cliente = "Mínimo 3 caracteres";
+  }
+
+  // preco
+  if (!fields.preco || fields.preco.trim().length === 0) {
+    errors.preco = "Preço é obrigatório";
+  } else {
+    const num = parseFloat(fields.preco);
+    if (isNaN(num) || num <= 0) {
+      errors.preco = "Informe um valor maior que zero";
+    }
+  }
+
+  // telefone
+  if (!fields.telefone || fields.telefone.trim().length === 0) {
+    errors.telefone = "Telefone é obrigatório";
+  } else if (fields.telefone.replace(/\D/g, "").length !== 11) {
+    errors.telefone = "Telefone incompleto — use (99) 99999-9999";
+  }
+
+  // pagamento
+  if (!fields.pagamento || fields.pagamento.trim().length === 0) {
+    errors.pagamento = "Selecione a forma de pagamento";
+  }
+
+  // de
+  if (!fields.de || fields.de.trim().length === 0) {
+    errors.de = "Informe o horário de início";
+  }
+
+  // ate
+  if (!fields.ate || fields.ate.trim().length === 0) {
+    errors.ate = "Informe o horário de término";
+  } else if (fields.de && fields.ate && fields.ate <= fields.de) {
+    errors.ate = "Horário de término deve ser após o início";
+  }
+
+  return errors;
+}
+
+// ─── Verifica se não há nenhum erro (formulário válido) ───────────────────────
+function isFormValid(fields) {
+  return Object.keys(validate(fields)).length === 0;
+}
+
+// ─── Estilos de input ─────────────────────────────────────────────────────────
 const baseInput =
   "w-full bg-[#000C24] border rounded-lg py-3 px-4 text-sm text-white " +
   "placeholder:text-gray-600 focus:outline-none transition-all duration-200";
@@ -79,6 +96,7 @@ const inputCls = (hasError) =>
       : "border-gray-800 focus:border-cyan-400"
   }`;
 
+// ─── Componente de mensagem de erro ──────────────────────────────────────────
 function ErrorMsg({ message }) {
   if (!message) return null;
   return (
@@ -89,16 +107,17 @@ function ErrorMsg({ message }) {
   );
 }
 
+// ─── Componente de campo com shake ao receber novo erro ──────────────────────
 function Field({ label, icon, error, children }) {
   const [shaking, setShaking] = useState(false);
   const prevMsg = useRef(undefined);
 
   useEffect(() => {
-    if (error?.message && error.message !== prevMsg.current) {
+    if (error && error !== prevMsg.current) {
       setShaking(true);
     }
-    prevMsg.current = error?.message;
-  }, [error?.message]);
+    prevMsg.current = error;
+  }, [error]);
 
   return (
     <div>
@@ -116,52 +135,75 @@ function Field({ label, icon, error, children }) {
         )}
         {children}
       </div>
-      <ErrorMsg message={error?.message} />
+      <ErrorMsg message={error} />
     </div>
   );
 }
 
+// ─── Componente principal ─────────────────────────────────────────────────────
 export default function ModalNovoAgendamento({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   const { agendamento } = useContext(AgendamentoContext);
 
+  // ── Valores iniciais derivados do agendamento em edição ──────────────────
   const imagesDoAgendamento =
     agendamento?.referencias.map((foto) => ({
       ...foto,
       url: foto.imageUrl,
     })) || [];
 
-  const defaultValues = {
+  // ── Estado dos campos do formulário ──────────────────────────────────────
+  const [fields, setFields] = useState({
     cliente: str(agendamento?.cliente),
     preco: agendamento?.preco != null ? String(agendamento.preco) : "",
     telefone: str(agendamento?.telefone),
     pagamento: str(agendamento?.formaPagamento),
-    de: agendamento?.inicio?.replace(" ", "T").slice(0, 16),
-    ate: agendamento?.fim?.replace(" ", "T").slice(0, 16),
-  };
+    de: agendamento?.inicio?.replace(" ", "T").slice(0, 16) ?? "",
+    ate: agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "",
+  });
 
-  console.log(defaultValues);
+  // ── Estado dos erros de validação ─────────────────────────────────────────
+  // Começa vazio; erros só aparecem após a primeira tentativa de submit
+  // ou quando o campo já foi tocado (touched).
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
+  // ── Estado das imagens ────────────────────────────────────────────────────
   const [images, setImages] = useState(imagesDoAgendamento);
   const [imageError, setImageError] = useState(false);
   const [imageShaking, setImageShaking] = useState(false);
   const fileInputRef = useRef();
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors, isValid },
-    trigger,
-  } = useForm({
-    resolver: zodResolver(schema),
-    mode: "onChange",
-    defaultValues,
-  });
+  // ── Derivados ─────────────────────────────────────────────────────────────
+  const formIsValid = isFormValid(fields);
+  const canSubmit = formIsValid && images.length > 0;
 
-  const canSubmit = isValid && images.length > 0;
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const handleChange = (name, value) => {
+    const nextFields = { ...fields, [name]: value };
+    setFields(nextFields);
 
+    // Revalida apenas o campo tocado para atualizar o erro em tempo real
+    if (touched[name]) {
+      const nextErrors = validate(nextFields);
+      setErrors((prev) => ({
+        ...prev,
+        [name]: nextErrors[name] ?? undefined,
+      }));
+    }
+  };
+
+  const handleBlur = (name) => {
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const nextErrors = validate(fields);
+    setErrors((prev) => ({
+      ...prev,
+      [name]: nextErrors[name] ?? undefined,
+    }));
+  };
+
+  // ── Imagens ───────────────────────────────────────────────────────────────
   const handleClickAdd = () => fileInputRef.current.click();
 
   const handleFileChange = async (e) => {
@@ -200,36 +242,51 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     });
   };
 
-  const onSubmit = (data) => {
-    if (images.length === 0) {
+  // ── Submit ────────────────────────────────────────────────────────────────
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    // Marca todos os campos como tocados e exibe todos os erros de uma vez
+    const allTouched = Object.keys(fields).reduce(
+      (acc, k) => ({ ...acc, [k]: true }),
+      {},
+    );
+    setTouched(allTouched);
+
+    const validationErrors = validate(fields);
+    setErrors(validationErrors);
+
+    const hasFieldErrors = Object.keys(validationErrors).length > 0;
+    const hasImageError = images.length === 0;
+
+    if (hasImageError) {
       setImageError(true);
       setImageShaking(true);
-      return;
     }
 
-    const precoNumerico = parseFloat(data.preco);
+    if (hasFieldErrors || hasImageError) return;
+
+    const precoNumerico = parseFloat(fields.preco);
+    const payload = {
+      cliente: fields.cliente,
+      preco: precoNumerico,
+      telefone: fields.telefone,
+      formaPagamento: fields.pagamento,
+      inicio: fields.de,
+      fim: fields.ate,
+      referencias: images.map((img) => img.id),
+    };
 
     if (agendamento?.id) {
       api
-        .put(
-          `/agendamentos/${agendamento.id}`,
-          {
-            ...data,
-
-            preco: precoNumerico,
-            formaPagamento: data.pagamento,
-            inicio: data.de,
-            fim: data.ate,
-            referencias: images.map((img) => img.id),
+        .put(`/agendamentos/${agendamento.id}`, payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          },
-        )
+        })
         .then(() => {
           toast.success("Agendamento atualizado com sucesso!");
+
           onClose();
         })
         .catch(() => {
@@ -237,25 +294,13 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         });
     } else {
       api
-        .post(
-          "/agendamentos",
-          {
-            ...data,
-            preco: precoNumerico,
-            formaPagamento: data.pagamento,
-            inicio: data.de,
-            fim: data.ate,
-            referencias: images.map((img) => img.id),
+        .post("/agendamentos", payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          },
-        )
+        })
         .then(() => {
           toast.success("Agendamento adicionado com sucesso!");
-
           onClose();
         })
         .catch(() => {
@@ -264,13 +309,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     }
   };
 
-  const onInvalid = () => {
-    if (images.length === 0) {
-      setImageError(true);
-      setImageShaking(true);
-    }
-  };
-
+  // ─────────────────────────────────────────────────────────────────────────
   return (
     <>
       <style>{shakeStyle}</style>
@@ -294,16 +333,15 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
             </p>
           </div>
 
-          <form
-            onSubmit={handleSubmit(onSubmit, onInvalid)}
-            className="space-y-4"
-          >
+          <form onSubmit={onSubmit} className="space-y-4">
             {/* ── Cliente + Preço ────────────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-4">
               <Field label="Cliente" error={errors.cliente}>
                 <input
-                  {...register("cliente")}
                   type="text"
+                  value={fields.cliente}
+                  onChange={(e) => handleChange("cliente", e.target.value)}
+                  onBlur={() => handleBlur("cliente")}
                   placeholder="Ex: João da Silva"
                   className={inputCls(!!errors.cliente)}
                 />
@@ -311,10 +349,12 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
               <Field label="Preço (R$)" error={errors.preco}>
                 <input
-                  {...register("preco")}
                   type="number"
                   step="0.01"
                   min="0"
+                  value={fields.preco}
+                  onChange={(e) => handleChange("preco", e.target.value)}
+                  onBlur={() => handleBlur("preco")}
                   placeholder="0,00"
                   className={inputCls(!!errors.preco)}
                 />
@@ -328,25 +368,21 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 icon={<Phone size={14} />}
                 error={errors.telefone}
               >
-                <Controller
-                  name="telefone"
-                  control={control}
-                  render={({ field }) => (
-                    <IMaskInput
-                      mask="(00) 00000-0000"
-                      defaultValue={str(field.value)}
-                      inputRef={field.ref}
-                      onAccept={(val) => field.onChange(str(val))}
-                      placeholder="(11) 99999-9999"
-                      className={`${inputCls(!!errors.telefone)} pl-9`}
-                    />
-                  )}
+                <IMaskInput
+                  mask="(00) 00000-0000"
+                  value={fields.telefone}
+                  onAccept={(val) => handleChange("telefone", str(val))}
+                  onBlur={() => handleBlur("telefone")}
+                  placeholder="(11) 99999-9999"
+                  className={`${inputCls(!!errors.telefone)} pl-9`}
                 />
               </Field>
 
               <Field label="Forma de pagamento" error={errors.pagamento}>
                 <select
-                  {...register("pagamento")}
+                  value={fields.pagamento}
+                  onChange={(e) => handleChange("pagamento", e.target.value)}
+                  onBlur={() => handleBlur("pagamento")}
                   className={`${inputCls(!!errors.pagamento)} cursor-pointer appearance-none`}
                 >
                   <option value="">Selecione...</option>
@@ -444,8 +480,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
             <div className="flex items-start gap-4">
               <Field label="De" error={errors.de}>
                 <input
-                  {...register("de")}
                   type="datetime-local"
+                  value={fields.de}
+                  onChange={(e) => handleChange("de", e.target.value)}
+                  onBlur={() => handleBlur("de")}
                   className={inputCls(!!errors.de)}
                 />
               </Field>
@@ -454,8 +492,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
               <Field label="Até" error={errors.ate}>
                 <input
-                  {...register("ate")}
                   type="datetime-local"
+                  value={fields.ate}
+                  onChange={(e) => handleChange("ate", e.target.value)}
+                  onBlur={() => handleBlur("ate")}
                   className={inputCls(!!errors.ate)}
                 />
               </Field>

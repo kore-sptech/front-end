@@ -126,19 +126,26 @@ export function EventsGrid({ sessions, colorByClient }) {
       <CurrentTimeLine />
 
       {/* Blocos de agendamento sobrepostos */}
-      {sessions.map((session) => (
-        <EventBlock
-          key={session.id}
-          session={session}
-          color={colorByClient[session.cliente]}
-          startHour={new Date(session.inicio).getHours()}
-          durationHours={differenceInHours(
-            new Date(session.fim),
-            new Date(session.inicio),
-          )}
-          dayLabel={DAY_LABEL_BY_INDEX[new Date(session.inicio).getDay()]}
-        />
-      ))}
+      {sessions.map((session) => {
+        console.log({
+          date: new Date(session.inicio).getDay(),
+          dado: DAY_LABEL_BY_INDEX[new Date(session.inicio).getDay() - 1],
+        });
+
+        return (
+          <EventBlock
+            key={session.id}
+            session={session}
+            color={colorByClient[session.cliente]}
+            startHour={new Date(session.inicio).getHours()}
+            durationHours={differenceInHours(
+              new Date(session.fim),
+              new Date(session.inicio),
+            )}
+            dayLabel={DAY_LABEL_BY_INDEX[new Date(session.inicio).getDay()]}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -179,11 +186,16 @@ export function EventBlock({
   const { openModal } = useContext(AgendamentoContext);
 
   let style = COLOR_STYLES[color] ?? COLOR_STYLES.ghost;
-  const dayIndex = DAY_COLUMN_INDEX[dayLabel] ?? 0;
+  let dayIndex = DAY_COLUMN_INDEX[dayLabel];
 
   if (isOld(session)) {
     style = COLOR_STYLES.ghost;
   }
+
+  console.log({
+    session,
+    dayLabel,
+  });
 
   return (
     <div
@@ -192,7 +204,7 @@ export function EventBlock({
         top: startHour * ROW_HEIGHT_PX,
         height: durationHours * ROW_HEIGHT_PX,
         width: "calc(100% / 7)",
-        left: `calc(100% / 7 * ${dayIndex - 1})`,
+        left: `calc(100% / 7 * ${dayIndex})`,
       }}
     >
       <div

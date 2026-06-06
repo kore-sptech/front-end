@@ -64,21 +64,21 @@ export const COLOR_STYLES = {
 };
 
 export const DAY_LABEL_BY_INDEX = {
-  0: "SEG",
-  1: "TER",
-  2: "QUA",
-  3: "QUI",
-  4: "SEX",
-  5: "SAB",
-  6: "DOM",
+  1: "SEG",
+  2: "TER",
+  3: "QUA",
+  4: "QUI",
+  5: "SEX",
+  6: "SAB",
+  0: "DOM",
 };
 
 export const DAY_COLUMN_INDEX = {
+  DOM: 6,
   SEG: 0,
   TER: 1,
   QUA: 2,
   QUI: 3,
   SEX: 4,
   SAB: 5,
-  DOM: 6,
 };

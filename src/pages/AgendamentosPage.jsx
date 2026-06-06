@@ -27,8 +27,8 @@ export default function AgendamentoPage() {
   const { isOpen, agendamento } = useContext(AgendamentoContext);
 
   const onCloseModal = () => {
-    console.log("------------------------Modal closed------------------------");
     setIsModalOpen(false);
+    fetchSessions();
   };
 
   const onChangeDate = (date) => {
