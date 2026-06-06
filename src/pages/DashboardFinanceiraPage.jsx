@@ -5,6 +5,7 @@ import ModalNovaTransacao from "../components/ModalNovaTransacao";
 import { api } from "../utils/api";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const CORES_CATEGORIA = {
   MATERIAS: "#22d3ee",
@@ -16,6 +17,7 @@ export default function DashboardFinanceiraPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [metricas, setMetricas] = useState(null);
   const [transacoes, setTransacoes] = useState([]);
+  const navigate = useNavigate();
 
   const dataPizza = metricas
     ? metricas.gastosPorCategoria.map((item) => ({
@@ -72,7 +74,7 @@ export default function DashboardFinanceiraPage() {
             </h2>
             {metricas?.variacaoPercentual != null && (
               <p className="text-cyan-400 flex items-center gap-2 text-sm">
-                <TrendingUp size={16} /> {metricas.variacaoPercentual > 0 ? "+" : ""}{metricas.variacaoPercentual}% em relação ao mês anterior
+                <TrendingUp size={16} /> {metricas.variacaoPercentual > 0 ? "+" : ""}{metricas.variacaoPercentual.toFixed(1)}% em relação ao mês anterior
               </p>
             )}
 
@@ -143,7 +145,7 @@ export default function DashboardFinanceiraPage() {
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></span>
                     {item.name}
                   </span>
-                  <span className="font-bold">{item.value}%</span>
+                  <span className="font-bold">{item.value.toFixed(1)}%</span>
                 </div>
               ))}
             </div>
@@ -153,7 +155,12 @@ export default function DashboardFinanceiraPage() {
           <div className="col-span-8 bg-[#061639] p-8 rounded-2xl border border-gray-800">
             <div className="flex justify-between mb-6">
               <h3 className="text-xl font-bold">Transações recentes</h3>
-              <button className="text-cyan-400 text-sm hover:underline">Ver tudo</button>
+              <button
+                onClick={() => navigate("/transacoes")}
+                className="text-cyan-400 text-sm hover:underline"
+              >
+                Ver tudo
+              </button>
             </div>
             {transacoes.length === 0 ? (
               <p className="text-gray-500 italic">Nenhuma transação encontrada.</p>
