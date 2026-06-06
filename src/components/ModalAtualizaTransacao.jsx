@@ -16,30 +16,41 @@ function formatarValorBR(apenasDigitos) {
   });
 }
 
-export default function ModalNovaTransacao({
+export default function ModalAtualizaTransacao({
   isOpen,
   onClose,
   obterTransacoes,
+  transacao,
 }) {
-  const [form, setForm] = useState({
-    nome: "",
-    tipo: "ENTRADA",
-    categoria: "MATERIAS",
+  if (!isOpen || !transacao) return null;
+
+  console.log({
+    transacao,
   });
 
-  const [valorDisplay, setValorDisplay] = useState("");
+  const [form, setForm] = useState({
+    nome: transacao?.nome || "",
+    tipo: transacao?.tipo || "ENTRADA",
+    categoria: transacao?.categoria || "MATERIAS",
+  });
 
-  const [valorFloat, setValorFloat] = useState(0);
+  const [valorDisplay, setValorDisplay] = useState(
+    transacao ? "R$ " + formatarValorBR(transacao.valor.toString()) : "",
+  );
+
+  const [valorFloat, setValorFloat] = useState(transacao?.valor || 0);
 
   const [isLoading, setIsLoading] = useState(false);
-
-  if (!isOpen) return null;
 
   const enabledForm =
     form.nome !== "" &&
     form.nome.length > 3 &&
     valorFloat > 0 &&
-    form.tipo !== "";
+    form.tipo !== "" &&
+    (form.nome != transacao.nome ||
+      form.tipo != transacao.tipo ||
+      form.categoria != transacao.categoria ||
+      valorFloat != transacao.valor);
 
   function handleValorChange(e) {
     const apenasDigitos = e.target.value.replace(/\D/g, "");
@@ -75,19 +86,19 @@ export default function ModalNovaTransacao({
     }
 
     api
-      .post("/transacoes", body, {
+      .put(`/transacoes/${transacao.id}`, body, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
       .then(() => {
-        toast.success("Transação adicionada com sucesso!");
+        toast.success("Transação atualizada com sucesso!");
         obterTransacoes();
         cleanForm();
         onClose();
       })
       .catch(() => {
-        toast.error("Erro ao adicionar transação!");
+        toast.error("Erro ao atualizar transação!");
       })
       .finally(() => {
         setIsLoading(false);
@@ -105,7 +116,7 @@ export default function ModalNovaTransacao({
         </button>
 
         <h2 className="mb-6 text-center text-2xl font-bold text-cyan-400">
-          Nova Transação
+          Atualizar Transação: {transacao.nome}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -179,10 +190,10 @@ export default function ModalNovaTransacao({
             {isLoading ? (
               <span className="flex items-center justify-center">
                 <Loader2 size={20} className="animate-spin" />
-                <p>Adicionando...</p>
+                <p>Atualizando...</p>
               </span>
             ) : (
-              "Adicionar Transação"
+              "Atualizar Transação"
             )}
           </button>
         </form>

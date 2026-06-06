@@ -1,7 +1,12 @@
+import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
+import { Plus, TrendingUp } from "lucide-react";
+
 import Sidebar from "../components/Sidebar";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Plus, TrendingUp, TrendingDown } from "lucide-react";
 import ModalNovaTransacao from "../components/ModalNovaTransacao";
+import Sidebar from "../components/Sidebar";
+import { useState } from "react";
 import { api } from "../utils/api";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -54,7 +59,7 @@ export default function DashboardFinanceiraPage() {
 
       <main className="flex-1 p-10">
         {/* Header */}
-        <header className="flex justify-between items-center mb-10">
+        <header className="mb-10 flex items-center justify-between">
           <h1 className="text-4xl font-bold">Relatório Financeiro</h1>
           <button onClick={() => setIsModalOpen(true)}
             className="bg-cyan-400 text-black px-6 py-2 rounded-full font-bold flex items-center gap-2 hover:bg-cyan-300 transition-all">
@@ -100,7 +105,7 @@ export default function DashboardFinanceiraPage() {
 
           {/* KPIs de entrada e saída */}
           <div className="col-span-4 flex flex-col gap-4">
-            <div className="bg-[#061639] p-6 rounded-2xl border border-gray-800 flex items-center justify-between">
+            <div className="flex items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Entradas</p>
                 <p className="text-2xl font-bold">
@@ -124,8 +129,8 @@ export default function DashboardFinanceiraPage() {
           </div>
 
           {/* Gráfico de Gastos */}
-          <div className="col-span-4 bg-[#061639] p-8 rounded-2xl border border-gray-800">
-            <h3 className="text-xl font-bold mb-6">Gastos por categoria</h3>
+          <div className="col-span-4 rounded-2xl border border-gray-800 bg-[#061639] p-8">
+            <h3 className="mb-6 text-xl font-bold">Gastos por categoria</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -188,7 +193,6 @@ export default function DashboardFinanceiraPage() {
               </ul>
             )}
           </div>
-
         </div>
       </main>
       <ModalNovaTransacao

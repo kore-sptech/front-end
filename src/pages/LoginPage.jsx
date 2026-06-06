@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import { Logo } from "../components/Logo";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,6 +13,8 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
+
+  const [isLoading, setIsLoading] = useState(false);
 
   function verifyErrors() {
     if (email !== "") {
@@ -24,6 +28,7 @@ export default function LoginPage() {
 
   const onSubmit = (event) => {
     event.preventDefault();
+    setIsLoading(true);
 
     if (!email) {
       toast.error("O campo de email é obrigatório.");
@@ -31,6 +36,9 @@ export default function LoginPage() {
         ...prev,
         email: "O campo de email é obrigatório.",
       }));
+
+      setIsLoading(false);
+
       return;
     }
 
@@ -40,6 +48,9 @@ export default function LoginPage() {
         ...prev,
         password: "O campo de senha é obrigatório.",
       }));
+
+      setIsLoading(false);
+
       return;
     }
 
@@ -54,38 +65,50 @@ export default function LoginPage() {
       .then((data) => {
         if (data != null) {
           localStorage.setItem("auth", JSON.stringify(data));
+          localStorage.setItem("token", data.token);
+
           navigate("/dashboard");
         } else {
           toast.error("Email ou senha incorretos.");
+          setErrorMessage((prev) => ({
+            ...prev,
+            email: "Email ou senha incorretos.",
+          }));
         }
       })
       .catch(() => {
-        toast.error("Erro ao fazer login.");
+        toast.error("Email ou senha incorretos.");
+        setErrorMessage((prev) => ({
+          ...prev,
+          email: "Email ou senha incorretos.",
+        }));
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
-
   return (
-    <div className="bg-[#021134] text-white min-h-screen relative overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden bg-[#021134] text-white">
       {/* Background */}
       <div className="absolute inset-0">
         <img
-          className="w-full h-full object-contain opacity-60"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVAHwfWG3ofPpCanodGmTWi4xuywGG2XIhrHwKHoyHFvZqwkbUJqrP89Wwdmp3rMOb6D93qtMEFwjxuXtO-JgPMo9jkg4LC7hVXegAC2EWgYOpDqUKjsdW-FkOcLJsPzYr_lVcx3Tb_2Ohqg9yeAO_8v2k8dIfWrC7PXVkbwEmO2kEP_4mETXxgODJ8F85S0PNVjUAXxKBWlZM869T7XjGb-Ijg9CPIvK1NxO3h951I0ZP5O2jEtK-oMzS3FXF829hwWATZNv3uGUK"
+          className="h-full w-full object-cover opacity-60"
+          src="/back-ground-login.png"
           alt="background"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/80"></div>
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 w-full px-12 py-8 z-50">
-        <h1 className="text-2xl font-bold text-cyan-400">Kore</h1>
+      <header className="fixed top-0 z-50 w-full px-12 py-8">
+        <Logo />
       </header>
 
-      <main className="relative z-10 grid grid-cols-12 min-h-screen">
+      <main className="relative z-10 grid min-h-screen grid-cols-12">
         {/* Left side */}
-        <div className="hidden lg:flex col-span-7 flex-col justify-end p-12">
+        <div className="col-span-7 hidden flex-col justify-end p-12 lg:flex">
           <div>
-            <h1 className="text-6xl font-bold mb-4">
+            <h1 className="mb-4 text-6xl font-bold">
               Precision in <span className="text-cyan-400">Ink</span>
             </h1>
             <p className="text-gray-300">
@@ -95,16 +118,14 @@ export default function LoginPage() {
         </div>
 
         {/* Login */}
-        <div className="col-span-12 lg:col-span-5 flex items-center justify-center px-6">
-          <div className="w-full max-w-md p-10 rounded-xl bg-[#0a1f4b]/80 backdrop-blur-lg border border-cyan-500/10 shadow-2xl">
-            <h2 className="text-3xl font-bold mb-6">Bem-vindo</h2>
+        <div className="col-span-12 flex items-center justify-center px-6 lg:col-span-5">
+          <div className="w-full max-w-md rounded-xl border border-cyan-500/10 bg-[#0a1f4b]/80 p-10 shadow-2xl backdrop-blur-lg">
+            <h2 className="mb-6 text-3xl font-bold">Bem-vindo</h2>
 
             <form onSubmit={onSubmit} className="space-y-6">
               {/* Email */}
               <div>
-                <label className="text-xs uppercase text-cyan-400">
-                  Email
-                </label>
+                <label className="text-xs text-cyan-400 uppercase">Email</label>
                 <input
                   type="text"
                   placeholder="exemplo@email.com"
@@ -113,14 +134,12 @@ export default function LoginPage() {
                     setEmail(e.target.value);
                     verifyErrors();
                   }}
-                  className={`w-full mt-2 p-3 rounded-lg bg-[#0f1e41] border ${
-                    errorMessage.email
-                      ? "border-red-500"
-                      : "border-gray-600"
+                  className={`mt-2 w-full rounded-lg border bg-[#0f1e41] p-3 ${
+                    errorMessage.email ? "border-red-500" : "border-gray-600"
                   }`}
                 />
                 {errorMessage.email && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="mt-1 text-sm text-red-500">
                     {errorMessage.email}
                   </p>
                 )}
@@ -128,9 +147,7 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="text-xs uppercase text-cyan-400">
-                  Senha
-                </label>
+                <label className="text-xs text-cyan-400 uppercase">Senha</label>
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -139,14 +156,12 @@ export default function LoginPage() {
                     setPassword(e.target.value);
                     verifyErrors();
                   }}
-                  className={`w-full mt-2 p-3 rounded-lg bg-[#0f1e41] border ${
-                    errorMessage.password
-                      ? "border-red-500"
-                      : "border-gray-600"
+                  className={`mt-2 w-full rounded-lg border bg-[#0f1e41] p-3 ${
+                    errorMessage.password ? "border-red-500" : "border-gray-600"
                   }`}
                 />
                 {errorMessage.password && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="mt-1 text-sm text-red-500">
                     {errorMessage.password}
                   </p>
                 )}
@@ -155,25 +170,33 @@ export default function LoginPage() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg font-semibold hover:brightness-110"
+                className="w-full rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 py-4 font-semibold hover:brightness-110 disabled:opacity-75"
+                disabled={isLoading}
               >
-                ENTRAR
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></span>
+                    Entrando...
+                  </span>
+                ) : (
+                  "ENTRAR"
+                )}
               </button>
             </form>
 
             {/* Footer */}
-            <p className="text-sm text-center mt-6 text-gray-400">
+            <p className="mt-6 text-center text-sm text-gray-400">
               Não tem conta?{" "}
-              <a href="/signup" className="text-cyan-400">
+              <Link to="/signup" className="text-cyan-400">
                 Cadastre-se
-              </a>
+              </Link>
             </p>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="absolute bottom-0 w-full text-center text-sm text-gray-500 py-6">
+      <footer className="absolute bottom-0 w-full py-6 text-center text-sm text-gray-500">
         © {new Date().getFullYear()} Kore Studio
       </footer>
     </div>
