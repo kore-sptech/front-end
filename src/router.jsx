@@ -46,7 +46,7 @@ const router = createBrowserRouter([
         element: <AgendamentosPage />,
       },
       {
-        path: "/notificacoes",
+        path: "/notificacoes", // diogo
         element: <NotificationsPage />,
       },
       {
@@ -54,7 +54,7 @@ const router = createBrowserRouter([
         element: <ProdutoPage />,
       },
       {
-        path: "/produtos/cadastro", // vitor
+        path: "/produtos/cadastro", // vitor & mira
         element: <CadastroProdutoPage/>,
       },
       {
@@ -62,11 +62,11 @@ const router = createBrowserRouter([
         element: <EditarProdutoPage />,
       },
       {
-        path: "/estoque/:id",
+        path: "/estoque/:id", // vitor & mira
         element: <EstoquePage/>
       },
       {
-        path: "/estoque/:id/adicionar",
+        path: "/estoque/:id/adicionar", // vitor
         element: <AdicionarEstoquePage/>
       }
     ],

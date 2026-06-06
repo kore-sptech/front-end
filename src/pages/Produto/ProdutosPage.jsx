@@ -127,7 +127,11 @@ export default function ProdutoPage() {
 
             <section className="grow h-full w-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
-                    <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">INVENTÁRIO</h1>
+                    <div className="flex flex-col gap-2">
+                        <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">INVENTÁRIO</h1>
+
+                        <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
+                    </div>
                     <SearchBar
                         value={pesquisa}
                         onChange={setPesquisa}

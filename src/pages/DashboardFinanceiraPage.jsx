@@ -55,11 +55,15 @@ export default function DashboardFinanceiraPage() {
     <div className="flex min-h-screen bg-[#000C24] text-white">
       <Sidebar />
 
-      <main className="flex-1 p-10">
+      <main className="flex-1 p-6">
         {/* Header */}
         <header className="mb-10 flex items-center justify-between">
-          <h1 className="text-4xl font-bold">Relatório Financeiro</h1>
-
+          <div className="flex flex-col gap-2">
+              <h1 className="text-4xl font-bold">RELATÓRIO FINANCEIRO</h1>
+          
+              <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
+          </div>
+          
           <button
             className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
             onClick={() => setIsModalOpen(true)}

@@ -113,8 +113,10 @@ export default function DashboardPage() {
             </svg>
 
       <section className="grow h-full w-full overflow-auto">
-      <div className="p-6 flex w-full justify-between">
+      <div className="flex flex-col gap-2 p-6">
         <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">DASHBOARD GERAL</h1>
+
+        <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
       </div>
 
       <div className="flex flex-1 flex-col">
