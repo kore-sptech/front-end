@@ -99,7 +99,16 @@ export default function TransacoesPage() {
         console.log(data);
         setTransacoes(data);
       });
-  }, [page, filters.nome, filters.dataCriacao, filters.tipo, filters.sort]);
+
+    obterMetricas();
+  }, [
+    page,
+    filters.nome,
+    filters.dataCriacao,
+    filters.tipo,
+    filters.sort,
+    obterMetricas,
+  ]);
 
   const selecionarTransacao = (transacao) => {
     setTransacaoAtual(transacao);
@@ -107,9 +116,8 @@ export default function TransacoesPage() {
   };
 
   useEffect(() => {
-    obterMetricas();
     obterTransacoes();
-  }, [obterMetricas, obterTransacoes]);
+  }, [obterTransacoes]);
 
   const limparFiltros = () => {
     setFilters({
