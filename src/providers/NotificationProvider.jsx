@@ -15,10 +15,9 @@ export function NotificationProvider({ children }) {
       eventSource.onmessage = (event) => {
         // ignora heartbeat — não exibe como notificação real
         if (event.data === "heartbeat") return;
+        const notification = JSON.parse(event.data);
 
-        setNotifications((prev) => [...prev, event.data]);
-
-        console.log(event.data);
+        setNotifications((prev) => [...prev, notification]);
       };
 
       eventSource.onerror = (err) => {
