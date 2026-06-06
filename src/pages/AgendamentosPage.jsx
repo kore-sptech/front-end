@@ -7,7 +7,6 @@ import {
 import { buildColorMapByClient, buildWeekDays } from "../utils/build";
 import { useContext, useEffect, useState } from "react";
 
-import AsideBar from "../components/Aside";
 import { CalendarPlus } from "lucide-react";
 import ModalNovoAgendamento from "../components/ModalNovoAgendamento";
 import { SidePanel } from "../components/SidePainel";

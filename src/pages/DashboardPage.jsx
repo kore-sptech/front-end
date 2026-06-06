@@ -2,7 +2,6 @@ import "../index.css";
 
 import Agendamentos from "../assets/Agendamentos.png";
 import Alerta from "../assets/alerta.png";
-import AsideBar from "../components/Aside";
 import Barra from "../components/Barra";
 import GraficoBarra from "../components/GraficoBarra";
 import ItemCritico from "../components/ItemCritico";
@@ -84,12 +83,42 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen w-full overflow-x-hidden bg-[#021134] text-[#DAE2FF]">
-      <Sidebar></Sidebar>
+    <main className="h-auto w-full flex bg-[#000C24] overflow-x-hidden">
+      <Sidebar />
+
+      <svg className="right-0 top-0 absolute pointer-events-none" width="745" height="721" viewBox="0 0 745 721" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_f_460_506)">
+                    <rect x="120" y="68" width="532" height="533" rx="266" fill="#48DCFC" fill-opacity="0.05" />
+                </g>
+                <defs>
+                    <filter id="filter0_f_460_506" x="0" y="-52" width="772" height="773" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feGaussianBlur stdDeviation="60" result="effect1_foregroundBlur_460_506" />
+                    </filter>
+                </defs>
+            </svg>
+
+            <svg className="bottom-5 left-0 absolute pointer-events-none" width="745" height="721" viewBox="0 0 745 721" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_f_460_506)">
+                    <rect x="120" y="68" width="532" height="533" rx="266" fill="#48DCFC" fill-opacity="0.05" />
+                </g>
+                <defs>
+                    <filter id="filter0_f_460_506" x="0" y="-52" width="772" height="773" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feGaussianBlur stdDeviation="60" result="effect1_foregroundBlur_460_506" />
+                    </filter>
+                </defs>
+            </svg>
+
+      <section className="grow h-full w-full overflow-auto">
+      <div className="p-6 flex w-full justify-between">
+        <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">DASHBOARD GERAL</h1>
+      </div>
 
       <div className="flex flex-1 flex-col">
-        {/* <Navbar></Navbar> */}
-        <div className="mt-10 grid h-30 w-full grid-cols-3 gap-5 px-5">
+        <div className="grid h-30 w-full grid-cols-3 gap-5 px-5">
           <Kpi {...kpi1}></Kpi>
 
           <Kpi {...kpi2}></Kpi>
@@ -98,7 +127,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="mt-10 mb-5 grid w-full grid-cols-3 gap-5 px-5">
-          <div className="col-span-2 h-100 min-h-auto rounded-2xl border-1 border-white/10 bg-[#132247] p-4.5 text-xs font-bold text-white">
+          <div className="col-span-2 h-100 min-h-auto rounded-2xl border border-white/10 bg-[#132247] p-4.5 text-xs font-bold text-white">
             <h1 className="m-5 text-2xl">Receita total do mês</h1>
 
             <GraficoBarra />
@@ -114,7 +143,7 @@ export default function DashboardPage() {
               <h1>Itens críticos</h1>
             </div>
 
-            <div className="flex max-h-[300px] flex-col items-center overflow-y-auto">
+            <div className="flex max-h-75 flex-col items-center overflow-y-auto">
               <ItemCritico {...alerta1}></ItemCritico>
               <ItemCritico {...alerta2}></ItemCritico>
               <ItemCritico {...alerta3}></ItemCritico>
@@ -134,7 +163,7 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="flex max-h-[300px] flex-col items-center overflow-y-auto">
+            <div className="flex max-h-75 flex-col items-center overflow-y-auto">
               <Notificacao {...notificacao1}></Notificacao>
               <Notificacao {...notificacao2}></Notificacao>
               <Notificacao {...notificacao3}></Notificacao>
@@ -143,6 +172,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      </section>
+
     </main>
   );
 }
