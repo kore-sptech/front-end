@@ -9,58 +9,12 @@ import { Link } from "react-router-dom";
 import "../../index.css";
 
 export default function ProdutoPage() {
-    const produtosMocados = [
-        {
-            id: 1,
-            nome: "Monitor Gamer 24'",
-            descricao: "Monitor 144hz Full HD",
-            possuiValidade: false,
-            qtdMinAlerta: 5,
-            quantidade: 12,
-            tipo: "agulha"
-        },
-        {
-            id: 2,
-            nome: "Teclado Mecânico RGB",
-            descricao: "Switch Blue, Layout ABNT2",
-            possuiValidade: false,
-            qtdMinAlerta: 10,
-            quantidade: 8,
-            tipo: "agulha"
-        },
-        {
-            id: 3,
-            nome: "Cabo HDMI 2.0",
-            descricao: "Cabo de 2 metros reforçado",
-            possuiValidade: false,
-            qtdMinAlerta: 20,
-            quantidade: 45,
-            tipo: "tinta"
-        },
-        {
-            id: 4,
-            nome: "Pasta Térmica Silver",
-            descricao: "Seringa de 5g",
-            possuiValidade: true,
-            qtdMinAlerta: 2,
-            quantidade: 3,
-            tipo: "pintura"
-        },
-        {
-            id: 5,
-            nome: "Pasta Térmica Silver",
-            descricao: "Seringa de 5g",
-            possuiValidade: true,
-            qtdMinAlerta: 2,
-            quantidade: 3,
-            tipo: "pintura"
-        }
-    ];
+    
     const navigate = useNavigate();
 
     const [pesquisa, setPesquisa] = useState("")
-    const [produtos, setProduto] = useState(produtosMocados)
-    const [produtosFiltrados, setProdutosFiltrados] = useState(produtosMocados)
+    const [produtos, setProduto] = useState([])
+    const [produtosFiltrados, setProdutosFiltrados] = useState([])
     useEffect(() => {
         fetch("http://localhost:8080/produtos", {
             method: "GET",

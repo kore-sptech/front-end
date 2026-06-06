@@ -112,7 +112,8 @@ export default function CadastroProdutoPage() {
         })
             .then((response) => {
                 if (response.status === 201) {
-                    document.getElementById('modal_sucesso').showModal();
+                    navigate(`/produtos`);
+                    //document.getElementById('modal_sucesso').showModal();
                 } else {
                     console.log(response.status)
                 }

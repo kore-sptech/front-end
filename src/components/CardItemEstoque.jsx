@@ -2,7 +2,21 @@ import stat from "daisyui/components/stat";
 import { useNavigate } from "react-router-dom";
 export default function CardProduto(props) {
     const navigate = useNavigate();
-    
+    async function deletar(){
+        await fetch(`http://localhost:8080/estoque/${props.id}`,{
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        }).then((response) => {
+            if(response.status === 204){
+                //document.getElementById('modal_sucesso').showModal();                    atualizarLista={carregarEstoque} foi adicionado para atualizar a lista de produtos após a exclusão
+                props.atualizarLista();
+            }else{
+                console.log(response.status)
+            }})
+    }
     return (
         <div className="card h-65 rounded-2xl bg-[#0A1A3D] w-80 shadow-sm mb-6 hover:cursor-pointer hover:shadow-cyan-300 hover:transition-all transition-all"
             onClick={() => navigate(`/estoque/${props.id}`)}>
@@ -14,9 +28,8 @@ export default function CardProduto(props) {
             </figure>
             <svg 
             className="absolute right-1 top-1 border rounded-sm border-transparent transition-all hover:border-cyan-300 cursor-pointer" 
-            onClick={(e) => {
-                e.stopPropagation();
-                if (onClick) onClick(e);
+            onClick={(e) => {e.stopPropagation();
+            deletar();
             }}
             width="44" 
             height="44" 

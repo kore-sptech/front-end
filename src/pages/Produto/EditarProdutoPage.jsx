@@ -86,7 +86,7 @@ export default function EditarProdutoPage(){
             return next;
         });
     };
-    async function cadastrar() {
+    async function alterar() {
         if (nome.trim().length < 3) {
             toast.error("O nome deve ter no mínimo 3 caracteres.");
             return;
@@ -118,7 +118,8 @@ export default function EditarProdutoPage(){
             body: JSON.stringify(produto)
         })
             .then((response) => {
-                if (response.status === 201) {
+                if (response.status === 200) {
+                    navigate(`/produtos`);
                     //document.getElementById('modal_sucesso').showModal();
                 } else {
                     console.log(response.status)
@@ -133,7 +134,8 @@ export default function EditarProdutoPage(){
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
             }
         }).then((response)=>{
-            if (response.status === 201) {
+            if (response.status === 204) {
+                navigate(`/produtos`);
                     //document.getElementById('modal_sucesso').showModal();
                 } else {
                     console.log(response.status)
@@ -261,7 +263,7 @@ export default function EditarProdutoPage(){
                                 />
                             </div>
                             <button
-                                onClick={cadastrar}
+                                onClick={alterar}
                                 className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/30 cursor-pointer transition-transform hover:scale-105 active:scale-95 min-w-55"
                             >
                                 Alterar

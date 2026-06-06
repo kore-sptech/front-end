@@ -44,6 +44,7 @@ export default function AdicionarEstoquePage() {
             body: JSON.stringify(estoque)
         }).then((response) => {
             if (response.status === 201) {
+                navigate(`/estoque/${id}`);
                 //document.getElementById('modal_sucesso').showModal();
             } else {
                 console.log(response.status)
