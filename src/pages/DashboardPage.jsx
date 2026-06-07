@@ -1,39 +1,22 @@
 import "../index.css";
 
 import Agendamentos from "../assets/Agendamentos.png";
-import Alerta from "../assets/alerta.png";
 import Barra from "../components/Barra";
 import GraficoBarra from "../components/GraficoBarra";
 import ItemCritico from "../components/ItemCritico";
 import Kpi from "../components/Kpi";
 import Lucro from "../assets/Lucro.png";
-import Mensagem from "../assets/Mensagem.png";
-import Navbar from "../components/Navbar";
 import Notificacao from "../components/Notificacao";
 import Ocupacao from "../assets/Ocupacao.png";
-import Pagamento from "../assets/Pagamento.png";
 import Sidebar from "../components/Sidebar";
-import { AlertCircle, AlertTriangle, Calendar, Clock, Package } from "lucide-react";
+import {AlertTriangle, Calendar, Clock } from "lucide-react";
 import {
-  DollarSign,
   CircleDollarSign,
-  BadgeDollarSign,
-  Banknote,
-  Wallet,
-  CreditCard,
-  Receipt,
-  ReceiptText,
-  Landmark,
-  PiggyBank,
-  Coins,
-  HandCoins,
-  CirclePercent,
-  TrendingUp,
-  TrendingDown
 } from "lucide-react";
 
 const kpis = [
   {
+    id: 1,
     titulo: "LUCRO LÍQUIDO",
     valor: "R$ 10.000",
     descricaoValor: "+12.5%",
@@ -41,6 +24,7 @@ const kpis = [
     icone: Lucro,
   },
   {
+    id: 2,
     titulo: "AGENDAMENTOS",
     valor: "142",
     descricaoValor: "+5 novos",
@@ -48,6 +32,7 @@ const kpis = [
     icone: Agendamentos,
   },
   {
+    id: 3,
     titulo: "OCUPAÇÃO",
     valor: "88%",
     descricaoValor: <Barra valor={88} />,
@@ -57,115 +42,62 @@ const kpis = [
 
   const alertas = [
   {
+    id: 1,
     titulo: "Estoque Baixo: Agulhas RL-03",
     descricao: "Apenas 5 unidades restantes no inventário principal.",
   },
   {
+    id: 2,
     titulo: "Estoque Baixo: Luvas",
     descricao: "Apenas 2 unidades restantes no inventário principal.",
   },
   {
+    id: 3,
     titulo: "Estoque Baixo: Tintas",
     descricao: "Apenas 8 unidades restantes no inventário principal.",
   }];
 
   const notificacoes = [
   {
-    icone: CircleDollarSign,
-    titulo: "Proxima sessao em 20 minutos",
-    descricao: "",
-    tempo: "Há 20 minutos",
-  },
-  {
-    icone: CircleDollarSign,
-    titulo: "Compra efetuada!",
-    descricao: "Material X - Valor R$ 300,00",
-    tempo: "Há 42 minutos",
-  },
-  {
-    icone: CircleDollarSign,
-    titulo: "Pagamento recebido!",
-    descricao: "Sessão finalizada - Valor R$ 530,00",
-    tempo: "Há 2 horas",
-  },
-  {
-    icone: Calendar,
-    titulo: "Agendamento realizado!",
-    descricao: "Sessão Marcada - Data: 15/07/2026",
-    tempo: "Há 3 horas",
-  }];
-
-export default function DashboardPage() {
-  const kpi1 = {
-    titulo: "LUCRO LÍQUIDO",
-    valor: "R$ 10.000",
-    descricaoValor: "+12.5%",
-    descricaoIndividual: "em relação ao mês passado",
-    icone: Lucro,
-  };
-
-  const kpi2 = {
-    titulo: "AGENDAMENTOS",
-    valor: "142",
-    descricaoValor: "+5 novos",
-    descricaoIndividual: "no último mês",
-    icone: Agendamentos,
-  };
-
-  const kpi3 = {
-    titulo: "OCUPAÇÃO",
-    valor: "88%",
-    descricaoValor: <Barra valor={88} />,
-    descricaoIndividual: "",
-    icone: Ocupacao,
-  };
-
-  const alerta1 = {
-    titulo: "Estoque Baixo: Agulhas RL-03",
-    descricao: "Apenas 5 unidades restantes no inventário principal.",
-  };
-
-  const alerta2 = {
-    titulo: "Estoque Baixo: Luvas",
-    descricao: "Apenas 2 unidades restantes no inventário principal.",
-  };
-
-  const alerta3 = {
-    titulo: "Estoque Baixo: Tintas",
-    descricao: "Apenas 8 unidades restantes no inventário principal.",
-  };
-
-  const notificacao1 = {
+    id: 1,
     icone: Clock,
     titulo: "Proxima sessao em 20 minutos",
     descricao: "",
     tempo: "Há 20 minutos",
     tipo: "Lembrete"
-  };
-
-  const notificacao2 = {
+  },
+  {
+    id: 2,
     icone: CircleDollarSign,
     titulo: "Compra efetuada!",
     descricao: "Material X - Valor R$ 300,00",
     tempo: "Há 42 minutos",
     tipo: "Saida"
-  };
-
-  const notificacao3 = {
+  },
+  {
+    id: 3,
     icone: CircleDollarSign,
     titulo: "Pagamento recebido!",
     descricao: "Sessão finalizada - Valor R$ 530,00",
     tempo: "Há 2 horas",
     tipo: "Entrada"
-  };
-
-  const notificacao4 = {
+  },
+  {
+    id: 4,
     icone: Calendar,
     titulo: "Agendamento realizado!",
     descricao: "Sessão Marcada - Data: 15/07/2026",
     tempo: "Há 3 horas",
     tipo: "Agendamento"
-  };
+  }];
+
+export default function DashboardPage() {
+
+  function limparNotificacoes(){
+
+    
+
+  }
 
   return (
     <main className="h-auto w-full flex bg-[#000C24] overflow-x-hidden">
@@ -206,11 +138,7 @@ export default function DashboardPage() {
 
       <div className="flex flex-1 flex-col">
         <div className="grid h-30 w-full grid-cols-3 gap-5 px-5">
-          <Kpi {...kpi1}></Kpi>
-
-          <Kpi {...kpi2}></Kpi>
-
-          <Kpi {...kpi3}></Kpi>
+          {kpis.map((kpi) => (<Kpi {...kpi} key={kpi.id}></Kpi>))}
         </div>
 
         <div className="mt-10 mb-5 grid w-full grid-cols-3 gap-5 px-5">
@@ -227,9 +155,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex max-h-75 w-full px-2.5 flex-col items-center overflow-y-auto">
-              <ItemCritico {...alerta1}></ItemCritico>
-              <ItemCritico {...alerta2}></ItemCritico>
-              <ItemCritico {...alerta3}></ItemCritico>
+              {alertas.map((alerta) => (<ItemCritico {...alerta} key={alerta.id}></ItemCritico>))}
             </div>
           </div>
         </div>
@@ -239,7 +165,7 @@ export default function DashboardPage() {
             <div className="m-5 flex justify-between text-2xl">
               <h1>Notificações</h1>
               <button
-                onClick=""
+                onClick={() => limparNotificacoes}
                 className="flex flex-col justify-around p-2 text-sm text-blue-300"
               >
                 Limpar notificações
@@ -247,10 +173,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex max-h-75 flex-col items-center overflow-y-auto ">
-              <Notificacao {...notificacao1}></Notificacao>
-              <Notificacao {...notificacao2}></Notificacao>
-              <Notificacao {...notificacao3}></Notificacao>
-              <Notificacao {...notificacao4}></Notificacao>
+              {notificacoes.map((notificacao) => (<Notificacao {...notificacao} key={notificacao.id}></Notificacao>))}
             </div>
           </div>
         </div>
