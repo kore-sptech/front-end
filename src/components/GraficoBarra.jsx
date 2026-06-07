@@ -24,7 +24,7 @@ export default function Grafico() {
   const mesAtualTexto = listaMeses[new Date().getMonth()]; // Ex: Se for Maio, retorna "Mai"
 
   return (
-    <div className="h-72 w-full">
+    <div className="h-72 w-full ">
       <ResponsiveContainer>
         <BarChart data={data}>
           <XAxis

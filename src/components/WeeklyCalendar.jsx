@@ -117,7 +117,7 @@ export function EventsGrid({ sessions, colorByClient }) {
       {Array.from({ length: 24 * 7 }, (_, i) => (
         <div
           key={i}
-          className="border-r border-b border-[#3C494D]/10"
+          className="border-r border-b border-[#3C494D]/35"
           style={{ minHeight: ROW_HEIGHT_PX }}
         />
       ))}

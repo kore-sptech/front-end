@@ -134,8 +134,8 @@ export default function DashboardFinanceiraPage() {
           </div>
 
           {/* KPIs de entrada e saída */}
-          <div className="col-span-4 flex flex-col gap-4">
-            <div className="flex items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6">
+          <div className="col-span-4 flex flex-col gap-4 h-full justify-between">
+            <div className="flex items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6 h-full">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Entradas</p>
                 <p className="text-2xl font-bold">
@@ -152,7 +152,7 @@ export default function DashboardFinanceiraPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6">
+            <div className="flex items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6 h-full">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Saídas</p>
                 <p className="text-opacity-80 text-2xl font-bold text-red-400">

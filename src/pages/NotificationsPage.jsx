@@ -2,6 +2,9 @@ import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import NotificationCard from "../components/CardNotificacoes";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Odometer from "react-odometerjs";
+import "odometer/themes/odometer-theme-default.css";
+import "../index.css"
 
 const initialNotifications = [
   {
@@ -253,19 +256,37 @@ const informativo = notificationsFiltradas.filter(
                 {/* Indicador Críticos */}
                 <div className="flex items-center justify-between rounded-xl bg-[#021134] px-5 py-4">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#F87171]">Críticos</span>
-                  <span className="text-xl font-black text-white">{critico}</span>
+                  <span className="text-xl font-black text-white">
+                    <Odometer
+                      value={critico}
+                      duration={5}
+                      format="d"
+                    />
+                  </span>
                 </div>
 
                 {/* Indicador Atenção */}
                 <div className="flex items-center justify-between rounded-xl bg-[#021134] px-5 py-4">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#FB923C]">Atenção</span>
-                  <span className="text-xl font-black text-white">{atencao}</span>
+                  <span className="text-xl font-black text-white">
+                    <Odometer
+                      value={atencao}
+                      duration={5}
+                      format="d"
+                    />
+                  </span>
                 </div>
 
                 {/* Indicador Informativos */}
                 <div className="flex items-center justify-between rounded-xl bg-[#021134] px-5 py-4">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#22D3EE]">Informativos</span>
-                  <span className="text-xl font-black text-white">{informativo}</span>
+                  <span className="text-xl font-black text-white">
+                    <Odometer
+                      value={informativo}
+                      duration={5}
+                      format="d"
+                    />
+                  </span>
                 </div>
               </div>
             </div>

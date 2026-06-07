@@ -13,6 +13,87 @@ import Notificacao from "../components/Notificacao";
 import Ocupacao from "../assets/Ocupacao.png";
 import Pagamento from "../assets/Pagamento.png";
 import Sidebar from "../components/Sidebar";
+import { AlertCircle, AlertTriangle, Calendar, Package } from "lucide-react";
+import {
+  DollarSign,
+  CircleDollarSign,
+  BadgeDollarSign,
+  Banknote,
+  Wallet,
+  CreditCard,
+  Receipt,
+  ReceiptText,
+  Landmark,
+  PiggyBank,
+  Coins,
+  HandCoins,
+  CirclePercent,
+  TrendingUp,
+  TrendingDown
+} from "lucide-react";
+
+const kpis = [
+  {
+    titulo: "LUCRO LÍQUIDO",
+    valor: "R$ 10.000",
+    descricaoValor: "+12.5%",
+    descricaoIndividual: "em relação ao mês passado",
+    icone: Lucro,
+  },
+  {
+    titulo: "AGENDAMENTOS",
+    valor: "142",
+    descricaoValor: "+5 novos",
+    descricaoIndividual: "no último mês",
+    icone: Agendamentos,
+  },
+  {
+    titulo: "OCUPAÇÃO",
+    valor: "88%",
+    descricaoValor: <Barra valor={88} />,
+    descricaoIndividual: "",
+    icone: Ocupacao,
+  }];
+
+  const alertas = [
+  {
+    titulo: "Estoque Baixo: Agulhas RL-03",
+    descricao: "Apenas 5 unidades restantes no inventário principal.",
+  },
+  {
+    titulo: "Estoque Baixo: Luvas",
+    descricao: "Apenas 2 unidades restantes no inventário principal.",
+  },
+  {
+    titulo: "Estoque Baixo: Tintas",
+    descricao: "Apenas 8 unidades restantes no inventário principal.",
+  }];
+
+  const notificacoes = [
+  {
+    icone: CircleDollarSign,
+    titulo: "Proxima sessao em 20 minutos",
+    descricao: "",
+    tempo: "Há 20 minutos",
+  },
+  {
+    icone: CircleDollarSign,
+    titulo: "Compra efetuada!",
+    descricao: "Material X - Valor R$ 300,00",
+    tempo: "Há 42 minutos",
+  },
+  {
+    icone: CircleDollarSign,
+    titulo: "Pagamento recebido!",
+    descricao: "Sessão finalizada - Valor R$ 530,00",
+    tempo: "Há 2 horas",
+  },
+  {
+    icone: CircleDollarSign,
+    titulo: "Agendamento realizado!",
+    descricao: "Sessão Marcada - Data: 15/07/2026",
+    tempo: "Há 3 horas",
+  }];
 
 export default function DashboardPage() {
   const kpi1 = {
@@ -55,28 +136,28 @@ export default function DashboardPage() {
   };
 
   const notificacao1 = {
-    icone: Pagamento,
+    icone: CircleDollarSign,
     titulo: "Proxima sessao em 20 minutos",
     descricao: "",
     tempo: "Há 20 minutos",
   };
 
   const notificacao2 = {
-    icone: Pagamento,
+    icone: CircleDollarSign,
     titulo: "Compra efetuada!",
     descricao: "Material X - Valor R$ 300,00",
     tempo: "Há 42 minutos",
   };
 
   const notificacao3 = {
-    icone: Pagamento,
+    icone: CircleDollarSign,
     titulo: "Pagamento recebido!",
     descricao: "Sessão finalizada - Valor R$ 530,00",
     tempo: "Há 2 horas",
   };
 
   const notificacao4 = {
-    icone: Mensagem,
+    icone: CircleDollarSign,
     titulo: "Agendamento realizado!",
     descricao: "Sessão Marcada - Data: 15/07/2026",
     tempo: "Há 3 horas",
@@ -129,23 +210,19 @@ export default function DashboardPage() {
         </div>
 
         <div className="mt-10 mb-5 grid w-full grid-cols-3 gap-5 px-5">
-          <div className="col-span-2 h-100 min-h-auto rounded-2xl border border-white/10 bg-[#132247] p-4.5 text-xs font-bold text-white">
+          <div className="col-span-2 h-100 min-h-auto rounded-2xl border border-white/10 bg-[#061639] p-4.5 text-xs font-bold text-white">
             <h1 className="m-5 text-2xl">Receita total do mês</h1>
 
             <GraficoBarra />
           </div>
 
-          <div className="col-span-1 rounded-2xl border border-white/10 bg-[#132247] p-3 text-white">
-            <div className="m-5 flex text-2xl">
-              <img
-                src={Alerta}
-                alt="icone Alerta"
-                className="mt-2 mr-3 h-5 w-6 pr-0.5"
-              />
+          <div className="col-span-1 rounded-2xl border border-white/10 bg-[#061639] p-3 text-white">
+            <div className="m-2 mb-4 flex text-2xl w-55 justify-between h-14 items-center">
+              <AlertTriangle className="p-3 flex h-12 w-12 items-center justify-center rounded-xl bg-red-400/10 text-red-400" />
               <h1>Itens críticos</h1>
             </div>
 
-            <div className="flex max-h-75 flex-col items-center overflow-y-auto">
+            <div className="flex max-h-75 w-full px-2.5 flex-col items-center overflow-y-auto">
               <ItemCritico {...alerta1}></ItemCritico>
               <ItemCritico {...alerta2}></ItemCritico>
               <ItemCritico {...alerta3}></ItemCritico>
@@ -154,7 +231,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="mb-10 grid grid-cols-3 gap-5 px-5">
-          <div className="col-span-3 rounded-2xl border border-white/10 bg-[#132247] p-3 text-white">
+          <div className="col-span-3 rounded-2xl border border-white/10 bg-[#061639] p-3 text-white">
             <div className="m-5 flex justify-between text-2xl">
               <h1>Notificações</h1>
               <button
@@ -165,7 +242,7 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="flex max-h-75 flex-col items-center overflow-y-auto">
+            <div className="flex max-h-75 flex-col items-center overflow-y-auto ">
               <Notificacao {...notificacao1}></Notificacao>
               <Notificacao {...notificacao2}></Notificacao>
               <Notificacao {...notificacao3}></Notificacao>

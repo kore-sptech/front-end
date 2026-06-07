@@ -129,7 +129,7 @@ function PageHeader({ onOpenModal }) {
         <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
       </div>
       <button
-        className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
+        className="flex items-center cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
         onClick={onOpenModal}
       >
         <CalendarPlus />

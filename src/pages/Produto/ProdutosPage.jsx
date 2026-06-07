@@ -138,7 +138,7 @@ export default function ProdutoPage() {
                     ></SearchBar>
                     <button
                         onClick={() => navigate("cadastro")}
-                        className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 text-[#003640] shadow-xl shadow-cyan-500/20 font-bold">
+                        className="flex items-center cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 text-[#003640] shadow-xl shadow-cyan-500/20 font-bold">
                         + Registrar
                     </button>
                 </div>
