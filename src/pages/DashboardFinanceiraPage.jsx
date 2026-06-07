@@ -253,6 +253,7 @@ export default function DashboardFinanceiraPage() {
           fetchMetricas();
           fetchTransacoes();
         }}
+        obterTransacoes={fetchTransacoes}
       />
     </div>
   );
