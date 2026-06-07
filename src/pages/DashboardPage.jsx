@@ -13,7 +13,7 @@ import Notificacao from "../components/Notificacao";
 import Ocupacao from "../assets/Ocupacao.png";
 import Pagamento from "../assets/Pagamento.png";
 import Sidebar from "../components/Sidebar";
-import { AlertCircle, AlertTriangle, Calendar, Package } from "lucide-react";
+import { AlertCircle, AlertTriangle, Calendar, Clock, Package } from "lucide-react";
 import {
   DollarSign,
   CircleDollarSign,
@@ -89,7 +89,7 @@ const kpis = [
     tempo: "Há 2 horas",
   },
   {
-    icone: CircleDollarSign,
+    icone: Calendar,
     titulo: "Agendamento realizado!",
     descricao: "Sessão Marcada - Data: 15/07/2026",
     tempo: "Há 3 horas",
@@ -136,10 +136,11 @@ export default function DashboardPage() {
   };
 
   const notificacao1 = {
-    icone: CircleDollarSign,
+    icone: Clock,
     titulo: "Proxima sessao em 20 minutos",
     descricao: "",
     tempo: "Há 20 minutos",
+    tipo: "Lembrete"
   };
 
   const notificacao2 = {
@@ -147,6 +148,7 @@ export default function DashboardPage() {
     titulo: "Compra efetuada!",
     descricao: "Material X - Valor R$ 300,00",
     tempo: "Há 42 minutos",
+    tipo: "Saida"
   };
 
   const notificacao3 = {
@@ -154,13 +156,15 @@ export default function DashboardPage() {
     titulo: "Pagamento recebido!",
     descricao: "Sessão finalizada - Valor R$ 530,00",
     tempo: "Há 2 horas",
+    tipo: "Entrada"
   };
 
   const notificacao4 = {
-    icone: CircleDollarSign,
+    icone: Calendar,
     titulo: "Agendamento realizado!",
     descricao: "Sessão Marcada - Data: 15/07/2026",
     tempo: "Há 3 horas",
+    tipo: "Agendamento"
   };
 
   return (
