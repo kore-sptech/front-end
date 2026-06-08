@@ -12,6 +12,7 @@ import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { IMaskInput } from "react-imask";
 import { api } from "../utils/api";
 import { toast } from "sonner";
+import ModalLista from "./ModalLista"; 
 
 // ─── Shake animation ──────────────────────────────────────────────────────────
 const shakeStyle = `
@@ -35,14 +36,12 @@ const str = (v) => (v != null ? String(v) : "");
 function validate(fields) {
   const errors = {};
 
-  // cliente
   if (!fields.cliente || fields.cliente.trim().length === 0) {
     errors.cliente = "Nome é obrigatório";
   } else if (fields.cliente.trim().length < 3) {
     errors.cliente = "Mínimo 3 caracteres";
   }
 
-  // preco
   if (!fields.preco || fields.preco.trim().length === 0) {
     errors.preco = "Preço é obrigatório";
   } else {
@@ -52,24 +51,20 @@ function validate(fields) {
     }
   }
 
-  // telefone
   if (!fields.telefone || fields.telefone.trim().length === 0) {
     errors.telefone = "Telefone é obrigatório";
   } else if (fields.telefone.replace(/\D/g, "").length !== 11) {
     errors.telefone = "Telefone incompleto — use (99) 99999-9999";
   }
 
-  // pagamento
   if (!fields.pagamento || fields.pagamento.trim().length === 0) {
     errors.pagamento = "Selecione a forma de pagamento";
   }
 
-  // de
   if (!fields.de || fields.de.trim().length === 0) {
     errors.de = "Informe o horário de início";
   }
 
-  // ate
   if (!fields.ate || fields.ate.trim().length === 0) {
     errors.ate = "Informe o horário de término";
   } else if (fields.de && fields.ate && fields.ate <= fields.de) {
@@ -79,7 +74,6 @@ function validate(fields) {
   return errors;
 }
 
-// ─── Verifica se não há nenhum erro (formulário válido) ───────────────────────
 function isFormValid(fields) {
   return Object.keys(validate(fields)).length === 0;
 }
@@ -95,24 +89,6 @@ const inputCls = (hasError) =>
     : "border-gray-800 focus:border-cyan-400"
   }`;
 
-function EscolherMateriais() {
-  return (<div>
-    <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
-      Materiais
-    </label>
-    <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4">
-      <button
-        type="button"
-        className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352] transition-all"
-      >
-        <Plus size={20} className="text-gray-500" />
-        <span className="text-[10px] text-gray-600">Adicionar</span>
-      </button>
-    </div>
-  </div>
-   );
-}
-
 // ─── Componente de mensagem de erro ──────────────────────────────────────────
 function ErrorMsg({ message }) {
   if (!message) return null;
@@ -123,7 +99,6 @@ function ErrorMsg({ message }) {
     </div>
   );
 }
-
 
 // ─── Componente de campo com shake ao receber novo erro ──────────────────────
 function Field({ label, icon, error, children }) {
@@ -158,20 +133,27 @@ function Field({ label, icon, error, children }) {
   );
 }
 
+// ─── Componente Placeholder para o ModalLista ──────────────────────────────
+function ItemMaterialPlaceholder({ item }) {
+  return (
+    <div className="rounded-xl border border-gray-800 bg-[#0A1A3D] p-4 text-white transition-all cursor-pointer hover:border-cyan-400/50">
+      <p className="font-bold text-sm">{item.nome || "Produto sem nome"}</p>
+    </div>
+  );
+}
+
 // ─── Componente principal ─────────────────────────────────────────────────────
 export default function ModalNovoAgendamento({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   const { agendamento } = useContext(AgendamentoContext);
 
-  // ── Valores iniciais derivados do agendamento em edição ──────────────────
   const imagesDoAgendamento =
     agendamento?.referencias.map((foto) => ({
       ...foto,
       url: foto.imageUrl,
     })) || [];
 
-  // ── Estado dos campos do formulário ──────────────────────────────────────
   const [fields, setFields] = useState({
     cliente: str(agendamento?.cliente),
     preco: agendamento?.preco != null ? String(agendamento.preco) : "",
@@ -181,32 +163,25 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     ate: agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "",
   });
 
-  // ── Estado dos erros de validação ─────────────────────────────────────────
-  // Começa vazio; erros só aparecem após a primeira tentativa de submit
-  // ou quando o campo já foi tocado (touched).
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // ── Estado das imagens ────────────────────────────────────────────────────
   const [images, setImages] = useState(imagesDoAgendamento);
   const [imageError, setImageError] = useState(false);
   const [imageShaking, setImageShaking] = useState(false);
   const fileInputRef = useRef();
-  
 
   // -- Materiais
   const [materiais, setMateriais] = useState([]);
+  const [isMateriaisModalOpen, setIsMateriaisModalOpen] = useState(false);
 
-  // ── Derivados ─────────────────────────────────────────────────────────────
   const formIsValid = isFormValid(fields);
   const canSubmit = formIsValid && images.length > 0;
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
   const handleChange = (name, value) => {
     const nextFields = { ...fields, [name]: value };
     setFields(nextFields);
 
-    // Revalida apenas o campo tocado para atualizar o erro em tempo real
     if (touched[name]) {
       const nextErrors = validate(nextFields);
       setErrors((prev) => ({
@@ -225,22 +200,22 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     }));
   };
 
-  // ── Imagens ───────────────────────────────────────────────────────────────
   const handleClickAdd = () => fileInputRef.current.click();
 
-  // -- Produtos 
+  // -- Produtos refatorado
   const handleProdutos = async () => {
-    try{
-      await api.get("/produtos", {
+    try {
+      const { data } = await api.get("/produtos", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      })
-      ;
-    }catch(error){
+      });
+      setMateriais(data);
+      setIsMateriaisModalOpen(true);
+    } catch (error) {
       toast.error("Erro ao buscar produtos.");
     }
-  }
+  };
 
   const handleFileChange = async (e) => {
     await Promise.all(
@@ -260,7 +235,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           setImages((prev) => [...prev, { id, url: ev.target.result }]);
         };
         reader.readAsDataURL(file);
-      }),
+      })
     );
 
     e.target.value = "";
@@ -278,14 +253,12 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     });
   };
 
-  // ── Submit ────────────────────────────────────────────────────────────────
   const onSubmit = (e) => {
     e.preventDefault();
 
-    // Marca todos os campos como tocados e exibe todos os erros de uma vez
     const allTouched = Object.keys(fields).reduce(
       (acc, k) => ({ ...acc, [k]: true }),
-      {},
+      {}
     );
     setTouched(allTouched);
 
@@ -322,7 +295,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         })
         .then(() => {
           toast.success("Agendamento atualizado com sucesso!");
-
           onClose();
         })
         .catch(() => {
@@ -345,12 +317,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     }
   };
 
-  // ─────────────────────────────────────────────────────────────────────────
   return (
     <>
       <style>{shakeStyle}</style>
 
-      <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
         <div className="relative w-full max-w-2xl rounded-2xl border border-gray-800 bg-[#061639] p-8 shadow-2xl">
           <button
             type="button"
@@ -370,7 +341,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           </div>
 
           <form onSubmit={onSubmit} className="space-y-4">
-            {/* ── Cliente + Preço ────────────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-4">
               <Field label="Cliente" error={errors.cliente}>
                 <input
@@ -397,7 +367,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </Field>
             </div>
 
-            {/* ── Telefone + Pagamento ───────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-4">
               <Field
                 label="Telefone"
@@ -428,17 +397,19 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </Field>
             </div>
 
-            {/* ── Referência Visual ─────────────────────────────────────── */}
             <div>
               <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
                 Referência Visual
               </label>
 
               <div
-                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""} ${imageError
-                  ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
-                  : "border-[#3C494D]/10 bg-[#263457]/20"
-                  }`}
+                className={`rounded-2xl border p-4 transition-all duration-200 ${
+                  imageShaking ? "shake" : ""
+                } ${
+                  imageError
+                    ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
+                    : "border-[#3C494D]/10 bg-[#263457]/20"
+                }`}
                 onAnimationEnd={() => setImageShaking(false)}
               >
                 <div className="flex flex-wrap gap-3">
@@ -465,17 +436,20 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <button
                     type="button"
                     onClick={handleClickAdd}
-                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${imageError
-                      ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
-                      : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
-                      }`}
+                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${
+                      imageError
+                        ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
+                        : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
+                    }`}
                   >
                     <Plus
                       size={20}
                       className={imageError ? "text-red-400" : "text-gray-500"}
                     />
                     <span
-                      className={`text-[10px] ${imageError ? "text-red-400" : "text-gray-600"}`}
+                      className={`text-[10px] ${
+                        imageError ? "text-red-400" : "text-gray-600"
+                      }`}
                     >
                       Adicionar
                     </span>
@@ -510,43 +484,23 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               />
             </div>
 
-
-            {/* ── Materiais ──────────────────────────────────────────────── */}
+            {/* ── Materiais Refatorado ───────────────────────────────────── */}
             <div>
               <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
                 Materiais
               </label>
-              <div
-                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""} ${imageError
-                  ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
-                  : "border-[#3C494D]/10 bg-[#263457]/20"
-                  }`}
-                onAnimationEnd={() => setImageShaking(false)}
-              >
-
-
-                  <button
-                    type="button"
-                    onClick={handleClickAdd}
-                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${imageError
-                      ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
-                      : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
-                      }`}
-                  >
-                    <Plus
-                      size={20}
-                      className={imageError ? "text-red-400" : "text-gray-500"}
-                    />
-                    <span
-                      className={`text-[10px] ${imageError ? "text-red-400" : "text-gray-600"}`}
-                    >
-                      Adicionar
-                    </span>
-                  </button>
+              <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4 transition-all duration-200">
+                <button
+                  type="button"
+                  onClick={handleProdutos}
+                  className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] transition-all hover:border-cyan-400/30 hover:bg-[#0f2352]"
+                >
+                  <Plus size={20} className="text-gray-500" />
+                  <span className="text-[10px] text-gray-600">Adicionar</span>
+                </button>
               </div>
-
             </div>
-            {/* ── Horários ──────────────────────────────────────────────── */}
+
             <div className="flex items-start gap-4">
               <Field label="De" error={errors.de}>
                 <input
@@ -571,9 +525,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </Field>
             </div>
 
-
-
-            {/* ── Botões ────────────────────────────────────────────────── */}
             {agendamento?.id ? (
               <div className="flex gap-3">
                 <button
@@ -585,10 +536,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 <button
                   type="submit"
                   disabled={!canSubmit}
-                  className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
-                    ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
-                    : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                    }`}
+                  className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+                    canSubmit
+                      ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
+                      : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
+                  }`}
                 >
                   {canSubmit ? "Atualizar" : "Preencha todos os campos"}
                 </button>
@@ -597,10 +549,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
-                  ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
-                  : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                  }`}
+                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+                  canSubmit
+                    ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
+                    : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
+                }`}
               >
                 {canSubmit
                   ? "Adicionar Agendamento"
@@ -610,6 +563,15 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           </form>
         </div>
       </div>
+
+      {/* ── Chamada do Modal de Lista ───────────────────────────────────── */}
+      <ModalLista
+        isOpen={isMateriaisModalOpen}
+        onClose={() => setIsMateriaisModalOpen(false)}
+        title="Estoque de Materiais"
+        items={materiais}
+        ItemComponent={ItemMaterialPlaceholder}
+      />
     </>
   );
 }
