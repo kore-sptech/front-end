@@ -90,11 +90,28 @@ const baseInput =
   "placeholder:text-gray-600 focus:outline-none transition-all duration-200";
 
 const inputCls = (hasError) =>
-  `${baseInput} ${
-    hasError
-      ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
-      : "border-gray-800 focus:border-cyan-400"
+  `${baseInput} ${hasError
+    ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
+    : "border-gray-800 focus:border-cyan-400"
   }`;
+
+function EscolherMateriais() {
+  return (<div>
+    <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
+      Materiais
+    </label>
+    <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4">
+      <button
+        type="button"
+        className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352] transition-all"
+      >
+        <Plus size={20} className="text-gray-500" />
+        <span className="text-[10px] text-gray-600">Adicionar</span>
+      </button>
+    </div>
+  </div>
+   );
+}
 
 // ─── Componente de mensagem de erro ──────────────────────────────────────────
 function ErrorMsg({ message }) {
@@ -106,6 +123,7 @@ function ErrorMsg({ message }) {
     </div>
   );
 }
+
 
 // ─── Componente de campo com shake ao receber novo erro ──────────────────────
 function Field({ label, icon, error, children }) {
@@ -174,6 +192,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   const [imageError, setImageError] = useState(false);
   const [imageShaking, setImageShaking] = useState(false);
   const fileInputRef = useRef();
+  
+
+  // -- Materiais
+  const [materiais, setMateriais] = useState([]);
 
   // ── Derivados ─────────────────────────────────────────────────────────────
   const formIsValid = isFormValid(fields);
@@ -205,6 +227,20 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
   // ── Imagens ───────────────────────────────────────────────────────────────
   const handleClickAdd = () => fileInputRef.current.click();
+
+  // -- Produtos 
+  const handleProdutos = async () => {
+    try{
+      await api.get("/produtos", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      ;
+    }catch(error){
+      toast.error("Erro ao buscar produtos.");
+    }
+  }
 
   const handleFileChange = async (e) => {
     await Promise.all(
@@ -399,11 +435,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </label>
 
               <div
-                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""} ${
-                  imageError
-                    ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
-                    : "border-[#3C494D]/10 bg-[#263457]/20"
-                }`}
+                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""} ${imageError
+                  ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
+                  : "border-[#3C494D]/10 bg-[#263457]/20"
+                  }`}
                 onAnimationEnd={() => setImageShaking(false)}
               >
                 <div className="flex flex-wrap gap-3">
@@ -430,11 +465,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <button
                     type="button"
                     onClick={handleClickAdd}
-                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${
-                      imageError
-                        ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
-                        : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
-                    }`}
+                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${imageError
+                      ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
+                      : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
+                      }`}
                   >
                     <Plus
                       size={20}
@@ -476,6 +510,42 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               />
             </div>
 
+
+            {/* ── Materiais ──────────────────────────────────────────────── */}
+            <div>
+              <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
+                Materiais
+              </label>
+              <div
+                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""} ${imageError
+                  ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
+                  : "border-[#3C494D]/10 bg-[#263457]/20"
+                  }`}
+                onAnimationEnd={() => setImageShaking(false)}
+              >
+
+
+                  <button
+                    type="button"
+                    onClick={handleClickAdd}
+                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${imageError
+                      ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
+                      : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
+                      }`}
+                  >
+                    <Plus
+                      size={20}
+                      className={imageError ? "text-red-400" : "text-gray-500"}
+                    />
+                    <span
+                      className={`text-[10px] ${imageError ? "text-red-400" : "text-gray-600"}`}
+                    >
+                      Adicionar
+                    </span>
+                  </button>
+              </div>
+
+            </div>
             {/* ── Horários ──────────────────────────────────────────────── */}
             <div className="flex items-start gap-4">
               <Field label="De" error={errors.de}>
@@ -501,6 +571,8 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </Field>
             </div>
 
+
+
             {/* ── Botões ────────────────────────────────────────────────── */}
             {agendamento?.id ? (
               <div className="flex gap-3">
@@ -513,11 +585,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 <button
                   type="submit"
                   disabled={!canSubmit}
-                  className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                    canSubmit
-                      ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
-                      : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                  }`}
+                  className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
+                    ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
+                    : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
+                    }`}
                 >
                   {canSubmit ? "Atualizar" : "Preencha todos os campos"}
                 </button>
@@ -526,11 +597,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                  canSubmit
-                    ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
-                    : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                }`}
+                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
+                  ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
+                  : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
+                  }`}
               >
                 {canSubmit
                   ? "Adicionar Agendamento"
