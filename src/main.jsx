@@ -13,7 +13,6 @@ createRoot(document.getElementById("root")).render(
     <ModalAgendamentoContextProvider>
       <RouterProvider router={router} />
       <Toaster />
-      prova
     </ModalAgendamentoContextProvider>
   </NotificationProvider>,
 );

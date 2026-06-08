@@ -1,7 +1,11 @@
 import {
   AlertCircle,
   ArrowRight,
+  BanknoteArrowUp,
+  CalendarArrowUp,
+  CalendarCheck2,
   ImageOff,
+  MessageCircle,
   Phone,
   Plus,
   X,
@@ -10,9 +14,9 @@ import { useContext, useEffect, useRef, useState } from "react";
 
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { IMaskInput } from "react-imask";
+import ModalLista from "./ModalLista";
 import { api } from "../utils/api";
 import { toast } from "sonner";
-import ModalLista from "./ModalLista"; 
 
 // ─── Shake animation ──────────────────────────────────────────────────────────
 const shakeStyle = `
@@ -84,9 +88,10 @@ const baseInput =
   "placeholder:text-gray-600 focus:outline-none transition-all duration-200";
 
 const inputCls = (hasError) =>
-  `${baseInput} ${hasError
-    ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
-    : "border-gray-800 focus:border-cyan-400"
+  `${baseInput} ${
+    hasError
+      ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
+      : "border-gray-800 focus:border-cyan-400"
   }`;
 
 // ─── Componente de mensagem de erro ──────────────────────────────────────────
@@ -136,8 +141,8 @@ function Field({ label, icon, error, children }) {
 // ─── Componente Placeholder para o ModalLista ──────────────────────────────
 function ItemMaterialPlaceholder({ item }) {
   return (
-    <div className="rounded-xl border border-gray-800 bg-[#0A1A3D] p-4 text-white transition-all cursor-pointer hover:border-cyan-400/50">
-      <p className="font-bold text-sm">{item.nome || "Produto sem nome"}</p>
+    <div className="cursor-pointer rounded-xl border border-gray-800 bg-[#0A1A3D] p-4 text-white transition-all hover:border-cyan-400/50">
+      <p className="text-sm font-bold">{item.nome || "Produto sem nome"}</p>
     </div>
   );
 }
@@ -217,6 +222,53 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     }
   };
 
+  const confirmarSessao = () => {
+    api
+      .patch(
+        `/agendamentos/confirmar/${agendamento.id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      )
+      .then(() => {
+        toast.success("Sessão confirmada com sucesso!");
+        onClose();
+      })
+      .catch(() => {
+        console.log(
+          `[Toast] Erro ao confirmar agendamento id=${agendamento.id}`,
+        );
+      });
+  };
+
+  const confirmarPagamaento = () => {
+    api
+      .post(
+        "/transacoes",
+        {
+          nome: "Tatuagem do " + fields.cliente,
+          tipo: "ENTRADA",
+          valor: parseFloat(fields.preco),
+          categoria: "SESSAO",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      )
+      .then(() => {
+        toast.success("Transação adicionada com sucesso!");
+        onClose();
+      })
+      .catch(() => {
+        toast.error("Erro ao adicionar transação!");
+      });
+  };
+
   const handleFileChange = async (e) => {
     await Promise.all(
       Array.from(e.target.files).map(async (file) => {
@@ -235,7 +287,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           setImages((prev) => [...prev, { id, url: ev.target.result }]);
         };
         reader.readAsDataURL(file);
-      })
+      }),
     );
 
     e.target.value = "";
@@ -258,7 +310,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
     const allTouched = Object.keys(fields).reduce(
       (acc, k) => ({ ...acc, [k]: true }),
-      {}
+      {},
     );
     setTouched(allTouched);
 
@@ -526,25 +578,67 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
             </div>
 
             {agendamento?.id ? (
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                >
-                  Conversar
-                </button>
-                <button
-                  type="submit"
-                  disabled={!canSubmit}
-                  className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                    canSubmit
-                      ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
-                      : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                  }`}
-                >
-                  {canSubmit ? "Atualizar" : "Preencha todos os campos"}
-                </button>
-              </div>
+              <>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                    onClick={() => {
+                      let numeroLimpo = fields.telefone.replace(/\D/g, "");
+
+                      let mensagem = "Ola, " + fields.cliente + ".";
+
+                      let urlWhatsApp = `https://wa.me/${numeroLimpo}?text=${encodeURIComponent(mensagem)}`;
+
+                      window.open(urlWhatsApp, "_blank");
+                    }}
+                  >
+                    <span className="flex w-full items-center justify-center gap-2">
+                      <MessageCircle /> <span>Conversar</span>
+                    </span>
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!canSubmit}
+                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+                      canSubmit
+                        ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
+                        : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
+                    }`}
+                  >
+                    {canSubmit ? (
+                      <span className="flex w-full items-center justify-center gap-2">
+                        <CalendarArrowUp /> <span>Atualizar</span>
+                      </span>
+                    ) : (
+                      "Preencha todos os campos"
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    disabled={!canSubmit}
+                    className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                    onClick={confirmarPagamaento}
+                  >
+                    <span className="flex w-full items-center justify-center gap-2">
+                      <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmarSessao}
+                    disabled={!canSubmit}
+                    className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                  >
+                    <span className="flex w-full items-center justify-center gap-2">
+                      <CalendarCheck2 /> <span> Confirmar Sessão</span>
+                    </span>
+                  </button>
+                </div>
+              </>
             ) : (
               <button
                 type="submit"
