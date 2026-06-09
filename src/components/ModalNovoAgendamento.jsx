@@ -15,6 +15,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { IMaskInput } from "react-imask";
 import ModalLista from "./ModalLista";
+import GridMateriaisAdicionados from "./IntegracaoEstoqueAgendamento/GridMateriaisAdicionados";
 import { api } from "../utils/api";
 import { toast } from "sonner";
 
