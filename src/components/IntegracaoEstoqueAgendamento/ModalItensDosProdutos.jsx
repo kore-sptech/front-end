@@ -1,7 +1,7 @@
 import { X, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import CardItemComCheckbox from "./CardItemComCheckbox";
-import api from "../../utils/api";
+import { api } from "../../utils/api";
 import toast from "react-hot-toast";
 
 export default function ModalItensDosProdutos({
@@ -27,7 +27,7 @@ export default function ModalItensDosProdutos({
   const fetchItens = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get(`/produtos/${produtoId}/itens`, {
+      const { data } = await api.get(`/estoque/${produtoId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
