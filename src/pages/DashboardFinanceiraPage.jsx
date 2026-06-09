@@ -221,7 +221,9 @@ export default function DashboardFinanceiraPage() {
             </div>
             {transacoes.length === 0 ? (
               <p className="text-gray-500 italic">
-                Nenhuma transação encontrada.
+                Nenhuma transação encontrada. Adicione uma nova transação <button className="underline text-[#48DCFC] cursor-pointer" onClick={() => setIsModalOpen(true)}>
+                                                                              clicando aqui!
+                                                                          </button>
               </p>
             ) : (
               <ul className="space-y-3">

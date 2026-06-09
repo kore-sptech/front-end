@@ -9,7 +9,7 @@ import Lucro from "../assets/Lucro.png";
 import Notificacao from "../components/Notificacao";
 import Ocupacao from "../assets/Ocupacao.png";
 import Sidebar from "../components/Sidebar";
-import {AlertTriangle, Calendar, Clock } from "lucide-react";
+import {AlertTriangle, Calendar, Clock, AlertCircleIcon } from "lucide-react";
 import {
   CircleDollarSign,
 } from "lucide-react";
@@ -43,17 +43,27 @@ const kpis = [
   const alertas = [
   {
     id: 1,
-    titulo: "Estoque Baixo: Agulhas RL-03",
+    titulo: "Estoque Baixo - Agulhas RL-03",
     descricao: "Apenas 5 unidades restantes no inventário principal.",
   },
   {
     id: 2,
-    titulo: "Estoque Baixo: Luvas",
+    titulo: "Estoque Baixo - Luvas",
     descricao: "Apenas 2 unidades restantes no inventário principal.",
   },
   {
     id: 3,
-    titulo: "Estoque Baixo: Tintas",
+    titulo: "Estoque Baixo - Tintas",
+    descricao: "Apenas 8 unidades restantes no inventário principal.",
+  },
+  {
+    id: 4,
+    titulo: "Estoque Baixo - Tintas",
+    descricao: "Apenas 8 unidades restantes no inventário principal.",
+  },
+  {
+    id: 5,
+    titulo: "Estoque Baixo - Tintas",
     descricao: "Apenas 8 unidades restantes no inventário principal.",
   }];
 
@@ -149,9 +159,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="col-span-1 rounded-2xl border border-white/10 bg-[#061639] p-3 text-white">
-            <div className="m-2 mb-4 flex text-2xl w-55 justify-between h-14 items-center">
-              <AlertTriangle className="p-3 flex h-12 w-12 items-center justify-center rounded-xl bg-red-400/10 text-red-400" />
-              <h1>Itens críticos</h1>
+            <div className="m-2 mb-4 flex text-2xl w-full justify-between h-14 items-center">
+              <h1><b>Itens críticos</b></h1>
+              <AlertCircleIcon className="p-3 flex h-12 w-12 m-5 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400" />
             </div>
 
             <div className="flex max-h-75 w-full px-2.5 flex-col items-center overflow-y-auto">
@@ -163,7 +173,7 @@ export default function DashboardPage() {
         <div className="mb-10 grid grid-cols-3 gap-5 px-5">
           <div className="col-span-3 rounded-2xl border border-white/10 bg-[#061639] p-3 text-white">
             <div className="m-5 flex justify-between text-2xl">
-              <h1>Notificações</h1>
+              <h1><b>Notificações</b></h1>
               <button
                 onClick={() => limparNotificacoes}
                 className="flex flex-col justify-around p-2 text-sm text-blue-300"
