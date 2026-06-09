@@ -119,9 +119,12 @@ export default function EditarProdutoPage() {
         })
             .then((response) => {
                 if (response.status === 200) {
-                    navigate(`/produtos`);
-                    //document.getElementById('modal_sucesso').showModal();
-                } else {
+                navigate("/produtos", {
+                    state: {
+                        successMessage3: "Produto alterado com sucesso!"
+                    }
+                });
+            } else {
                     console.log(response.status)
                 }
             })
@@ -266,7 +269,7 @@ export default function EditarProdutoPage() {
                                 />
                             </div>
                             <button
-                                onClick={alterar}
+                                onClick={() => document.getElementById(`my_modal2_${id}`).showModal()}
                                 className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/30 cursor-pointer transition-transform hover:scale-105 active:scale-95 min-w-55"
                             >
                                 Alterar
@@ -324,6 +327,42 @@ export default function EditarProdutoPage() {
                                         }}
                                     >
                                         Excluir
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </dialog>
+
+                <dialog id={`my_modal2_${id}`} className="modal">
+                    <div className="modal-box bg-[#0A1F4B]">
+                        <h2 className="text-lg font-bold">Editar Produto</h2>
+                        <p className="py-4 text-sm font-light">
+                            Tem certeza de que deseja editar este produto?
+                        </p>
+                        <div className="modal-action">
+                            <form method="dialog ">
+                                {/* if there is a button in form, it will close the modal */}
+
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={(ev) => {
+                                            ev.preventDefault();
+                                            document.getElementById(`my_modal2_${id}`).close();
+                                        }}
+                                        className="flex cursor-pointer gap-2 rounded-xl border border-[#48DCFC] px-6 py-2.5 font-normal text-[#48DCFC]"
+                                    >
+                                        Cancelar
+                                    </button>
+
+                                    <button
+                                        className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-normal text-[#003640] opacity-65 shadow-xl transition-all hover:opacity-100 hover:shadow-cyan-500/20"
+                                        onClick={(ev) => {
+                                            ev.preventDefault();
+                                            alterar();
+                                        }}
+                                    >
+                                        Alterar
                                     </button>
                                 </div>
                             </form>

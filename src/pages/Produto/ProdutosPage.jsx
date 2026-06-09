@@ -24,6 +24,11 @@ export default function ProdutoPage() {
 
             window.history.replaceState({}, document.title);
         }
+        if (location.state?.successMessage3) {
+            toast.success(location.state.successMessage3);
+
+            window.history.replaceState({}, document.title);
+        }
     }, []);
 
     const navigate = useNavigate();
