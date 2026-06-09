@@ -127,11 +127,6 @@ export function EventsGrid({ sessions, colorByClient }) {
 
       {/* Blocos de agendamento sobrepostos */}
       {sessions.map((session) => {
-        console.log({
-          date: new Date(session.inicio).getDay(),
-          dado: DAY_LABEL_BY_INDEX[new Date(session.inicio).getDay() - 1],
-        });
-
         return (
           <EventBlock
             key={session.id}
@@ -185,17 +180,21 @@ export function EventBlock({
 }) {
   const { openModal } = useContext(AgendamentoContext);
 
-  let style = COLOR_STYLES[color] ?? COLOR_STYLES.ghost;
+  let style = COLOR_STYLES.ghost;
   let dayIndex = DAY_COLUMN_INDEX[dayLabel];
 
-  if (isOld(session)) {
-    style = COLOR_STYLES.ghost;
-  }
-
   console.log({
-    session,
-    dayLabel,
+    status: session.status,
   });
+  if (session.status === "CONFIRMADO_PAGAMENTO") style = COLOR_STYLES.green;
+  else if (session.status === "CONFIRMADO") style = COLOR_STYLES.blue;
+  else if (session.status == "AGUARDANDO") style = COLOR_STYLES.orange;
+  else if (session.status === "PENDENTE") style = COLOR_STYLES.ghost;
+  else if (session.status === "CANCELADO") style = COLOR_STYLES.red;
+
+  // console.log({
+  //   style,
+  // });
 
   return (
     <div

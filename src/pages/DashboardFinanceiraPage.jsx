@@ -59,11 +59,11 @@ export default function DashboardFinanceiraPage() {
         {/* Header */}
         <header className="mb-10 flex items-center justify-between">
           <div className="flex flex-col gap-2">
-              <h1 className="text-4xl font-bold">RELATÓRIO FINANCEIRO</h1>
-          
-              <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
+            <h1 className="text-4xl font-bold">RELATÓRIO FINANCEIRO</h1>
+
+            <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
           </div>
-          
+
           <button
             className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
             onClick={() => setIsModalOpen(true)}
@@ -134,8 +134,8 @@ export default function DashboardFinanceiraPage() {
           </div>
 
           {/* KPIs de entrada e saída */}
-          <div className="col-span-4 flex flex-col gap-4 h-full justify-between">
-            <div className="flex items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6 h-full">
+          <div className="col-span-4 flex h-full flex-col justify-between gap-4">
+            <div className="flex h-full items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Entradas</p>
                 <p className="text-2xl font-bold">
@@ -152,7 +152,7 @@ export default function DashboardFinanceiraPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6 h-full">
+            <div className="flex h-full items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Saídas</p>
                 <p className="text-opacity-80 text-2xl font-bold text-red-400">
@@ -221,9 +221,13 @@ export default function DashboardFinanceiraPage() {
             </div>
             {transacoes.length === 0 ? (
               <p className="text-gray-500 italic">
-                Nenhuma transação encontrada. Adicione uma nova transação <button className="underline text-[#48DCFC] cursor-pointer" onClick={() => setIsModalOpen(true)}>
-                                                                              clicando aqui!
-                                                                          </button>
+                Nenhuma transação encontrada. Adicione uma nova transação{" "}
+                <button
+                  className="cursor-pointer text-[#48DCFC] underline"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  clicando aqui!
+                </button>
               </p>
             ) : (
               <ul className="space-y-3">
@@ -259,6 +263,7 @@ export default function DashboardFinanceiraPage() {
           fetchMetricas();
           fetchTransacoes();
         }}
+        obterTransacoes={fetchTransacoes}
       />
     </div>
   );

@@ -13,9 +13,9 @@ import {
 import { useContext, useEffect, useRef, useState } from "react";
 
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
+import GridMateriaisAdicionados from "./IntegracaoEstoqueAgendamento/GridMateriaisAdicionados";
 import { IMaskInput } from "react-imask";
 import ModalLista from "./ModalLista";
-import GridMateriaisAdicionados from "./IntegracaoEstoqueAgendamento/GridMateriaisAdicionados";
 import { api } from "../utils/api";
 import { toast } from "sonner";
 
@@ -228,11 +228,13 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   const handleAddMateriais = (novoMaterial) => {
     // Verifica se este produto já foi adicionado
     const produtoJaAdicionado = materiaisSelecionados.some(
-      (m) => m.produtoId === novoMaterial.produtoId
+      (m) => m.produtoId === novoMaterial.produtoId,
     );
 
     if (produtoJaAdicionado) {
-      toast.error("Este produto já foi adicionado. Remova antes de adicionar novamente.");
+      toast.error(
+        "Este produto já foi adicionado. Remova antes de adicionar novamente.",
+      );
       return;
     }
 
@@ -270,14 +272,9 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
   const confirmarPagamaento = () => {
     api
-      .post(
-        "/transacoes",
-        {
-          nome: "Tatuagem do " + fields.cliente,
-          tipo: "ENTRADA",
-          valor: parseFloat(fields.preco),
-          categoria: "SESSAO",
-        },
+      .patch(
+        `/agendamentos/confirmar_pagamento/${agendamento.id}`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -285,11 +282,31 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         },
       )
       .then(() => {
-        toast.success("Transação adicionada com sucesso!");
-        onClose();
+        api
+          .post(
+            "/transacoes",
+            {
+              nome: "Tatuagem do " + fields.cliente,
+              tipo: "ENTRADA",
+              valor: parseFloat(fields.preco),
+              categoria: "SESSAO",
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            },
+          )
+          .then(() => {
+            toast.success("Transação adicionada com sucesso!");
+            onClose();
+          })
+          .catch(() => {
+            toast.error("Erro ao adicionar transação.");
+          });
       })
       .catch(() => {
-        toast.error("Erro ao adicionar transação!");
+        toast.error("Erro ao confirmar pagamento.");
       });
   };
 
@@ -651,26 +668,34 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 </div>
 
                 <div className="flex gap-3">
-                  <button
-                    type="button"
-                    disabled={!canSubmit}
-                    className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                    onClick={confirmarPagamaento}
-                  >
-                    <span className="flex w-full items-center justify-center gap-2">
-                      <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={confirmarSessao}
-                    disabled={!canSubmit}
-                    className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                  >
-                    <span className="flex w-full items-center justify-center gap-2">
-                      <CalendarCheck2 /> <span> Confirmar Sessão</span>
-                    </span>
-                  </button>
+                  {(agendamento.status == "PENDENTE" ||
+                    agendamento.status == "AGUARDANDO" ||
+                    agendamento.status == "CONFIRMADO") && (
+                    <button
+                      type="button"
+                      disabled={!canSubmit}
+                      className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                      onClick={confirmarPagamaento}
+                    >
+                      <span className="flex w-full items-center justify-center gap-2">
+                        <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
+                      </span>
+                    </button>
+                  )}
+
+                  {(agendamento.status == "PENDENTE" ||
+                    agendamento.status == "AGUARDANDO") && (
+                    <button
+                      type="button"
+                      onClick={confirmarSessao}
+                      disabled={!canSubmit}
+                      className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                    >
+                      <span className="flex w-full items-center justify-center gap-2">
+                        <CalendarCheck2 /> <span> Confirmar Sessão</span>
+                      </span>
+                    </button>
+                  )}
                 </div>
               </>
             ) : (
