@@ -1,21 +1,25 @@
 import {
   AlertCircle,
   ArrowRight,
+  BanknoteArrowUp,
+  CalendarArrowUp,
+  CalendarCheck2,
   ImageOff,
+  MessageCircle,
   Phone,
   Plus,
   X,
 } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
 import { useContext, useEffect, useRef, useState } from "react";
 
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { IMaskInput } from "react-imask";
+import ModalLista from "./ModalLista";
+import GridMateriaisAdicionados from "./IntegracaoEstoqueAgendamento/GridMateriaisAdicionados";
 import { api } from "../utils/api";
 import { toast } from "sonner";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
+// ─── Shake animation ──────────────────────────────────────────────────────────
 const shakeStyle = `
   @keyframes shake {
     0%   { transform: translateX(0); }
@@ -30,44 +34,56 @@ const shakeStyle = `
   .shake { animation: shake 0.45s ease; }
 `;
 
-const schema = z
-  .object({
-    cliente: z
-      .string()
-      .min(1, "Nome é obrigatório")
-      .min(3, "Mínimo 3 caracteres"),
-
-    preco: z
-      .string()
-      .min(1, "Preço é obrigatório")
-      .refine(
-        (v) => {
-          const num = parseFloat(v);
-          return !isNaN(num) && num > 0;
-        },
-        { message: "Informe um valor maior que zero" },
-      ),
-
-    telefone: z
-      .string()
-      .min(1, "Telefone é obrigatório")
-      .refine((v) => v.replace(/\D/g, "").length === 11, {
-        message: "Telefone incompleto — use (99) 99999-9999",
-      }),
-
-    pagamento: z.string().min(1, "Selecione a forma de pagamento"),
-
-    de: z.string().min(1, "Informe o horário de início"),
-    ate: z.string().min(1, "Informe o horário de término"),
-  })
-  .refine((d) => !d.de || !d.ate || d.ate > d.de, {
-    message: "Horário de término deve ser após o início",
-    path: ["ate"],
-  });
-
 // ─── Garante string vazia se valor for null/undefined ─────────────────────────
 const str = (v) => (v != null ? String(v) : "");
 
+// ─── Validação pura (substitui o schema Zod) ─────────────────────────────────
+function validate(fields) {
+  const errors = {};
+
+  if (!fields.cliente || fields.cliente.trim().length === 0) {
+    errors.cliente = "Nome é obrigatório";
+  } else if (fields.cliente.trim().length < 3) {
+    errors.cliente = "Mínimo 3 caracteres";
+  }
+
+  if (!fields.preco || fields.preco.trim().length === 0) {
+    errors.preco = "Preço é obrigatório";
+  } else {
+    const num = parseFloat(fields.preco);
+    if (isNaN(num) || num <= 0) {
+      errors.preco = "Informe um valor maior que zero";
+    }
+  }
+
+  if (!fields.telefone || fields.telefone.trim().length === 0) {
+    errors.telefone = "Telefone é obrigatório";
+  } else if (fields.telefone.replace(/\D/g, "").length !== 11) {
+    errors.telefone = "Telefone incompleto — use (99) 99999-9999";
+  }
+
+  if (!fields.pagamento || fields.pagamento.trim().length === 0) {
+    errors.pagamento = "Selecione a forma de pagamento";
+  }
+
+  if (!fields.de || fields.de.trim().length === 0) {
+    errors.de = "Informe o horário de início";
+  }
+
+  if (!fields.ate || fields.ate.trim().length === 0) {
+    errors.ate = "Informe o horário de término";
+  } else if (fields.de && fields.ate && fields.ate <= fields.de) {
+    errors.ate = "Horário de término deve ser após o início";
+  }
+
+  return errors;
+}
+
+function isFormValid(fields) {
+  return Object.keys(validate(fields)).length === 0;
+}
+
+// ─── Estilos de input ─────────────────────────────────────────────────────────
 const baseInput =
   "w-full bg-[#000C24] border rounded-lg py-3 px-4 text-sm text-white " +
   "placeholder:text-gray-600 focus:outline-none transition-all duration-200";
@@ -79,6 +95,7 @@ const inputCls = (hasError) =>
       : "border-gray-800 focus:border-cyan-400"
   }`;
 
+// ─── Componente de mensagem de erro ──────────────────────────────────────────
 function ErrorMsg({ message }) {
   if (!message) return null;
   return (
@@ -89,16 +106,17 @@ function ErrorMsg({ message }) {
   );
 }
 
+// ─── Componente de campo com shake ao receber novo erro ──────────────────────
 function Field({ label, icon, error, children }) {
   const [shaking, setShaking] = useState(false);
   const prevMsg = useRef(undefined);
 
   useEffect(() => {
-    if (error?.message && error.message !== prevMsg.current) {
+    if (error && error !== prevMsg.current) {
       setShaking(true);
     }
-    prevMsg.current = error?.message;
-  }, [error?.message]);
+    prevMsg.current = error;
+  }, [error]);
 
   return (
     <div>
@@ -116,11 +134,21 @@ function Field({ label, icon, error, children }) {
         )}
         {children}
       </div>
-      <ErrorMsg message={error?.message} />
+      <ErrorMsg message={error} />
     </div>
   );
 }
 
+// ─── Componente Placeholder para o ModalLista ──────────────────────────────
+function ItemMaterialPlaceholder({ item }) {
+  return (
+    <div className="cursor-pointer rounded-xl border border-gray-800 bg-[#0A1A3D] p-4 text-white transition-all hover:border-cyan-400/50">
+      <p className="text-sm font-bold">{item.nome || "Produto sem nome"}</p>
+    </div>
+  );
+}
+
+// ─── Componente principal ─────────────────────────────────────────────────────
 export default function ModalNovoAgendamento({ isOpen, onClose }) {
   if (!isOpen) return null;
 
@@ -132,37 +160,138 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
       url: foto.imageUrl,
     })) || [];
 
-  const defaultValues = {
+  const [fields, setFields] = useState({
     cliente: str(agendamento?.cliente),
     preco: agendamento?.preco != null ? String(agendamento.preco) : "",
     telefone: str(agendamento?.telefone),
     pagamento: str(agendamento?.formaPagamento),
-    de: agendamento?.inicio?.replace(" ", "T").slice(0, 16),
-    ate: agendamento?.fim?.replace(" ", "T").slice(0, 16),
-  };
+    de: agendamento?.inicio?.replace(" ", "T").slice(0, 16) ?? "",
+    ate: agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "",
+  });
 
-  console.log(defaultValues);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   const [images, setImages] = useState(imagesDoAgendamento);
   const [imageError, setImageError] = useState(false);
   const [imageShaking, setImageShaking] = useState(false);
   const fileInputRef = useRef();
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors, isValid },
-    trigger,
-  } = useForm({
-    resolver: zodResolver(schema),
-    mode: "onChange",
-    defaultValues,
-  });
+  // -- Materiais
+  const [produtosLista, setProdutosLista] = useState([]);
+  const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
+  const [isMateriaisModalOpen, setIsMateriaisModalOpen] = useState(false);
 
-  const canSubmit = isValid && images.length > 0;
+  const formIsValid = isFormValid(fields);
+  const canSubmit = formIsValid && images.length > 0;
+
+  const handleChange = (name, value) => {
+    const nextFields = { ...fields, [name]: value };
+    setFields(nextFields);
+
+    if (touched[name]) {
+      const nextErrors = validate(nextFields);
+      setErrors((prev) => ({
+        ...prev,
+        [name]: nextErrors[name] ?? undefined,
+      }));
+    }
+  };
+
+  const handleBlur = (name) => {
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const nextErrors = validate(fields);
+    setErrors((prev) => ({
+      ...prev,
+      [name]: nextErrors[name] ?? undefined,
+    }));
+  };
 
   const handleClickAdd = () => fileInputRef.current.click();
+
+  // -- Produtos refatorado
+  const handleProdutos = async () => {
+    try {
+      const { data } = await api.get("/produtos", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setProdutosLista(data);
+      setIsMateriaisModalOpen(true);
+    } catch (error) {
+      toast.error("Erro ao buscar produtos.");
+    }
+  };
+
+  // -- Adicionar materiais selecionados
+  const handleAddMateriais = (novoMaterial) => {
+    // Verifica se este produto já foi adicionado
+    const produtoJaAdicionado = materiaisSelecionados.some(
+      (m) => m.produtoId === novoMaterial.produtoId
+    );
+
+    if (produtoJaAdicionado) {
+      toast.error("Este produto já foi adicionado. Remova antes de adicionar novamente.");
+      return;
+    }
+
+    setMateriaisSelecionados((prev) => [...prev, novoMaterial]);
+    toast.success("Material adicionado com sucesso!");
+  };
+
+  // -- Remover material selecionado
+  const handleRemoverMaterial = (index) => {
+    setMateriaisSelecionados((prev) => prev.filter((_, i) => i !== index));
+    toast.success("Material removido.");
+  };
+
+  const confirmarSessao = () => {
+    api
+      .patch(
+        `/agendamentos/confirmar/${agendamento.id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      )
+      .then(() => {
+        toast.success("Sessão confirmada com sucesso!");
+        onClose();
+      })
+      .catch(() => {
+        console.log(
+          `[Toast] Erro ao confirmar agendamento id=${agendamento.id}`,
+        );
+      });
+  };
+
+  const confirmarPagamaento = () => {
+    api
+      .post(
+        "/transacoes",
+        {
+          nome: "Tatuagem do " + fields.cliente,
+          tipo: "ENTRADA",
+          valor: parseFloat(fields.preco),
+          categoria: "SESSAO",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      )
+      .then(() => {
+        toast.success("Transação adicionada com sucesso!");
+        onClose();
+      })
+      .catch(() => {
+        toast.error("Erro ao adicionar transação!");
+      });
+  };
 
   const handleFileChange = async (e) => {
     await Promise.all(
@@ -200,34 +329,50 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     });
   };
 
-  const onSubmit = (data) => {
-    if (images.length === 0) {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    const allTouched = Object.keys(fields).reduce(
+      (acc, k) => ({ ...acc, [k]: true }),
+      {},
+    );
+    setTouched(allTouched);
+
+    const validationErrors = validate(fields);
+    setErrors(validationErrors);
+
+    const hasFieldErrors = Object.keys(validationErrors).length > 0;
+    const hasImageError = images.length === 0;
+
+    if (hasImageError) {
       setImageError(true);
       setImageShaking(true);
-      return;
     }
 
-    const precoNumerico = parseFloat(data.preco);
+    if (hasFieldErrors || hasImageError) return;
+
+    const precoNumerico = parseFloat(fields.preco);
+    const payload = {
+      cliente: fields.cliente,
+      preco: precoNumerico,
+      telefone: fields.telefone,
+      formaPagamento: fields.pagamento,
+      inicio: fields.de,
+      fim: fields.ate,
+      referencias: images.map((img) => img.id),
+      materiais: materiaisSelecionados.map((m) => ({
+        produtoId: m.produtoId,
+        itens: m.itens.map((i) => i.id),
+      })),
+    };
 
     if (agendamento?.id) {
       api
-        .put(
-          `/agendamentos/${agendamento.id}`,
-          {
-            ...data,
-
-            preco: precoNumerico,
-            formaPagamento: data.pagamento,
-            inicio: data.de,
-            fim: data.ate,
-            referencias: images.map((img) => img.id),
+        .put(`/agendamentos/${agendamento.id}`, payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          },
-        )
+        })
         .then(() => {
           toast.success("Agendamento atualizado com sucesso!");
           onClose();
@@ -237,25 +382,13 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         });
     } else {
       api
-        .post(
-          "/agendamentos",
-          {
-            ...data,
-            preco: precoNumerico,
-            formaPagamento: data.pagamento,
-            inicio: data.de,
-            fim: data.ate,
-            referencias: images.map((img) => img.id),
+        .post("/agendamentos", payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          },
-        )
+        })
         .then(() => {
           toast.success("Agendamento adicionado com sucesso!");
-
           onClose();
         })
         .catch(() => {
@@ -264,18 +397,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     }
   };
 
-  const onInvalid = () => {
-    if (images.length === 0) {
-      setImageError(true);
-      setImageShaking(true);
-    }
-  };
-
   return (
     <>
       <style>{shakeStyle}</style>
 
-      <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
         <div className="relative w-full max-w-2xl rounded-2xl border border-gray-800 bg-[#061639] p-8 shadow-2xl">
           <button
             type="button"
@@ -294,16 +420,14 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
             </p>
           </div>
 
-          <form
-            onSubmit={handleSubmit(onSubmit, onInvalid)}
-            className="space-y-4"
-          >
-            {/* ── Cliente + Preço ────────────────────────────────────────── */}
+          <form onSubmit={onSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Field label="Cliente" error={errors.cliente}>
                 <input
-                  {...register("cliente")}
                   type="text"
+                  value={fields.cliente}
+                  onChange={(e) => handleChange("cliente", e.target.value)}
+                  onBlur={() => handleBlur("cliente")}
                   placeholder="Ex: João da Silva"
                   className={inputCls(!!errors.cliente)}
                 />
@@ -311,42 +435,39 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
               <Field label="Preço (R$)" error={errors.preco}>
                 <input
-                  {...register("preco")}
                   type="number"
                   step="0.01"
                   min="0"
+                  value={fields.preco}
+                  onChange={(e) => handleChange("preco", e.target.value)}
+                  onBlur={() => handleBlur("preco")}
                   placeholder="0,00"
                   className={inputCls(!!errors.preco)}
                 />
               </Field>
             </div>
 
-            {/* ── Telefone + Pagamento ───────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-4">
               <Field
                 label="Telefone"
                 icon={<Phone size={14} />}
                 error={errors.telefone}
               >
-                <Controller
-                  name="telefone"
-                  control={control}
-                  render={({ field }) => (
-                    <IMaskInput
-                      mask="(00) 00000-0000"
-                      defaultValue={str(field.value)}
-                      inputRef={field.ref}
-                      onAccept={(val) => field.onChange(str(val))}
-                      placeholder="(11) 99999-9999"
-                      className={`${inputCls(!!errors.telefone)} pl-9`}
-                    />
-                  )}
+                <IMaskInput
+                  mask="(00) 00000-0000"
+                  value={fields.telefone}
+                  onAccept={(val) => handleChange("telefone", str(val))}
+                  onBlur={() => handleBlur("telefone")}
+                  placeholder="(11) 99999-9999"
+                  className={`${inputCls(!!errors.telefone)} pl-9`}
                 />
               </Field>
 
               <Field label="Forma de pagamento" error={errors.pagamento}>
                 <select
-                  {...register("pagamento")}
+                  value={fields.pagamento}
+                  onChange={(e) => handleChange("pagamento", e.target.value)}
+                  onBlur={() => handleBlur("pagamento")}
                   className={`${inputCls(!!errors.pagamento)} cursor-pointer appearance-none`}
                 >
                   <option value="">Selecione...</option>
@@ -356,14 +477,15 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </Field>
             </div>
 
-            {/* ── Referência Visual ─────────────────────────────────────── */}
             <div>
               <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
                 Referência Visual
               </label>
 
               <div
-                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""} ${
+                className={`rounded-2xl border p-4 transition-all duration-200 ${
+                  imageShaking ? "shake" : ""
+                } ${
                   imageError
                     ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
                     : "border-[#3C494D]/10 bg-[#263457]/20"
@@ -405,7 +527,9 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                       className={imageError ? "text-red-400" : "text-gray-500"}
                     />
                     <span
-                      className={`text-[10px] ${imageError ? "text-red-400" : "text-gray-600"}`}
+                      className={`text-[10px] ${
+                        imageError ? "text-red-400" : "text-gray-600"
+                      }`}
                     >
                       Adicionar
                     </span>
@@ -440,12 +564,36 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               />
             </div>
 
-            {/* ── Horários ──────────────────────────────────────────────── */}
+            {/* ── Materiais Refatorado ───────────────────────────────────── */}
+            <div>
+              <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
+                Materiais
+              </label>
+              <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4 transition-all duration-200">
+                <button
+                  type="button"
+                  onClick={handleProdutos}
+                  className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] transition-all hover:border-cyan-400/30 hover:bg-[#0f2352]"
+                >
+                  <Plus size={20} className="text-gray-500" />
+                  <span className="text-[10px] text-gray-600">Adicionar</span>
+                </button>
+              </div>
+            </div>
+
+            {/* ── Grid de Materiais Adicionados ────────────────────────────── */}
+            <GridMateriaisAdicionados
+              materiais={materiaisSelecionados}
+              onRemover={handleRemoverMaterial}
+            />
+
             <div className="flex items-start gap-4">
               <Field label="De" error={errors.de}>
                 <input
-                  {...register("de")}
                   type="datetime-local"
+                  value={fields.de}
+                  onChange={(e) => handleChange("de", e.target.value)}
+                  onBlur={() => handleBlur("de")}
                   className={inputCls(!!errors.de)}
                 />
               </Field>
@@ -454,34 +602,77 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
               <Field label="Até" error={errors.ate}>
                 <input
-                  {...register("ate")}
                   type="datetime-local"
+                  value={fields.ate}
+                  onChange={(e) => handleChange("ate", e.target.value)}
+                  onBlur={() => handleBlur("ate")}
                   className={inputCls(!!errors.ate)}
                 />
               </Field>
             </div>
 
-            {/* ── Botões ────────────────────────────────────────────────── */}
             {agendamento?.id ? (
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                >
-                  Conversar
-                </button>
-                <button
-                  type="submit"
-                  disabled={!canSubmit}
-                  className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                    canSubmit
-                      ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
-                      : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                  }`}
-                >
-                  {canSubmit ? "Atualizar" : "Preencha todos os campos"}
-                </button>
-              </div>
+              <>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                    onClick={() => {
+                      let numeroLimpo = fields.telefone.replace(/\D/g, "");
+
+                      let mensagem = "Ola, " + fields.cliente + ".";
+
+                      let urlWhatsApp = `https://wa.me/${numeroLimpo}?text=${encodeURIComponent(mensagem)}`;
+
+                      window.open(urlWhatsApp, "_blank");
+                    }}
+                  >
+                    <span className="flex w-full items-center justify-center gap-2">
+                      <MessageCircle /> <span>Conversar</span>
+                    </span>
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!canSubmit}
+                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+                      canSubmit
+                        ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
+                        : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
+                    }`}
+                  >
+                    {canSubmit ? (
+                      <span className="flex w-full items-center justify-center gap-2">
+                        <CalendarArrowUp /> <span>Atualizar</span>
+                      </span>
+                    ) : (
+                      "Preencha todos os campos"
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    disabled={!canSubmit}
+                    className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                    onClick={confirmarPagamaento}
+                  >
+                    <span className="flex w-full items-center justify-center gap-2">
+                      <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmarSessao}
+                    disabled={!canSubmit}
+                    className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                  >
+                    <span className="flex w-full items-center justify-center gap-2">
+                      <CalendarCheck2 /> <span> Confirmar Sessão</span>
+                    </span>
+                  </button>
+                </div>
+              </>
             ) : (
               <button
                 type="submit"
@@ -500,6 +691,15 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           </form>
         </div>
       </div>
+
+      {/* ── Chamada do Modal de Lista ───────────────────────────────────── */}
+      <ModalLista
+        isOpen={isMateriaisModalOpen}
+        onClose={() => setIsMateriaisModalOpen(false)}
+        title="Estoque de Materiais"
+        items={produtosLista}
+        onMateriaisSelect={handleAddMateriais}
+      />
     </>
   );
 }

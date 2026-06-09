@@ -25,3 +25,16 @@
 * {
   font-family: "Poppins", sans-serif;
 }
+
+.selecionado {
+
+    color: #48DCFC;
+    background-color: #48dbfc3d;
+    border-radius: 20px;
+
+}
+
+.odometer.odometer-animating-up .odometer-ribbon-inner,
+.odometer.odometer-animating-down .odometer-ribbon-inner {
+  transition-duration: 0.15s !important;
+}
