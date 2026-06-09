@@ -112,8 +112,11 @@ export default function CadastroProdutoPage() {
         })
             .then((response) => {
                 if (response.status === 201) {
-                    navigate(`/produtos`);
-                    //document.getElementById('modal_sucesso').showModal();
+                    navigate("/produtos", {
+                        state: {
+                            successMessage: "Produto cadastrado com sucesso!"
+                        }
+                    });
                 } else {
                     console.log(response.status)
                 }
@@ -209,7 +212,6 @@ export default function CadastroProdutoPage() {
                                 />
                             </div>
                         </div>
-
 
                     </fieldset>
                     <fieldset className="fieldset bg-[#0A1A3D] border-none rounded-box grow max-w-50 border p-6">

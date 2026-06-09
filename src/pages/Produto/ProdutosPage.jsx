@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { data, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import CadastroProdutoPage from "./CadastroProdutoPage";
 import Sidebar from "../../components/Sidebar";
@@ -9,7 +10,22 @@ import { Link } from "react-router-dom";
 import "../../index.css";
 
 export default function ProdutoPage() {
-    
+
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.successMessage) {
+            toast.success(location.state.successMessage);
+
+            window.history.replaceState({}, document.title);
+        }
+        if (location.state?.successMessage2) {
+            toast.success(location.state.successMessage2);
+
+            window.history.replaceState({}, document.title);
+        }
+    }, []);
+
     const navigate = useNavigate();
 
     const [pesquisa, setPesquisa] = useState("")
@@ -188,7 +204,7 @@ export default function ProdutoPage() {
 
                     {produtosFiltrados.length > 0 && (
                         produtosFiltrados.map((produto) => {
-                            
+
                             return (
                                 <CardProduto
                                     key={produto.id}
@@ -198,7 +214,7 @@ export default function ProdutoPage() {
                                     descricao={produto.descricao}
                                     possuiValidade={produto.possuiValidade}
                                 />
-                                
+
                             )
                         })
                     )}
