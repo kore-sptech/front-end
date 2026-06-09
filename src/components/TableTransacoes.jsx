@@ -218,8 +218,8 @@ function TransacaoRow({
             Tem certeza de que deseja excluir este produto do inventario ?
             <br />
             <br />
-            <span className="text-[#48DCFC]">Atenção:</span> Essa ação é
-            permanente e não pode ser desfeita.
+            <span className="font-semibold text-[#48DCFC]">Atenção:</span> Essa
+            ação é permanente e não pode ser desfeita.
           </p>
           <div className="modal-action">
             <form method="dialog ">
