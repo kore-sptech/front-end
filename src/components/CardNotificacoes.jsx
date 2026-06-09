@@ -29,7 +29,7 @@ export default function CardNotificacoes({ alert }) {
   const style = getStyleConfig(alert.tipo);
 
   return (
-    <div className={`flex w-full items-start justify-between rounded-xl bg-[#061639] p-5 border border-gray-800/40 ${style.border}`}>
+    <div className={`flex w-full items-start justify-between rounded-xl bg-[#061639] p-4 border border-gray-800/40 ${style.border}`}>
       <div className="flex gap-4">
         <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${style.bgIcon}`}>
           {style.icon}
@@ -46,7 +46,7 @@ export default function CardNotificacoes({ alert }) {
             </div>
           )}
           {alert.tipo === "INFORMATIVO" && alert.hasDetails && (
-            <div className="mt-3 text-xs font-bold uppercase tracking-wider">
+            <div className="mt-3 gap-4 text-xs font-bold uppercase tracking-wider">
               <button className="text-[#22D3EE] hover:underline cursor-pointer">Ver Detalhes</button>
             </div>
           )}

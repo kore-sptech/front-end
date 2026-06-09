@@ -35,7 +35,9 @@ export default function ModalAtualizaTransacao({
   });
 
   const [valorDisplay, setValorDisplay] = useState(
-    transacao ? "R$ " + formatarValorBR(transacao.valor.toString()) : "",
+    transacao
+      ? "R$ " + formatarValorBR((transacao.valor * 100).toString())
+      : "",
   );
 
   const [valorFloat, setValorFloat] = useState(transacao?.valor || 0);

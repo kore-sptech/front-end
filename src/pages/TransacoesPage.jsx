@@ -99,7 +99,16 @@ export default function TransacoesPage() {
         console.log(data);
         setTransacoes(data);
       });
-  }, [page, filters.nome, filters.dataCriacao, filters.tipo, filters.sort]);
+
+    obterMetricas();
+  }, [
+    page,
+    filters.nome,
+    filters.dataCriacao,
+    filters.tipo,
+    filters.sort,
+    obterMetricas,
+  ]);
 
   const selecionarTransacao = (transacao) => {
     setTransacaoAtual(transacao);
@@ -107,9 +116,8 @@ export default function TransacoesPage() {
   };
 
   useEffect(() => {
-    obterMetricas();
     obterTransacoes();
-  }, [obterMetricas, obterTransacoes]);
+  }, [obterTransacoes]);
 
   const limparFiltros = () => {
     setFilters({
@@ -131,11 +139,11 @@ export default function TransacoesPage() {
     <div className="flex min-h-screen bg-[#000C24] text-white">
       <Sidebar />
 
-      <main className="flex-1 p-10">
+      <main className="flex-1 p-6">
         {/* Header */}
         <header className="mb-10 flex items-center justify-between">
           <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-bold">Transações financeiras</h1>
+            <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">TRANSAÇÕES FINANCEIRAS</h1>
 
             <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
           </div>

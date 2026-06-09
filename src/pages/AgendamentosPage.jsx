@@ -7,7 +7,6 @@ import {
 import { buildColorMapByClient, buildWeekDays } from "../utils/build";
 import { useContext, useEffect, useState } from "react";
 
-import AsideBar from "../components/Aside";
 import { CalendarPlus } from "lucide-react";
 import ModalNovoAgendamento from "../components/ModalNovoAgendamento";
 import { SidePanel } from "../components/SidePainel";
@@ -124,9 +123,13 @@ export default function AgendamentoPage() {
 function PageHeader({ onOpenModal }) {
   return (
     <div className="flex w-full justify-between p-6">
-      <h1 className="text-4xl font-bold">AGENDAMENTO</h1>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-4xl font-bold">AGENDAMENTO</h1>
+
+        <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
+      </div>
       <button
-        className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
+        className="flex items-center cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
         onClick={onOpenModal}
       >
         <CalendarPlus />
