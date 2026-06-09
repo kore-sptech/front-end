@@ -276,7 +276,7 @@ export default function EditarProdutoPage(){
                                 Cancelar
                             </button>
                             <button
-                                onClick={deletar}
+                                onClick={() => document.getElementById(`my_modal_${id}`).showModal()}
                                 className="flex justify-center items-center gap-2 px-10 py-4 text-lg font-bold bg-transparent text-[#48DCFC] border border-[#48DCFC] rounded-xl cursor-pointer transition-transform hover:scale-105 active:scale-95 min-w-55"
                             >
                                 Deletar
@@ -287,6 +287,46 @@ export default function EditarProdutoPage(){
 
 
                 </div>
+
+                <dialog id={`my_modal_${id}`} className="modal">
+        <div className="modal-box bg-[#0A1F4B]">
+          <h2 className="text-lg font-bold">Excluir Produto</h2>
+          <p className="py-4 text-sm font-light">
+            Tem certeza de que deseja excluir este produto?
+            <br />
+            <br />
+            <span className="font-bold text-[#48DCFC]">Atenção:</span> Essa
+            ação é permanente e não pode ser desfeita.
+          </p>
+          <div className="modal-action">
+            <form method="dialog ">
+              {/* if there is a button in form, it will close the modal */}
+
+              <div className="flex gap-4">
+                <button
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    document.getElementById(`my_modal_${id}`).close();
+                  }}
+                  className="flex cursor-pointer gap-2 rounded-xl border border-[#48DCFC] px-6 py-2.5 font-normal text-[#48DCFC]"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-normal text-[#003640] opacity-65 shadow-xl transition-all hover:opacity-100 hover:shadow-cyan-500/20"
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    deletar();
+                  }}
+                >
+                  Excluir
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </dialog>
         
                     </section>
                 </main>

@@ -128,7 +128,7 @@ export default function ProdutoPage() {
             <section className="grow h-full w-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
                     <div className="flex flex-col gap-2">
-                        <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">INVENTÁRIO</h1>
+                        <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">PRODUTOS</h1>
 
                         <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
                     </div>
@@ -154,8 +154,8 @@ export default function ProdutoPage() {
 
                     {produtosFiltrados.length == 0 && pesquisa.length == 0 && (
                         <div className="col-span-4 text-center mt-25">
-                            <h1 className="font-bold text-3xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO</h1>
-                            <p className="text-2xl">Regriste seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
+                            <h1 className="font-bold text-4xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO</h1>
+                            <p className="text-2xl">Registre seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
                                 onClick={() => {
                                     console.log("Enviando:", pesquisa);
 
@@ -171,8 +171,8 @@ export default function ProdutoPage() {
 
                     {produtosFiltrados.length == 0 && pesquisa.length > 0 && (
                         <div className="col-span-4 text-center mt-25">
-                            <h1 className="font-bold text-3xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO PARA <span className="text-[#48DCFC] font-bold">"{pesquisa}"</span>!</h1>
-                            <p className="text-2xl">Regriste seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
+                            <h1 className="font-bold text-4xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO PARA <span className="text-[#48DCFC] font-bold">"{pesquisa}"</span>!</h1>
+                            <p className="text-2xl">Registre seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
                                 onClick={() => {
                                     console.log("Enviando:", pesquisa);
 
