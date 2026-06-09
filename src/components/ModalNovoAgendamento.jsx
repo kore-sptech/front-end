@@ -178,7 +178,8 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   const fileInputRef = useRef();
 
   // -- Materiais
-  const [materiais, setMateriais] = useState([]);
+  const [produtosLista, setProdutosLista] = useState([]);
+  const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
   const [isMateriaisModalOpen, setIsMateriaisModalOpen] = useState(false);
 
   const formIsValid = isFormValid(fields);
@@ -216,11 +217,33 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      setMateriais(data);
+      setProdutosLista(data);
       setIsMateriaisModalOpen(true);
     } catch (error) {
       toast.error("Erro ao buscar produtos.");
     }
+  };
+
+  // -- Adicionar materiais selecionados
+  const handleAddMateriais = (novoMaterial) => {
+    // Verifica se este produto já foi adicionado
+    const produtoJaAdicionado = materiaisSelecionados.some(
+      (m) => m.produtoId === novoMaterial.produtoId
+    );
+
+    if (produtoJaAdicionado) {
+      toast.error("Este produto já foi adicionado. Remova antes de adicionar novamente.");
+      return;
+    }
+
+    setMateriaisSelecionados((prev) => [...prev, novoMaterial]);
+    toast.success("Material adicionado com sucesso!");
+  };
+
+  // -- Remover material selecionado
+  const handleRemoverMaterial = (index) => {
+    setMateriaisSelecionados((prev) => prev.filter((_, i) => i !== index));
+    toast.success("Material removido.");
   };
 
   const confirmarSessao = () => {
@@ -337,6 +360,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
       inicio: fields.de,
       fim: fields.ate,
       referencias: images.map((img) => img.id),
+      materiais: materiaisSelecionados.map((m) => ({
+        produtoId: m.produtoId,
+        itens: m.itens.map((i) => i.id),
+      })),
     };
 
     if (agendamento?.id) {
@@ -554,6 +581,12 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </div>
             </div>
 
+            {/* ── Grid de Materiais Adicionados ────────────────────────────── */}
+            <GridMateriaisAdicionados
+              materiais={materiaisSelecionados}
+              onRemover={handleRemoverMaterial}
+            />
+
             <div className="flex items-start gap-4">
               <Field label="De" error={errors.de}>
                 <input
@@ -664,8 +697,8 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         isOpen={isMateriaisModalOpen}
         onClose={() => setIsMateriaisModalOpen(false)}
         title="Estoque de Materiais"
-        items={materiais}
-        ItemComponent={ItemMaterialPlaceholder}
+        items={produtosLista}
+        onMateriaisSelect={handleAddMateriais}
       />
     </>
   );
