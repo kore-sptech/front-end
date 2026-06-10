@@ -195,10 +195,12 @@ export default function ProdutoPage() {
                     )}
 
                     {produtosFiltrados.length > 0 && (
+    
                         produtosFiltrados.map((produto) => {
 
                             return (
                                 <CardProduto
+
                                     key={produto.id}
                                     id={produto.id}
                                     nome={produto.nome}

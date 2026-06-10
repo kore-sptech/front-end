@@ -1,14 +1,14 @@
 import { Trash2 } from "lucide-react";
 
-export default function GridMateriaisAdicionados({
-  materiais,
-  onRemover,
-}) {
+export default function GridMateriaisAdicionados({ materiais, onRemover }) {
   if (materiais.length === 0) return null;
 
   const calcularValorTotal = (itens) => {
     return itens.reduce((sum, item) => sum + (item.valorUnitario || 0), 0);
   };
+
+  console.log("-------------------MATERIAIS-------------------");
+  console.log(materiais);
 
   return (
     <div className="mt-6 rounded-2xl border border-gray-800 bg-[#263457]/20 p-4">
@@ -19,7 +19,7 @@ export default function GridMateriaisAdicionados({
       <div className="space-y-3">
         {materiais.map((material, index) => {
           const valorTotal = calcularValorTotal(material.itens);
-          
+
           return (
             <div
               key={index}
@@ -31,7 +31,8 @@ export default function GridMateriaisAdicionados({
                   {material.produtoNome}
                 </h4>
                 <p className="mt-1 text-xs text-gray-400">
-                  {material.itens.length} item{material.itens.length > 1 ? "ns" : ""} selecionado
+                  {material.itens.length} item
+                  {material.itens.length > 1 ? "ns" : ""} selecionado
                   {material.itens.length > 1 ? "s" : ""}
                 </p>
               </div>

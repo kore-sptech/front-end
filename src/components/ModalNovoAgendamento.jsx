@@ -478,12 +478,35 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           },
         })
         .then(() => {
-          toast.success("Agendamento atualizado com sucesso!");
+          const todosOsItensIds = materiaisSelecionados.flatMap((material) =>
+            material.itens.map((item) => item.id),
+          );
+
+          //  mapeia os IDs para um array de requisições (Promises)
+          const requisicoesEstoque = todosOsItensIds.map((itemId) => {
+            return api.put(
+              `/estoque/${itemId}/${agendamento.id}`,
+              {}, // corpo requisição é vazio
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              },
+            );
+          });
+
+          //  executa todas as requisições em paralelo e aguarda o resultado
+          return Promise.all(requisicoesEstoque);
+        })
+        .then(() => {
+          toast.success("Agendamento e estoque atualizados com sucesso!");
           onClose();
         })
         .catch(() => {
           toast.error("Erro ao atualizar agendamento.");
         });
+
+      toast.success("Materiais salvos com sucesso!");
     } else {
       api
         .post("/agendamentos", payload, {
@@ -506,6 +529,8 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         });
     }
   };
+
+  useEffect(() => {}, []);
 
   if (!isOpen) return null;
 
@@ -772,7 +797,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                     </span>
                   </button>
 
-                  {agendamento.status == "PENDENTE" && (
+                  {agendamento.status != "CANCELADO" && (
                     <button
                       type="submit"
                       disabled={!canSubmit}
@@ -844,13 +869,16 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
       </div>
 
       {/* ── Chamada do Modal de Lista ───────────────────────────────────── */}
-      <ModalLista
-        isOpen={isMateriaisModalOpen}
-        onClose={() => setIsMateriaisModalOpen(false)}
-        title="Estoque de Materiais"
-        items={produtosLista}
-        onMateriaisSelect={handleAddMateriais}
-      />
+      {agendamento && (
+        <ModalLista
+          isOpen={isMateriaisModalOpen}
+          onClose={() => setIsMateriaisModalOpen(false)}
+          title="Estoque de Materiais"
+          items={produtosLista}
+          onMateriaisSelect={handleAddMateriais}
+          agendamentoId={agendamento.id}
+        />
+      )}
     </>
   );
 }

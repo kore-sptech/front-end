@@ -1,7 +1,7 @@
-import { X } from "lucide-react";
-import { useState } from "react";
 import CardProdutoIntegracao from "./IntegracaoEstoqueAgendamento/CardProdutoIntegracao";
 import ModalItensDosProdutos from "./IntegracaoEstoqueAgendamento/ModalItensDosProdutos";
+import { X } from "lucide-react";
+import { useState } from "react";
 
 export default function ModalLista({
   isOpen,
@@ -10,6 +10,7 @@ export default function ModalLista({
   items = [],
   ItemComponent,
   onMateriaisSelect,
+  agendamentoId,
 }) {
   const [selectedProduto, setSelectedProduto] = useState(null);
   const [isItensModalOpen, setIsItensModalOpen] = useState(false);
@@ -30,11 +31,13 @@ export default function ModalLista({
     onClose();
   };
 
+  console.log("--------------------ITENS--------------------");
+  console.log(items);
+
   return (
     <>
       <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
         <div className="relative w-full max-w-lg rounded-2xl border border-gray-800 bg-[#061639] p-6 shadow-2xl">
-          
           {/* Botão Fechar */}
           <button
             type="button"
@@ -52,11 +55,11 @@ export default function ModalLista({
           </div>
 
           {/* Container da Lista com Scroll */}
-          <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+          <div className="custom-scrollbar max-h-[60vh] space-y-3 overflow-y-auto pr-2">
             {items.length > 0 ? (
               items.map((item, index) => (
-                <CardProdutoIntegracao 
-                  key={item.id || index} 
+                <CardProdutoIntegracao
+                  key={item.id || index}
                   {...item}
                   onSelect={handleSelectProduto}
                 />
@@ -83,6 +86,7 @@ export default function ModalLista({
           produtoId={selectedProduto.id}
           produtoNome={selectedProduto.nome}
           onSalvar={handleSalvarMateriais}
+          agendamentoId={agendamentoId}
         />
       )}
     </>
