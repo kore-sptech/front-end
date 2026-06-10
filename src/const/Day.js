@@ -18,6 +18,12 @@ export const COLOR_STYLES = {
     title: "text-[#8FFFA8]",
     text: "text-[#DAE2FF]",
   },
+  red: {
+    bg: "bg-[#733434]/20",
+    border: "border-[#FF8F8F]",
+    title: "text-[#FF8F8F]",
+    text: "text-[#DAE2FF]",
+  },
   purple: {
     bg: "bg-[#344573]/20",
     border: "border-[#B4C5FB]",

@@ -38,7 +38,7 @@ const shakeStyle = `
 const str = (v) => (v != null ? String(v) : "");
 
 // ─── Validação pura (substitui o schema Zod) ─────────────────────────────────
-function validate(fields) {
+function validate(fields, durationMinutes) {
   const errors = {};
 
   if (!fields.cliente || fields.cliente.trim().length === 0) {
@@ -70,17 +70,22 @@ function validate(fields) {
     errors.de = "Informe o horário de início";
   }
 
-  if (!fields.ate || fields.ate.trim().length === 0) {
-    errors.ate = "Informe o horário de término";
-  } else if (fields.de && fields.ate && fields.ate <= fields.de) {
-    errors.ate = "Horário de término deve ser após o início";
+  // validar duração (em minutos) e garantir que fim > início
+  if (!durationMinutes || durationMinutes <= 0) {
+    errors.ate = "Informe a duração";
+  } else if (fields.de && durationMinutes) {
+    const start = new Date(fields.de);
+    const end = new Date(start.getTime() + durationMinutes * 60000);
+    if (end <= start) {
+      errors.ate = "Horário de término deve ser após o início";
+    }
   }
 
   return errors;
 }
 
-function isFormValid(fields) {
-  return Object.keys(validate(fields)).length === 0;
+function isFormValid(fields, durationMinutes) {
+  return Object.keys(validate(fields, durationMinutes)).length === 0;
 }
 
 // ─── Estilos de input ─────────────────────────────────────────────────────────
@@ -150,8 +155,6 @@ function ItemMaterialPlaceholder({ item }) {
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export default function ModalNovoAgendamento({ isOpen, onClose }) {
-  if (!isOpen) return null;
-
   const { agendamento } = useContext(AgendamentoContext);
 
   const imagesDoAgendamento =
@@ -169,6 +172,86 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     ate: agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "",
   });
 
+  // --- Helpers para calcular fim a partir de inicio + duração (minutos)
+  function pad(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  function formatLocalInput(date) {
+    return (
+      date.getFullYear() +
+      "-" +
+      pad(date.getMonth() + 1) +
+      "-" +
+      pad(date.getDate()) +
+      "T" +
+      pad(date.getHours()) +
+      ":" +
+      pad(date.getMinutes())
+    );
+  }
+
+  function addMinutesToLocalInput(deStr, minutes) {
+    if (!deStr) return "";
+    const dt = new Date(deStr);
+    if (isNaN(dt.getTime())) return "";
+    const end = new Date(dt.getTime() + minutes * 60000);
+    return formatLocalInput(end);
+  }
+
+  // inicializa duration (minutos) a partir do agendamento quando em edição
+  const initialDe = agendamento?.inicio?.replace(" ", "T").slice(0, 16) ?? "";
+  const initialAte = agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "";
+  let initialDuration = 60;
+  try {
+    if (initialDe && initialAte) {
+      const d1 = new Date(initialDe);
+      const d2 = new Date(initialAte);
+      const diff = Math.round((d2.getTime() - d1.getTime()) / 60000);
+      if (diff > 0) initialDuration = diff;
+    }
+  } catch (e) {
+    /* ignore */
+  }
+
+  const [durationMinutes, setDurationMinutes] = useState(initialDuration);
+
+  // Atualiza formulário quando `agendamento` ou `isOpen` mudarem
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const deVal = agendamento?.inicio?.replace(" ", "T").slice(0, 16) ?? "";
+    const ateVal = agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "";
+
+    setFields({
+      cliente: str(agendamento?.cliente),
+      preco: agendamento?.preco != null ? String(agendamento.preco) : "",
+      telefone: str(agendamento?.telefone),
+      pagamento: str(agendamento?.formaPagamento),
+      de: deVal,
+      ate: ateVal,
+    });
+
+    // atualizar duração a partir de inicio/fim quando existir
+    if (deVal && ateVal) {
+      const d1 = new Date(deVal);
+      const d2 = new Date(ateVal);
+      const diff = Math.round((d2.getTime() - d1.getTime()) / 60000);
+      if (!isNaN(diff) && diff > 0) {
+        setDurationMinutes(diff);
+      }
+    }
+
+    // atualizar imagens
+    const imgs =
+      agendamento?.referencias?.map((foto) => ({
+        ...foto,
+        url: foto.imageUrl,
+      })) || [];
+    setImages(imgs);
+    setImageError(imgs.length === 0);
+  }, [agendamento, isOpen]);
+
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
@@ -182,15 +265,19 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
   const [isMateriaisModalOpen, setIsMateriaisModalOpen] = useState(false);
 
-  const formIsValid = isFormValid(fields);
+  const formIsValid = isFormValid(fields, durationMinutes);
   const canSubmit = formIsValid && images.length > 0;
 
   const handleChange = (name, value) => {
-    const nextFields = { ...fields, [name]: value };
+    let nextFields = { ...fields, [name]: value };
+    if (name === "de") {
+      // recalcula fim com a duração atual
+      nextFields.ate = addMinutesToLocalInput(value, durationMinutes);
+    }
     setFields(nextFields);
 
     if (touched[name]) {
-      const nextErrors = validate(nextFields);
+      const nextErrors = validate(nextFields, durationMinutes);
       setErrors((prev) => ({
         ...prev,
         [name]: nextErrors[name] ?? undefined,
@@ -200,7 +287,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
   const handleBlur = (name) => {
     setTouched((prev) => ({ ...prev, [name]: true }));
-    const nextErrors = validate(fields);
+    const nextErrors = validate(fields, durationMinutes);
     setErrors((prev) => ({
       ...prev,
       [name]: nextErrors[name] ?? undefined,
@@ -247,7 +334,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     setMateriaisSelecionados((prev) => prev.filter((_, i) => i !== index));
     toast.success("Material removido.");
   };
-
   const confirmarSessao = () => {
     api
       .patch(
@@ -284,7 +370,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
       .then(() => {
         api
           .post(
-            "/transacoes",
+            `/transacoes/${agendamento.id}`,
             {
               nome: "Tatuagem do " + fields.cliente,
               tipo: "ENTRADA",
@@ -355,7 +441,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     );
     setTouched(allTouched);
 
-    const validationErrors = validate(fields);
+    const validationErrors = validate(fields, durationMinutes);
     setErrors(validationErrors);
 
     const hasFieldErrors = Object.keys(validationErrors).length > 0;
@@ -369,13 +455,14 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     if (hasFieldErrors || hasImageError) return;
 
     const precoNumerico = parseFloat(fields.preco);
+    const fimCalculado = addMinutesToLocalInput(fields.de, durationMinutes);
     const payload = {
       cliente: fields.cliente,
       preco: precoNumerico,
       telefone: fields.telefone,
       formaPagamento: fields.pagamento,
       inicio: fields.de,
-      fim: fields.ate,
+      fim: fimCalculado,
       referencias: images.map((img) => img.id),
       materiais: materiaisSelecionados.map((m) => ({
         produtoId: m.produtoId,
@@ -408,11 +495,19 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           toast.success("Agendamento adicionado com sucesso!");
           onClose();
         })
-        .catch(() => {
-          toast.error("Erro ao adicionar agendamento.");
+        .catch((err) => {
+          console.log(err);
+
+          if (err.status == 400 && err.response?.data?.message) {
+            toast.error(err.response.data.message);
+          } else {
+            toast.error("Erro ao adicionar agendamento.");
+          }
         });
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <>
@@ -618,13 +713,41 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               <ArrowRight className="mt-9 shrink-0 text-gray-700" size={18} />
 
               <Field label="Até" error={errors.ate}>
-                <input
-                  type="datetime-local"
-                  value={fields.ate}
-                  onChange={(e) => handleChange("ate", e.target.value)}
+                <select
+                  value={durationMinutes}
+                  onChange={(e) => {
+                    const mins = Number(e.target.value);
+                    setDurationMinutes(mins);
+                    const newAte = addMinutesToLocalInput(fields.de, mins);
+                    setFields((prev) => ({ ...prev, ate: newAte }));
+                    if (touched.ate) {
+                      const nextErrors = validate(
+                        { ...fields, ate: newAte },
+                        mins,
+                      );
+                      setErrors((prev) => ({
+                        ...prev,
+                        ate: nextErrors.ate ?? undefined,
+                      }));
+                    }
+                  }}
                   onBlur={() => handleBlur("ate")}
                   className={inputCls(!!errors.ate)}
-                />
+                >
+                  <option value={0}>Selecione a duração...</option>
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const mins = (i + 1) * 30;
+                    const hours = Math.floor(mins / 60);
+                    const remainder = mins % 60;
+                    const label =
+                      `${hours > 0 ? hours + "h" : ""}${remainder > 0 ? " " + remainder + "min" : ""}`.trim();
+                    return (
+                      <option key={mins} value={mins}>
+                        {label}
+                      </option>
+                    );
+                  })}
+                </select>
               </Field>
             </div>
 

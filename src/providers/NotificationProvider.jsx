@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useEffect, useRef, useState } from "react";
 
-import { NotificationProviderContext } from "../context/NotificationContext";
 import { SessionToast } from "../components/SessionToast";
 import { api } from "../utils/api";
 import { toast } from "sonner";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const NotificationProviderContext = createContext({});
 
 /** Formata "2026-06-08T15:10:00" → "15:10" */
 function formatTime(isoString) {
@@ -102,6 +103,7 @@ export function NotificationProvider({ children }) {
 
   function connect() {
     const eventSource = new EventSource("http://localhost:8080/sse/stream");
+    console.log("Conectando ao SSE...");
     eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {
@@ -168,14 +170,10 @@ export function NotificationProvider({ children }) {
                 },
               )
               .then(() => {
-                console.log(
-                  `[Toast] Cancelando agendamento id=${agendamento.id}`,
-                );
+                toast.success("Agendamento cancelado com sucesso!");
               })
               .catch(() => {
-                console.log(
-                  `[Toast] Erro ao cancelar agendamento id=${agendamento.id}`,
-                );
+                toast.error("Erro ao cancelar agendamento.");
               });
           },
         });
