@@ -146,9 +146,8 @@ export function NotificationProvider({ children }) {
                 },
               )
               .then(() => {
-                console.log(
-                  `[Toast] Confirmando agendamento id=${agendamento.id}`,
-                );
+                toast.success("Agendamento confirmado com sucesso!");
+                window.location.reload();
               })
               .catch(() => {
                 console.log(
@@ -171,6 +170,7 @@ export function NotificationProvider({ children }) {
               )
               .then(() => {
                 toast.success("Agendamento cancelado com sucesso!");
+                window.location.reload();
               })
               .catch(() => {
                 toast.error("Erro ao cancelar agendamento.");

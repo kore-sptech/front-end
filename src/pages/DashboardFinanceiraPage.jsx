@@ -110,7 +110,7 @@ export default function DashboardFinanceiraPage() {
                 </p>
                 <p className="text-2xl font-bold">
                   {metricas
-                    ? metricas.totalEntradas.toLocaleString("pt-BR", {
+                    ? metricas.faturamentoBruto.toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL",
                       })

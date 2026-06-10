@@ -771,23 +771,26 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                       <MessageCircle /> <span>Conversar</span>
                     </span>
                   </button>
-                  <button
-                    type="submit"
-                    disabled={!canSubmit}
-                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                      canSubmit
-                        ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
-                        : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                    }`}
-                  >
-                    {canSubmit ? (
-                      <span className="flex w-full items-center justify-center gap-2">
-                        <CalendarArrowUp /> <span>Atualizar</span>
-                      </span>
-                    ) : (
-                      "Preencha todos os campos"
-                    )}
-                  </button>
+
+                  {agendamento.status == "PENDENTE" && (
+                    <button
+                      type="submit"
+                      disabled={!canSubmit}
+                      className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+                        canSubmit
+                          ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
+                          : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
+                      }`}
+                    >
+                      {canSubmit ? (
+                        <span className="flex w-full items-center justify-center gap-2">
+                          <CalendarArrowUp /> <span>Atualizar</span>
+                        </span>
+                      ) : (
+                        "Preencha todos os campos"
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 <div className="flex gap-3">
