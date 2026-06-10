@@ -702,21 +702,24 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
             </div>
 
             {/* ── Materiais Refatorado ───────────────────────────────────── */}
-            <div>
-              <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
-                Materiais
-              </label>
-              <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4 transition-all duration-200">
-                <button
-                  type="button"
-                  onClick={handleProdutos}
-                  className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] transition-all hover:border-cyan-400/30 hover:bg-[#0f2352]"
-                >
-                  <Plus size={20} className="text-gray-500" />
-                  <span className="text-[10px] text-gray-600">Adicionar</span>
-                </button>
+
+            {agendamento && (
+              <div>
+                <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
+                  Materiais
+                </label>
+                <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4 transition-all duration-200">
+                  <button
+                    type="button"
+                    onClick={handleProdutos}
+                    className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] transition-all hover:border-cyan-400/30 hover:bg-[#0f2352]"
+                  >
+                    <Plus size={20} className="text-gray-500" />
+                    <span className="text-[10px] text-gray-600">Adicionar</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* ── Grid de Materiais Adicionados ────────────────────────────── */}
             <GridMateriaisAdicionados

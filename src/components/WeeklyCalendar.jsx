@@ -4,11 +4,13 @@ import {
   DAY_LABEL_BY_INDEX,
   ROW_HEIGHT_PX,
 } from "../const/Day";
+import { Clock, X } from "lucide-react";
 import { differenceInHours, differenceInMinutes, isSameDay } from "date-fns";
 import { useContext, useEffect, useRef, useState } from "react";
 
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
-import { Clock } from "lucide-react";
+import { api } from "../utils/api";
+import toast from "react-hot-toast";
 
 export function WeeklyCalendar({ sessions, colorByClient, weekDays }) {
   const scrollRef = useRef(null);
@@ -176,8 +178,6 @@ export function CurrentTimeLine() {
     </div>
   );
 }
-
-// ─── Bloco de evento ──────────────────────────────────────────────────────────
 export function EventBlock({ session, startHour, durationHours, dayLabel }) {
   const { openModal } = useContext(AgendamentoContext);
 
@@ -190,36 +190,106 @@ export function EventBlock({ session, startHour, durationHours, dayLabel }) {
   else if (session.status === "PENDENTE") style = COLOR_STYLES.ghost;
   else if (session.status === "CANCELADO") style = COLOR_STYLES.red;
 
-  // console.log({
-  //   style,
-  // });
-
   console.log(session);
 
-  console.log(durationHours);
   return (
+    // ↓ "group" habilita o group-hover nos filhos
+    // ↓ overflow-visible (não mais overflow-hidden) para o X não ser cortado
     <div
-      className="absolute z-10 overflow-hidden p-0.5" // ← overflow-hidden previne vazamento
+      className="group absolute z-10 p-0.5"
       style={{
         top: startHour * ROW_HEIGHT_PX,
-        height: durationHours * ROW_HEIGHT_PX, // garante mínimo de 1 slot
-        minHeight: durationHours * ROW_HEIGHT_PX, // CSS safety net
+        height: durationHours * ROW_HEIGHT_PX,
+        minHeight: durationHours * ROW_HEIGHT_PX,
         width: "calc(100% / 7)",
         left: `calc(100% / 7 * ${dayIndex})`,
       }}
     >
+      {/* Botão X — invisível por padrão, aparece no hover do grupo */}
+      {session.status == "PENDENTE" && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // não abre o modal ao cancelar
+            console.log("cancelar", session.id);
+            document.getElementById(`my_modal2_${session.id}`).showModal();
+
+            // sua lógica de cancelamento aqui
+          }}
+          className="absolute top-1.5 right-1.5 z-30 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full bg-[#0A1F4B] text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100"
+        >
+          <X size={10} strokeWidth={3} />
+        </button>
+      )}
+
+      {/* Card do evento */}
       <div
-        className={`h-full w-full overflow-hidden ${style.bg} rounded-lg border-l-4 p-2 pl-4 ${style.border} flex cursor-pointer flex-col justify-between ${style.extra ?? ""}`}
-        onClick={() => {
-          console.log(session);
-          openModal(session);
-        }}
+        className={`h-full w-full overflow-hidden ${style.bg} rounded-lg border-l-4 p-2 pl-4 ${style.border} flex cursor-pointer flex-col justify-between ${style.extra ?? ""} `}
+        onClick={() => openModal(session)}
       >
         <h3 className={`text-xs font-bold ${style.title}`}>
           {session.servico}
         </h3>
         <p className={`text-sm font-bold ${style.text}`}>{session.cliente}</p>
       </div>
+
+      <dialog id={`my_modal2_${session.id}`} className="modal">
+        <div className="modal-box bg-[#0A1F4B]">
+          <h2 className="text-lg font-bold">
+            Cancelar Serviço do {session.cliente}
+          </h2>
+          <p className="py-4 text-sm font-light">
+            Tem certeza que deseja cancelar o agendamento?
+            <br />
+            <br />
+            <span className="font-bold text-[#48DCFC]">Atenção:</span> Essa ação
+            é permanente e não pode ser desfeita.
+          </p>
+          <div className="modal-action">
+            <form method="dialog ">
+              {/* if there is a button in form, it will close the modal */}
+
+              <div className="flex gap-4">
+                <button
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    document.getElementById(`my_modal2_${session.id}`).close();
+                  }}
+                  className="flex cursor-pointer gap-2 rounded-xl border border-[#48DCFC] px-6 py-2.5 font-normal text-[#48DCFC]"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-normal text-[#003640] opacity-65 shadow-xl transition-all hover:opacity-100 hover:shadow-cyan-500/20"
+                  onClick={(ev) => {
+                    ev.preventDefault();
+
+                    api
+                      .patch(
+                        `/agendamentos/cancelar/${session.id}`,
+                        {},
+                        {
+                          headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                          },
+                        },
+                      )
+                      .then(() => {
+                        toast.success("Agendamento cancelado com sucesso!");
+                        window.location.reload();
+                      })
+                      .catch(() => {
+                        toast.error("Erro ao cancelar agendamento.");
+                      });
+                  }}
+                >
+                  Confirmar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }
