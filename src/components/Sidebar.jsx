@@ -70,7 +70,11 @@ export default function Sidebar() {
             <div className="flex-1"></div>
 
             <div className="flex flex-col items-center">
-              <UserRound className="rounded-full p-2 border w-15 h-15 m-3 opacity-60" />
+              <div className="avatar avatar-online avatar-placeholder">
+                <div className="bg-[#010d27] text-neutral-content w-20 rounded-full mb-3 border border-gray-500/20">
+                  <span className="text-xl">{localStorage.getItem("nome").slice(0,1)}</span>
+                </div>
+              </div>
               <p className="text-white">
                 Olá, <b>{localStorage.getItem("nome")}</b>
               </p>

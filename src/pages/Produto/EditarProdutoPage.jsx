@@ -29,7 +29,8 @@ export default function EditarProdutoPage() {
         nome: nomeParams,
         descricao: descricaoParams,
         quantidade: quantidadeParams,
-        possuiValidade: possuiValidadeParams
+        possuiValidade: possuiValidadeParams,
+        tipo: tipoParams
     } = location.state || {};
 
     const [images, setImages] = useState([]); // Armazena as imagens {id, url}
@@ -42,6 +43,7 @@ export default function EditarProdutoPage() {
     const [descricao, setDescricao] = useState(descricaoParams || "");
     const [possuiValidade, setPossuiValidade] = useState(possuiValidadeParams || false);
     const [qtdMinAlerta, setQtdMinAlerta] = useState(quantidadeParams || 0);
+    const [tipo, setTipo] = useState(tipoParams || "");
     // Abre a janela de seleção de arquivos do sistema
     const handleClickAdd = () => fileInputRef.current.click();
     useEffect(() => {
@@ -103,11 +105,16 @@ export default function EditarProdutoPage() {
             toast.error("A quantidade mínima deve ser um número positivo.");
             return;
         }
+        if (tipo === "") {
+            toast.error("O produto deve possuir uma categoria.");
+            return;
+        }
         const produto = {
             nome,
             descricao,
             possuiValidade,
-            qtdMinAlerta: parseInt(qtdMinAlerta)
+            qtdMinAlerta: parseInt(qtdMinAlerta),
+            tipo
         };
         await fetch(`http://localhost:8080/produtos/${id}`, {
             method: "PUT",
@@ -119,12 +126,12 @@ export default function EditarProdutoPage() {
         })
             .then((response) => {
                 if (response.status === 200) {
-                navigate("/produtos", {
-                    state: {
-                        successMessage3: "Produto alterado com sucesso!"
-                    }
-                });
-            } else {
+                    navigate("/produtos", {
+                        state: {
+                            successMessage3: "Produto alterado com sucesso!"
+                        }
+                    });
+                } else {
                     console.log(response.status)
                 }
             })
@@ -227,6 +234,47 @@ export default function EditarProdutoPage() {
                                     onChange={(e) => setQtdMinAlerta(e.target.value)}
                                 />
                             </div>
+                        </div>
+
+                        <div className="flex flex-col gap-5">
+                            <label className="label mt-4">
+                                <span className="text-[#BBC9CD]">CATEGORIA</span>
+                            </label>
+                            <form className="flex gap-3">
+                                <input className="btn btn-square rounded-lg bg-transparent border-[#bbc9cd70]" type="button" value="x" onClick={() => setTipo("")} />
+                                <button
+                                    type="button"
+                                    onClick={() => setTipo("Tintas")}
+                                    className={`btn rounded-lg transition-all ${tipo === "Tintas"
+                                            ? "bg-cyan-400 text-[#003640] border-cyan-400"
+                                            : "bg-transparent border-[#bbc9cd70] text-white"
+                                        }`}
+                                >
+                                    Tintas
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setTipo("Luvas")}
+                                    className={`btn rounded-lg transition-all ${tipo === "Luvas"
+                                            ? "bg-cyan-400 text-[#003640] border-cyan-400"
+                                            : "bg-transparent border-[#bbc9cd70] text-white"
+                                        }`}
+                                >
+                                    Luvas
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setTipo("Agulhas")}
+                                    className={`btn rounded-lg transition-all ${tipo === "Agulhas"
+                                            ? "bg-cyan-400 text-[#003640] border-cyan-400"
+                                            : "bg-transparent border-[#bbc9cd70] text-white"
+                                        }`}
+                                >
+                                    Agulhas
+                                </button>
+                            </form>
                         </div>
 
 
