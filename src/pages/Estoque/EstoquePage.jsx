@@ -48,7 +48,7 @@ export default function EstoquePage() {
                 
                 {/* A alteração foi feita na div abaixo: adicionado flex-wrap e removido justify-between */}
                 <div className="p-6 flex w-full flex-wrap justify-start gap-4" id="produtos_listagem">
-                    {estoque?.map((estoque) => {
+                    {estoque?.filter(estoque => estoque.seAtivo === true).map((estoque) => {
                         return (
                             <CardItemEstoque
                                 key={estoque.id}

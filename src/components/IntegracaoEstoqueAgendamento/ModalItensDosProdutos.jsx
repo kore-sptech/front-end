@@ -103,7 +103,7 @@ export default function ModalItensDosProdutos({
               <Loader2 size={32} className="animate-spin text-cyan-400" />
             </div>
           ) : itens.length > 0 ? (
-            itens.map((item) => (
+            itens.filter(item => item.seAtivo === true).map((item) => (
               <CardItemComCheckbox
                 key={item.id}
                 id={item.id}
