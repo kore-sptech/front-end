@@ -89,10 +89,9 @@ const baseInput =
   "placeholder:text-gray-600 focus:outline-none transition-all duration-200";
 
 const inputCls = (hasError) =>
-  `${baseInput} ${
-    hasError
-      ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
-      : "border-gray-800 focus:border-cyan-400"
+  `${baseInput} ${hasError
+    ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
+    : "border-gray-800 focus:border-cyan-400"
   }`;
 
 // ─── Componente de mensagem de erro ──────────────────────────────────────────
@@ -391,12 +390,36 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           },
         })
         .then(() => {
-          toast.success("Agendamento atualizado com sucesso!");
+          const todosOsItensIds = materiaisSelecionados.flatMap((material) =>
+            material.itens.map((item) => item.id)
+          );
+
+          //  mapeia os IDs para um array de requisições (Promises)
+          const requisicoesEstoque = todosOsItensIds.map((itemId) => {
+            return api.put(
+              `/estoque/${itemId}/${agendamento.id}`,
+              {}, // corpo requisição é vazio
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+          });
+
+          //  executa todas as requisições em paralelo e aguarda o resultado
+          return Promise.all(requisicoesEstoque);
+        })
+        .then(() => {
+          toast.success("Agendamento e estoque atualizados com sucesso!");
           onClose();
         })
         .catch(() => {
           toast.error("Erro ao atualizar agendamento.");
         });
+
+
+      toast.success("Materiais salvos com sucesso!");
     } else {
       api
         .post("/agendamentos", payload, {
@@ -500,13 +523,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </label>
 
               <div
-                className={`rounded-2xl border p-4 transition-all duration-200 ${
-                  imageShaking ? "shake" : ""
-                } ${
-                  imageError
+                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""
+                  } ${imageError
                     ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
                     : "border-[#3C494D]/10 bg-[#263457]/20"
-                }`}
+                  }`}
                 onAnimationEnd={() => setImageShaking(false)}
               >
                 <div className="flex flex-wrap gap-3">
@@ -533,20 +554,18 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <button
                     type="button"
                     onClick={handleClickAdd}
-                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${
-                      imageError
+                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${imageError
                         ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
                         : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
-                    }`}
+                      }`}
                   >
                     <Plus
                       size={20}
                       className={imageError ? "text-red-400" : "text-gray-500"}
                     />
                     <span
-                      className={`text-[10px] ${
-                        imageError ? "text-red-400" : "text-gray-600"
-                      }`}
+                      className={`text-[10px] ${imageError ? "text-red-400" : "text-gray-600"
+                        }`}
                     >
                       Adicionar
                     </span>
@@ -651,11 +670,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <button
                     type="submit"
                     disabled={!canSubmit}
-                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                      canSubmit
+                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
                         ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
                         : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                    }`}
+                      }`}
                   >
                     {canSubmit ? (
                       <span className="flex w-full items-center justify-center gap-2">
@@ -671,42 +689,41 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   {(agendamento.status == "PENDENTE" ||
                     agendamento.status == "AGUARDANDO" ||
                     agendamento.status == "CONFIRMADO") && (
-                    <button
-                      type="button"
-                      disabled={!canSubmit}
-                      className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                      onClick={confirmarPagamaento}
-                    >
-                      <span className="flex w-full items-center justify-center gap-2">
-                        <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
-                      </span>
-                    </button>
-                  )}
+                      <button
+                        type="button"
+                        disabled={!canSubmit}
+                        className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                        onClick={confirmarPagamaento}
+                      >
+                        <span className="flex w-full items-center justify-center gap-2">
+                          <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
+                        </span>
+                      </button>
+                    )}
 
                   {(agendamento.status == "PENDENTE" ||
                     agendamento.status == "AGUARDANDO") && (
-                    <button
-                      type="button"
-                      onClick={confirmarSessao}
-                      disabled={!canSubmit}
-                      className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                    >
-                      <span className="flex w-full items-center justify-center gap-2">
-                        <CalendarCheck2 /> <span> Confirmar Sessão</span>
-                      </span>
-                    </button>
-                  )}
+                      <button
+                        type="button"
+                        onClick={confirmarSessao}
+                        disabled={!canSubmit}
+                        className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                      >
+                        <span className="flex w-full items-center justify-center gap-2">
+                          <CalendarCheck2 /> <span> Confirmar Sessão</span>
+                        </span>
+                      </button>
+                    )}
                 </div>
               </>
             ) : (
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                  canSubmit
+                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
                     ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
                     : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                }`}
+                  }`}
               >
                 {canSubmit
                   ? "Adicionar Agendamento"
@@ -724,6 +741,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         title="Estoque de Materiais"
         items={produtosLista}
         onMateriaisSelect={handleAddMateriais}
+        agendamentoId={agendamento.id}
       />
     </>
   );

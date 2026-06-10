@@ -10,6 +10,7 @@ export default function ModalLista({
   items = [],
   ItemComponent,
   onMateriaisSelect,
+  agendamentoId
 }) {
   const [selectedProduto, setSelectedProduto] = useState(null);
   const [isItensModalOpen, setIsItensModalOpen] = useState(false);
@@ -83,6 +84,7 @@ export default function ModalLista({
           produtoId={selectedProduto.id}
           produtoNome={selectedProduto.nome}
           onSalvar={handleSalvarMateriais}
+          agendamentoId={agendamentoId}
         />
       )}
     </>

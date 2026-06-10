@@ -10,6 +10,7 @@ export default function ModalItensDosProdutos({
   produtoId,
   produtoNome,
   onSalvar,
+  agendamentoId
 }) {
   if (!isOpen) return null;
 
@@ -63,7 +64,7 @@ export default function ModalItensDosProdutos({
     const itensParaSalvar = itens.filter((item) =>
       selectedItems.includes(item.id)
     );
-
+   
     onSalvar({
       produtoId,
       produtoNome,
