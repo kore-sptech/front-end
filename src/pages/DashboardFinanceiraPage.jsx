@@ -219,40 +219,44 @@ export default function DashboardFinanceiraPage() {
                 Ver tudo
               </button>
             </div>
-            {transacoes.length === 0 ? (
-              <p className="text-gray-500 italic">
-                Nenhuma transação encontrada. Adicione uma nova transação{" "}
-                <button
-                  className="cursor-pointer text-[#48DCFC] underline"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  clicando aqui!
-                </button>
-              </p>
-            ) : (
-              <ul className="space-y-3">
-                {transacoes.map((t) => (
-                  <li
-                    key={t.id}
-                    className="flex items-center justify-between border-b border-gray-800 py-3"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold">{t.nome}</p>
-                      <p className="text-xs text-gray-500">{t.categoria}</p>
-                    </div>
-                    <span
-                      className={`text-sm font-bold ${t.tipo === "ENTRADA" ? "text-cyan-400" : "text-red-400"}`}
+            <div>
+              {transacoes.length === 0 ? (
+                <div className="flex h-full items-center text-center">
+                  <p className="text-gray-500 italic">
+                    Nenhuma transação encontrada. Adicione uma nova transação{" "}
+                    <button
+                      className="cursor-pointer text-[#48DCFC] underline"
+                      onClick={() => setIsModalOpen(true)}
                     >
-                      {t.tipo === "ENTRADA" ? "+ " : "- "}
-                      {t.valor.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+                      clicando aqui!
+                    </button>
+                  </p>
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  {transacoes.map((t) => (
+                    <li
+                      key={t.id}
+                      className="flex items-center justify-between border-b border-gray-800 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold">{t.nome}</p>
+                        <p className="text-xs text-gray-500">{t.categoria}</p>
+                      </div>
+                      <span
+                        className={`text-sm font-bold ${t.tipo === "ENTRADA" ? "text-cyan-400" : "text-red-400"}`}
+                      >
+                        {t.tipo === "ENTRADA" ? "+ " : "- "}
+                        {t.valor.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       </main>

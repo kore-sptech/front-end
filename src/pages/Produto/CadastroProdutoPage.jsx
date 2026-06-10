@@ -37,6 +37,8 @@ export default function CadastroProdutoPage() {
     const [descricao, setDescricao] = useState("");
     const [possuiValidade, setPossuiValidade] = useState(false);
     const [qtdMinAlerta, setQtdMinAlerta] = useState(0);
+    const [tipo, setTipo] = useState("");
+
     // Abre a janela de seleção de arquivos do sistema
     const handleClickAdd = () => fileInputRef.current.click();
 
@@ -96,11 +98,16 @@ export default function CadastroProdutoPage() {
             toast.error("A quantidade mínima deve ser um número positivo.");
             return;
         }
+        if (tipo === "") {
+            toast.error("O produto deve possuir uma categoria.");
+            return
+        }
         const produto = {
             nome,
             descricao,
             possuiValidade,
-            qtdMinAlerta: parseInt(qtdMinAlerta)
+            qtdMinAlerta: parseInt(qtdMinAlerta),
+            tipo
         };
         await fetch("http://localhost:8080/produtos", {
             method: "POST",
@@ -112,8 +119,11 @@ export default function CadastroProdutoPage() {
         })
             .then((response) => {
                 if (response.status === 201) {
-                    navigate(`/produtos`);
-                    //document.getElementById('modal_sucesso').showModal();
+                    navigate("/produtos", {
+                        state: {
+                            successMessage: "Produto cadastrado com sucesso!"
+                        }
+                    });
                 } else {
                     console.log(response.status)
                 }
@@ -210,6 +220,46 @@ export default function CadastroProdutoPage() {
                             </div>
                         </div>
 
+                        <div className="flex flex-col gap-5">
+                            <label className="label mt-4">
+                                <span className="text-[#BBC9CD]">CATEGORIA</span>
+                            </label>
+                            <form className=" flex gap-3">
+                                <input className="btn btn-square rounded-lg bg-transparent border-[#bbc9cd70]" type="reset" value="x" onClick={() => setTipo("")} />
+                                <button
+                                    type="button"
+                                    onClick={() => setTipo("Tintas")}
+                                    className={`btn rounded-lg transition-all ${tipo === "Tintas"
+                                            ? "bg-cyan-400 text-[#003640] border-cyan-400"
+                                            : "bg-transparent border-[#bbc9cd70] text-white"
+                                        }`}
+                                >
+                                    Tintas
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setTipo("Luvas")}
+                                    className={`btn rounded-lg transition-all ${tipo === "Luvas"
+                                            ? "bg-cyan-400 text-[#003640] border-cyan-400"
+                                            : "bg-transparent border-[#bbc9cd70] text-white"
+                                        }`}
+                                >
+                                    Luvas
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setTipo("Agulhas")}
+                                    className={`btn rounded-lg transition-all ${tipo === "Agulhas"
+                                            ? "bg-cyan-400 text-[#003640] border-cyan-400"
+                                            : "bg-transparent border-[#bbc9cd70] text-white"
+                                        }`}
+                                >
+                                    Agulhas
+                                </button>
+                            </form>
+                        </div>
 
                     </fieldset>
                     <fieldset className="fieldset bg-[#0A1A3D] border-none rounded-box grow max-w-50 border p-6">
