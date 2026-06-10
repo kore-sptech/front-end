@@ -14,6 +14,7 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
 import { useNavigate } from "react-router-dom";
+import "../index.css"
 
 import { Logo } from "./Logo";
 
@@ -65,14 +66,22 @@ export default function Sidebar() {
 
         {!collapsed ? (
 
-          <div className="mb-10 mt-5">
-            <div className="flex items-center flex-col justify-center">
-              <UserRound className="rounded-full p-2 border w-15 h-15 m-3 opacity-60"></UserRound>
-              <p className="text-white textarea-md">Olá, <b>{"teste"}</b></p>
+          <div className="flex items-center w-full mb-10 mt-5 gap-5">
+            <div className="flex-1"></div>
 
-              <LogOut className="cursor-pointer absolute w-5 h-5 right-15 top-73" onClick={() => document.getElementById(`my_modal`).showModal()}></LogOut>
+            <div className="flex flex-col items-center">
+              <UserRound className="rounded-full p-2 border w-15 h-15 m-3 opacity-60" />
+              <p className="text-white">
+                Olá, <b>{localStorage.getItem("nome")}</b>
+              </p>
             </div>
 
+            <div className="flex-1 flex-col content-end h-full">
+              <LogOut
+                className="cursor-pointer w-5 h-5 -translate-y-0.5"
+                onClick={() => document.getElementById("my_modal").showModal()}
+              />
+            </div>
           </div>
         ) : (<LogOut className="cursor-pointer absolute w-11 h-11 left-5 bottom-20 px-3 py-2 hover:bg-white/5 rounded-lg transition-all" onClick={() => document.getElementById(`my_modal`).showModal()}></LogOut>)}
 
@@ -135,7 +144,7 @@ export default function Sidebar() {
         </footer> */}
       </aside>
 
-      <dialog id={`my_modal`} className="modal">
+      <dialog id={`my_modal`} className="modal modal-fast">
         <div className="p-5 rounded-lg bg-[#0A1F4B] text-center">
           <h2 className="text-lg font-bold">Sair?</h2>
           <div className="modal-action">
@@ -153,7 +162,7 @@ export default function Sidebar() {
               </button>
 
               <button
-                className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-normal text-[#003640] opacity-65 shadow-xl transition-all hover:opacity-100 hover:shadow-cyan-500/20"
+                className="flex modal-fast cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-normal text-[#003640] opacity-65 shadow-xl transition-all hover:opacity-100 hover:shadow-cyan-500/20"
                 onClick={(ev) => {
                   ev.preventDefault();
                   deslogar();

@@ -38,3 +38,13 @@
 .odometer.odometer-animating-down .odometer-ribbon-inner {
   transition-duration: 0.15s !important;
 }
+
+.modal-fast {
+  transition:
+    visibility 0s,
+    opacity 0.1s ease-out !important;
+}
+
+.modal-fim {
+  justify-items: end;
+}
