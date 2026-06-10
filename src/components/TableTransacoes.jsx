@@ -113,6 +113,8 @@ function TransacaoRow({
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
+  console.log({ item });
+
   const deletarTransacao = (id) => {
     setIsLoading(true);
     api
@@ -131,6 +133,8 @@ function TransacaoRow({
         toast.error("Erro ao excluir transação!");
       });
   };
+
+  const possuiSessao = item.sessao != undefined || item.sessao != null;
 
   return (
     <>
@@ -181,7 +185,8 @@ function TransacaoRow({
             >
               <li>
                 <button
-                  className="flex gap-1 hover:bg-red-400/20 hover:text-red-400"
+                  disabled={possuiSessao}
+                  className="flex gap-1 hover:bg-red-400/20 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-50"
                   onClick={() =>
                     document.getElementById(`my_modal_${item.id}`).showModal()
                   }
@@ -218,8 +223,8 @@ function TransacaoRow({
             Tem certeza de que deseja excluir esta transação?
             <br />
             <br />
-            <span className="font-bold text-[#48DCFC]">Atenção:</span> Essa
-            ação é permanente e não pode ser desfeita.
+            <span className="font-bold text-[#48DCFC]">Atenção:</span> Essa ação
+            é permanente e não pode ser desfeita.
           </p>
           <div className="modal-action">
             <form method="dialog ">
