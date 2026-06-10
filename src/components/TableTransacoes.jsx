@@ -215,10 +215,10 @@ function TransacaoRow({
         <div className="modal-box bg-[#0A1F4B]">
           <h2 className="text-lg font-bold">Excluir Transação</h2>
           <p className="py-4 text-sm font-light">
-            Tem certeza de que deseja excluir este produto do inventario ?
+            Tem certeza de que deseja excluir esta transação?
             <br />
             <br />
-            <span className="font-semibold text-[#48DCFC]">Atenção:</span> Essa
+            <span className="font-bold text-[#48DCFC]">Atenção:</span> Essa
             ação é permanente e não pode ser desfeita.
           </p>
           <div className="modal-action">

@@ -22,10 +22,10 @@ export default function DashboardFinanceiraPage() {
 
   const dataPizza = metricas
     ? metricas.gastosPorCategoria.map((item) => ({
-        name: item.categoria,
-        value: item.percentual,
-        color: CORES_CATEGORIA[item.categoria] ?? "#555",
-      }))
+      name: item.categoria,
+      value: item.percentual,
+      color: CORES_CATEGORIA[item.categoria] ?? "#555",
+    }))
     : [];
 
   const fetchMetricas = () => {
@@ -59,11 +59,11 @@ export default function DashboardFinanceiraPage() {
         {/* Header */}
         <header className="mb-10 flex items-center justify-between">
           <div className="flex flex-col gap-2">
-              <h1 className="text-4xl font-bold">RELATÓRIO FINANCEIRO</h1>
-          
-              <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
+            <h1 className="text-4xl font-bold">RELATÓRIO FINANCEIRO</h1>
+
+            <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
           </div>
-          
+
           <button
             className="flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
             onClick={() => setIsModalOpen(true)}
@@ -83,9 +83,9 @@ export default function DashboardFinanceiraPage() {
             <h2 className="mb-4 text-6xl font-bold">
               {metricas
                 ? metricas.saldoAtual.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })
+                  style: "currency",
+                  currency: "BRL",
+                })
                 : "—"}
             </h2>
             {metricas?.variacaoPercentual != null && (
@@ -111,9 +111,9 @@ export default function DashboardFinanceiraPage() {
                 <p className="text-2xl font-bold">
                   {metricas
                     ? metricas.totalEntradas.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })
+                      style: "currency",
+                      currency: "BRL",
+                    })
                     : "—"}
                 </p>
               </div>
@@ -141,9 +141,9 @@ export default function DashboardFinanceiraPage() {
                 <p className="text-2xl font-bold">
                   {metricas
                     ? metricas.totalEntradas.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })
+                      style: "currency",
+                      currency: "BRL",
+                    })
                     : "—"}
                 </p>
               </div>
@@ -158,9 +158,9 @@ export default function DashboardFinanceiraPage() {
                 <p className="text-opacity-80 text-2xl font-bold text-red-400">
                   {metricas
                     ? metricas.totalSaidas.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })
+                      style: "currency",
+                      currency: "BRL",
+                    })
                     : "—"}
                 </p>
               </div>
@@ -219,36 +219,41 @@ export default function DashboardFinanceiraPage() {
                 Ver tudo
               </button>
             </div>
-            {transacoes.length === 0 ? (
-              <p className="text-gray-500 italic">
-                Nenhuma transação encontrada. Adicione uma nova transação <button className="underline text-[#48DCFC] cursor-pointer" onClick={() => setIsModalOpen(true)}>
-                                                                              clicando aqui!
-                                                                          </button>
-              </p>
-            ) : (
-              <ul className="space-y-3">
-                {transacoes.map((t) => (
-                  <li
-                    key={t.id}
-                    className="flex items-center justify-between border-b border-gray-800 py-3"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold">{t.nome}</p>
-                      <p className="text-xs text-gray-500">{t.categoria}</p>
-                    </div>
-                    <span
-                      className={`text-sm font-bold ${t.tipo === "ENTRADA" ? "text-cyan-400" : "text-red-400"}`}
+            <div>
+              {transacoes.length === 0 ? (
+                <div className="flex h-full text-center items-center">
+                  <p className="text-gray-500 italic">
+                    Nenhuma transação encontrada. Adicione uma nova transação <button className="underline text-[#48DCFC] cursor-pointer" onClick={() => setIsModalOpen(true)}>
+                      clicando aqui!
+                    </button>
+                  </p>
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  {transacoes.map((t) => (
+                    <li
+                      key={t.id}
+                      className="flex items-center justify-between border-b border-gray-800 py-3"
                     >
-                      {t.tipo === "ENTRADA" ? "+ " : "- "}
-                      {t.valor.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+                      <div>
+                        <p className="text-sm font-semibold">{t.nome}</p>
+                        <p className="text-xs text-gray-500">{t.categoria}</p>
+                      </div>
+                      <span
+                        className={`text-sm font-bold ${t.tipo === "ENTRADA" ? "text-cyan-400" : "text-red-400"}`}
+                      >
+                        {t.tipo === "ENTRADA" ? "+ " : "- "}
+                        {t.valor.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+            </div>
           </div>
         </div>
       </main>

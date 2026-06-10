@@ -249,12 +249,12 @@ export default function TransacoesPage() {
             </h1>
 
             <h2 className="text-2xl font-light text-[#DAE2FF]">
-              Cadestre{"  "}
+              Cadastre{"  "}
               <span
                 className="cursor-pointer text-[#23CBEA] underline"
                 onClick={() => setIsModalOpen(true)}
               >
-                clicando aqui
+                clicando aqui!
               </span>
             </h2>
           </div>
