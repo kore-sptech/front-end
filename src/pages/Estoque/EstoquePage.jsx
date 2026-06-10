@@ -60,7 +60,8 @@ export default function EstoquePage() {
                         </div>
                     )}
 
-                    {estoque?.map((estoque) => {
+                    
+                    {estoque?.filter(estoque => estoque.seAtivo === true).map((estoque) => {
                         return (
                             <CardItemEstoque
                                 key={estoque.id}

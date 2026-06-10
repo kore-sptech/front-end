@@ -22,10 +22,10 @@ export default function DashboardFinanceiraPage() {
 
   const dataPizza = metricas
     ? metricas.gastosPorCategoria.map((item) => ({
-      name: item.categoria,
-      value: item.percentual,
-      color: CORES_CATEGORIA[item.categoria] ?? "#555",
-    }))
+        name: item.categoria,
+        value: item.percentual,
+        color: CORES_CATEGORIA[item.categoria] ?? "#555",
+      }))
     : [];
 
   const fetchMetricas = () => {
@@ -83,9 +83,9 @@ export default function DashboardFinanceiraPage() {
             <h2 className="mb-4 text-6xl font-bold">
               {metricas
                 ? metricas.saldoAtual.toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                })
+                    style: "currency",
+                    currency: "BRL",
+                  })
                 : "—"}
             </h2>
             {metricas?.variacaoPercentual != null && (
@@ -110,10 +110,10 @@ export default function DashboardFinanceiraPage() {
                 </p>
                 <p className="text-2xl font-bold">
                   {metricas
-                    ? metricas.totalEntradas.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })
+                    ? metricas.faturamentoBruto.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })
                     : "—"}
                 </p>
               </div>
@@ -134,16 +134,16 @@ export default function DashboardFinanceiraPage() {
           </div>
 
           {/* KPIs de entrada e saída */}
-          <div className="col-span-4 flex flex-col gap-4 h-full justify-between">
-            <div className="flex items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6 h-full">
+          <div className="col-span-4 flex h-full flex-col justify-between gap-4">
+            <div className="flex h-full items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Entradas</p>
                 <p className="text-2xl font-bold">
                   {metricas
                     ? metricas.totalEntradas.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })
+                        style: "currency",
+                        currency: "BRL",
+                      })
                     : "—"}
                 </p>
               </div>
@@ -152,15 +152,15 @@ export default function DashboardFinanceiraPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6 h-full">
+            <div className="flex h-full items-center justify-between rounded-2xl border border-gray-800 bg-[#061639] p-6">
               <div>
                 <p className="text-xs text-gray-400 uppercase">Saídas</p>
                 <p className="text-opacity-80 text-2xl font-bold text-red-400">
                   {metricas
                     ? metricas.totalSaidas.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })
+                        style: "currency",
+                        currency: "BRL",
+                      })
                     : "—"}
                 </p>
               </div>
@@ -221,9 +221,13 @@ export default function DashboardFinanceiraPage() {
             </div>
             <div>
               {transacoes.length === 0 ? (
-                <div className="flex h-full text-center items-center">
+                <div className="flex h-full items-center text-center">
                   <p className="text-gray-500 italic">
-                    Nenhuma transação encontrada. Adicione uma nova transação <button className="underline text-[#48DCFC] cursor-pointer" onClick={() => setIsModalOpen(true)}>
+                    Nenhuma transação encontrada. Adicione uma nova transação{" "}
+                    <button
+                      className="cursor-pointer text-[#48DCFC] underline"
+                      onClick={() => setIsModalOpen(true)}
+                    >
                       clicando aqui!
                     </button>
                   </p>
@@ -252,7 +256,6 @@ export default function DashboardFinanceiraPage() {
                   ))}
                 </ul>
               )}
-
             </div>
           </div>
         </div>

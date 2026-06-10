@@ -13,9 +13,9 @@ import {
 import { useContext, useEffect, useRef, useState } from "react";
 
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
+import GridMateriaisAdicionados from "./IntegracaoEstoqueAgendamento/GridMateriaisAdicionados";
 import { IMaskInput } from "react-imask";
 import ModalLista from "./ModalLista";
-import GridMateriaisAdicionados from "./IntegracaoEstoqueAgendamento/GridMateriaisAdicionados";
 import { api } from "../utils/api";
 import { toast } from "sonner";
 
@@ -38,7 +38,7 @@ const shakeStyle = `
 const str = (v) => (v != null ? String(v) : "");
 
 // ─── Validação pura (substitui o schema Zod) ─────────────────────────────────
-function validate(fields) {
+function validate(fields, durationMinutes) {
   const errors = {};
 
   if (!fields.cliente || fields.cliente.trim().length === 0) {
@@ -70,17 +70,22 @@ function validate(fields) {
     errors.de = "Informe o horário de início";
   }
 
-  if (!fields.ate || fields.ate.trim().length === 0) {
-    errors.ate = "Informe o horário de término";
-  } else if (fields.de && fields.ate && fields.ate <= fields.de) {
-    errors.ate = "Horário de término deve ser após o início";
+  // validar duração (em minutos) e garantir que fim > início
+  if (!durationMinutes || durationMinutes <= 0) {
+    errors.ate = "Informe a duração";
+  } else if (fields.de && durationMinutes) {
+    const start = new Date(fields.de);
+    const end = new Date(start.getTime() + durationMinutes * 60000);
+    if (end <= start) {
+      errors.ate = "Horário de término deve ser após o início";
+    }
   }
 
   return errors;
 }
 
-function isFormValid(fields) {
-  return Object.keys(validate(fields)).length === 0;
+function isFormValid(fields, durationMinutes) {
+  return Object.keys(validate(fields, durationMinutes)).length === 0;
 }
 
 // ─── Estilos de input ─────────────────────────────────────────────────────────
@@ -89,10 +94,9 @@ const baseInput =
   "placeholder:text-gray-600 focus:outline-none transition-all duration-200";
 
 const inputCls = (hasError) =>
-  `${baseInput} ${
-    hasError
-      ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
-      : "border-gray-800 focus:border-cyan-400"
+  `${baseInput} ${hasError
+    ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
+    : "border-gray-800 focus:border-cyan-400"
   }`;
 
 // ─── Componente de mensagem de erro ──────────────────────────────────────────
@@ -150,8 +154,6 @@ function ItemMaterialPlaceholder({ item }) {
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export default function ModalNovoAgendamento({ isOpen, onClose }) {
-  if (!isOpen) return null;
-
   const { agendamento } = useContext(AgendamentoContext);
 
   const imagesDoAgendamento =
@@ -169,6 +171,49 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     ate: agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "",
   });
 
+  // --- Helpers para calcular fim a partir de inicio + duração (minutos)
+  function pad(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  function formatLocalInput(date) {
+    return (
+      date.getFullYear() +
+      "-" +
+      pad(date.getMonth() + 1) +
+      "-" +
+      pad(date.getDate()) +
+      "T" +
+      pad(date.getHours()) +
+      ":" +
+      pad(date.getMinutes())
+    );
+  }
+
+  function addMinutesToLocalInput(deStr, minutes) {
+    if (!deStr) return "";
+    const dt = new Date(deStr);
+    if (isNaN(dt.getTime())) return "";
+    const end = new Date(dt.getTime() + minutes * 60000);
+    return formatLocalInput(end);
+  }
+
+  // inicializa duration (minutos) a partir do agendamento quando em edição
+  const initialDe = agendamento?.inicio?.replace(" ", "T").slice(0, 16) ?? "";
+  const initialAte = agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "";
+  let initialDuration = 60;
+  try {
+    if (initialDe && initialAte) {
+      const d1 = new Date(initialDe);
+      const d2 = new Date(initialAte);
+      const diff = Math.round((d2.getTime() - d1.getTime()) / 60000);
+      if (diff > 0) initialDuration = diff;
+    }
+  } catch {
+    /* ignore */
+  }
+
+  const [durationMinutes, setDurationMinutes] = useState(initialDuration);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
@@ -182,15 +227,102 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
   const [isMateriaisModalOpen, setIsMateriaisModalOpen] = useState(false);
 
-  const formIsValid = isFormValid(fields);
+  const formIsValid = isFormValid(fields, durationMinutes);
   const canSubmit = formIsValid && images.length > 0;
 
+  // Atualiza formulário quando `agendamento` ou `isOpen` mudarem
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const deVal = agendamento?.inicio?.replace(" ", "T").slice(0, 16) ?? "";
+    const ateVal = agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "";
+
+    setFields({
+      cliente: str(agendamento?.cliente),
+      preco: agendamento?.preco != null ? String(agendamento.preco) : "",
+      telefone: str(agendamento?.telefone),
+      pagamento: str(agendamento?.formaPagamento),
+      de: deVal,
+      ate: ateVal,
+    });
+
+    // atualizar duração a partir de inicio/fim quando existir
+    if (deVal && ateVal) {
+      const d1 = new Date(deVal);
+      const d2 = new Date(ateVal);
+      const diff = Math.round((d2.getTime() - d1.getTime()) / 60000);
+      if (!isNaN(diff) && diff > 0) {
+        setDurationMinutes(diff);
+      }
+    }
+
+    // atualizar imagens
+    const imgs =
+      agendamento?.referencias?.map((foto) => ({
+        ...foto,
+        url: foto.imageUrl,
+      })) || [];
+    setImages(imgs);
+    setImageError(imgs.length === 0);
+
+    if (agendamento?.id) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.warn("Token ausente ao buscar materiais do agendamento");
+        setMateriaisSelecionados([]);
+      } else {
+        api.get(`/estoque/agendamento/${agendamento.id}`)
+          .then(({ data }) => {
+            if (!data || data.length === 0) {
+              setMateriaisSelecionados([]);
+              return;
+            }
+
+            const materiaisAgrupados = data.reduce((acc, item) => {
+              const prodId = item.produtoId || item.produto?.id;
+              const nomeProduto = item.nomeProduto || item.produto?.nome || "Produto";
+
+              if (!acc[prodId]) {
+                acc[prodId] = {
+                  produtoId: prodId,
+                  nome: nomeProduto,
+                  itens: []
+                };
+              }
+
+              acc[prodId].itens.push({
+                id: item.id,
+                nome: item.nome || nomeProduto
+              });
+
+              return acc;
+            }, {});
+
+            setMateriaisSelecionados(Object.values(materiaisAgrupados));
+          })
+          .catch((error) => {
+            console.error("Erro ao buscar materiais do agendamento:", error);
+            console.error("Status", error.response?.status, "data", error.response?.data);
+            toast.error("Erro ao carregar os materiais deste agendamento.");
+          });
+      }
+    } else {
+      setMateriaisSelecionados([]);
+    }
+  }, [agendamento, isOpen]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
   const handleChange = (name, value) => {
-    const nextFields = { ...fields, [name]: value };
+    let nextFields = { ...fields, [name]: value };
+    if (name === "de") {
+      // recalcula fim com a duração atual
+      nextFields.ate = addMinutesToLocalInput(value, durationMinutes);
+    }
     setFields(nextFields);
 
     if (touched[name]) {
-      const nextErrors = validate(nextFields);
+      const nextErrors = validate(nextFields, durationMinutes);
       setErrors((prev) => ({
         ...prev,
         [name]: nextErrors[name] ?? undefined,
@@ -200,7 +332,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
   const handleBlur = (name) => {
     setTouched((prev) => ({ ...prev, [name]: true }));
-    const nextErrors = validate(fields);
+    const nextErrors = validate(fields, durationMinutes);
     setErrors((prev) => ({
       ...prev,
       [name]: nextErrors[name] ?? undefined,
@@ -212,14 +344,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   // -- Produtos refatorado
   const handleProdutos = async () => {
     try {
-      const { data } = await api.get("/produtos", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const { data } = await api.get("/produtos");
       setProdutosLista(data);
       setIsMateriaisModalOpen(true);
-    } catch (error) {
+    } catch {
       toast.error("Erro ao buscar produtos.");
     }
   };
@@ -228,11 +356,13 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   const handleAddMateriais = (novoMaterial) => {
     // Verifica se este produto já foi adicionado
     const produtoJaAdicionado = materiaisSelecionados.some(
-      (m) => m.produtoId === novoMaterial.produtoId
+      (m) => m.produtoId === novoMaterial.produtoId,
     );
 
     if (produtoJaAdicionado) {
-      toast.error("Este produto já foi adicionado. Remova antes de adicionar novamente.");
+      toast.error(
+        "Este produto já foi adicionado. Remova antes de adicionar novamente.",
+      );
       return;
     }
 
@@ -245,7 +375,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     setMateriaisSelecionados((prev) => prev.filter((_, i) => i !== index));
     toast.success("Material removido.");
   };
-
   const confirmarSessao = () => {
     api
       .patch(
@@ -270,14 +399,9 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
   const confirmarPagamaento = () => {
     api
-      .post(
-        "/transacoes",
-        {
-          nome: "Tatuagem do " + fields.cliente,
-          tipo: "ENTRADA",
-          valor: parseFloat(fields.preco),
-          categoria: "SESSAO",
-        },
+      .patch(
+        `/agendamentos/confirmar_pagamento/${agendamento.id}`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -285,11 +409,31 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         },
       )
       .then(() => {
-        toast.success("Transação adicionada com sucesso!");
-        onClose();
+        api
+          .post(
+            `/transacoes/${agendamento.id}`,
+            {
+              nome: "Tatuagem do " + fields.cliente,
+              tipo: "ENTRADA",
+              valor: parseFloat(fields.preco),
+              categoria: "SESSAO",
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            },
+          )
+          .then(() => {
+            toast.success("Transação adicionada com sucesso!");
+            onClose();
+          })
+          .catch(() => {
+            toast.error("Erro ao adicionar transação.");
+          });
       })
       .catch(() => {
-        toast.error("Erro ao adicionar transação!");
+        toast.error("Erro ao confirmar pagamento.");
       });
   };
 
@@ -338,7 +482,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     );
     setTouched(allTouched);
 
-    const validationErrors = validate(fields);
+    const validationErrors = validate(fields, durationMinutes);
     setErrors(validationErrors);
 
     const hasFieldErrors = Object.keys(validationErrors).length > 0;
@@ -352,13 +496,14 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     if (hasFieldErrors || hasImageError) return;
 
     const precoNumerico = parseFloat(fields.preco);
+    const fimCalculado = addMinutesToLocalInput(fields.de, durationMinutes);
     const payload = {
       cliente: fields.cliente,
       preco: precoNumerico,
       telefone: fields.telefone,
       formaPagamento: fields.pagamento,
       inicio: fields.de,
-      fim: fields.ate,
+      fim: fimCalculado,
       referencias: images.map((img) => img.id),
       materiais: materiaisSelecionados.map((m) => ({
         produtoId: m.produtoId,
@@ -374,12 +519,36 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           },
         })
         .then(() => {
-          toast.success("Agendamento atualizado com sucesso!");
+          const todosOsItensIds = materiaisSelecionados.flatMap((material) =>
+            material.itens.map((item) => item.id)
+          );
+
+          //  mapeia os IDs para um array de requisições (Promises)
+          const requisicoesEstoque = todosOsItensIds.map((itemId) => {
+            return api.put(
+              `/estoque/${itemId}/${agendamento.id}`,
+              {}, // corpo requisição é vazio
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+          });
+
+          //  executa todas as requisições em paralelo e aguarda o resultado
+          return Promise.all(requisicoesEstoque);
+        })
+        .then(() => {
+          toast.success("Agendamento e estoque atualizados com sucesso!");
           onClose();
         })
         .catch(() => {
           toast.error("Erro ao atualizar agendamento.");
         });
+
+
+      toast.success("Materiais salvos com sucesso!");
     } else {
       api
         .post("/agendamentos", payload, {
@@ -391,11 +560,19 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           toast.success("Agendamento adicionado com sucesso!");
           onClose();
         })
-        .catch(() => {
-          toast.error("Erro ao adicionar agendamento.");
+        .catch((err) => {
+          console.log(err);
+
+          if (err.status == 400 && err.response?.data?.message) {
+            toast.error(err.response.data.message);
+          } else {
+            toast.error("Erro ao adicionar agendamento.");
+          }
         });
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <>
@@ -483,13 +660,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </label>
 
               <div
-                className={`rounded-2xl border p-4 transition-all duration-200 ${
-                  imageShaking ? "shake" : ""
-                } ${
-                  imageError
+                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""
+                  } ${imageError
                     ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
                     : "border-[#3C494D]/10 bg-[#263457]/20"
-                }`}
+                  }`}
                 onAnimationEnd={() => setImageShaking(false)}
               >
                 <div className="flex flex-wrap gap-3">
@@ -516,20 +691,18 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <button
                     type="button"
                     onClick={handleClickAdd}
-                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${
-                      imageError
+                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${imageError
                         ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
                         : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
-                    }`}
+                      }`}
                   >
                     <Plus
                       size={20}
                       className={imageError ? "text-red-400" : "text-gray-500"}
                     />
                     <span
-                      className={`text-[10px] ${
-                        imageError ? "text-red-400" : "text-gray-600"
-                      }`}
+                      className={`text-[10px] ${imageError ? "text-red-400" : "text-gray-600"
+                        }`}
                     >
                       Adicionar
                     </span>
@@ -565,21 +738,24 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
             </div>
 
             {/* ── Materiais Refatorado ───────────────────────────────────── */}
-            <div>
-              <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
-                Materiais
-              </label>
-              <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4 transition-all duration-200">
-                <button
-                  type="button"
-                  onClick={handleProdutos}
-                  className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] transition-all hover:border-cyan-400/30 hover:bg-[#0f2352]"
-                >
-                  <Plus size={20} className="text-gray-500" />
-                  <span className="text-[10px] text-gray-600">Adicionar</span>
-                </button>
+
+            {agendamento && (
+              <div>
+                <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
+                  Materiais
+                </label>
+                <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4 transition-all duration-200">
+                  <button
+                    type="button"
+                    onClick={handleProdutos}
+                    className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-[#3C494D]/20 bg-[#0A1A3D] transition-all hover:border-cyan-400/30 hover:bg-[#0f2352]"
+                  >
+                    <Plus size={20} className="text-gray-500" />
+                    <span className="text-[10px] text-gray-600">Adicionar</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* ── Grid de Materiais Adicionados ────────────────────────────── */}
             <GridMateriaisAdicionados
@@ -601,13 +777,41 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               <ArrowRight className="mt-9 shrink-0 text-gray-700" size={18} />
 
               <Field label="Até" error={errors.ate}>
-                <input
-                  type="datetime-local"
-                  value={fields.ate}
-                  onChange={(e) => handleChange("ate", e.target.value)}
+                <select
+                  value={durationMinutes}
+                  onChange={(e) => {
+                    const mins = Number(e.target.value);
+                    setDurationMinutes(mins);
+                    const newAte = addMinutesToLocalInput(fields.de, mins);
+                    setFields((prev) => ({ ...prev, ate: newAte }));
+                    if (touched.ate) {
+                      const nextErrors = validate(
+                        { ...fields, ate: newAte },
+                        mins,
+                      );
+                      setErrors((prev) => ({
+                        ...prev,
+                        ate: nextErrors.ate ?? undefined,
+                      }));
+                    }
+                  }}
                   onBlur={() => handleBlur("ate")}
                   className={inputCls(!!errors.ate)}
-                />
+                >
+                  <option value={0}>Selecione a duração...</option>
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const mins = (i + 1) * 30;
+                    const hours = Math.floor(mins / 60);
+                    const remainder = mins % 60;
+                    const label =
+                      `${hours > 0 ? hours + "h" : ""}${remainder > 0 ? " " + remainder + "min" : ""}`.trim();
+                    return (
+                      <option key={mins} value={mins}>
+                        {label}
+                      </option>
+                    );
+                  })}
+                </select>
               </Field>
             </div>
 
@@ -634,11 +838,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <button
                     type="submit"
                     disabled={!canSubmit}
-                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                      canSubmit
+                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
                         ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
                         : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                    }`}
+                      }`}
                   >
                     {canSubmit ? (
                       <span className="flex w-full items-center justify-center gap-2">
@@ -651,37 +854,44 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 </div>
 
                 <div className="flex gap-3">
-                  <button
-                    type="button"
-                    disabled={!canSubmit}
-                    className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                    onClick={confirmarPagamaento}
-                  >
-                    <span className="flex w-full items-center justify-center gap-2">
-                      <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={confirmarSessao}
-                    disabled={!canSubmit}
-                    className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                  >
-                    <span className="flex w-full items-center justify-center gap-2">
-                      <CalendarCheck2 /> <span> Confirmar Sessão</span>
-                    </span>
-                  </button>
+                  {(agendamento.status == "PENDENTE" ||
+                    agendamento.status == "AGUARDANDO" ||
+                    agendamento.status == "CONFIRMADO") && (
+                      <button
+                        type="button"
+                        disabled={!canSubmit}
+                        className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                        onClick={confirmarPagamaento}
+                      >
+                        <span className="flex w-full items-center justify-center gap-2">
+                          <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
+                        </span>
+                      </button>
+                    )}
+
+                  {(agendamento.status == "PENDENTE" ||
+                    agendamento.status == "AGUARDANDO") && (
+                      <button
+                        type="button"
+                        onClick={confirmarSessao}
+                        disabled={!canSubmit}
+                        className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                      >
+                        <span className="flex w-full items-center justify-center gap-2">
+                          <CalendarCheck2 /> <span> Confirmar Sessão</span>
+                        </span>
+                      </button>
+                    )}
                 </div>
               </>
             ) : (
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                  canSubmit
+                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
                     ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
                     : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                }`}
+                  }`}
               >
                 {canSubmit
                   ? "Adicionar Agendamento"
@@ -699,6 +909,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         title="Estoque de Materiais"
         items={produtosLista}
         onMateriaisSelect={handleAddMateriais}
+        agendamentoId={agendamento.id}
       />
     </>
   );
