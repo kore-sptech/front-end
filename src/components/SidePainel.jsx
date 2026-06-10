@@ -1,7 +1,8 @@
+import { differenceInHours, differenceInMinutes } from "date-fns";
+
 import { COLOR_STYLES } from "../const/Day";
 import { CirclePlus } from "lucide-react";
 import { DayPicker } from "react-day-picker";
-import { differenceInHours } from "date-fns";
 import { formatCurrecy } from "../utils/formmaters";
 import { isOld } from "../utils/date";
 import { ptBR } from "react-day-picker/locale";
@@ -158,9 +159,28 @@ function UpcomingSessionsList({ sessions, colorByClient }) {
   );
 }
 
-function SessionCard({ session, color }) {
+function SessionCard({ session }) {
+  let difference = 0;
+  let unit = "horas";
+
   const hoursUntil = differenceInHours(new Date(session.inicio), new Date());
-  const style = COLOR_STYLES[color] ?? COLOR_STYLES.ghost;
+
+  if (hoursUntil == 1) unit = "hora";
+
+  difference = hoursUntil;
+
+  if (hoursUntil == 0) {
+    difference = differenceInMinutes(new Date(session.inicio), new Date());
+    unit = "minutos";
+  }
+
+  let style = COLOR_STYLES.ghost;
+
+  if (session.status === "CONFIRMADO_PAGAMENTO") style = COLOR_STYLES.green;
+  else if (session.status === "CONFIRMADO") style = COLOR_STYLES.blue;
+  else if (session.status == "AGUARDANDO") style = COLOR_STYLES.orange;
+  else if (session.status === "PENDENTE") style = COLOR_STYLES.ghost;
+  else if (session.status === "CANCELADO") style = COLOR_STYLES.red;
 
   return (
     <div
@@ -173,7 +193,7 @@ function SessionCard({ session, color }) {
         <div>
           <h4 className={`font-semibold ${style.title}`}>{session.cliente}</h4>
           <p className="text-xs font-normal text-[#BBC9CD]">
-            Em {hoursUntil} horas
+            Em {difference} {unit}
           </p>
         </div>
       </div>

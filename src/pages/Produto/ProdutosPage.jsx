@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { data, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import CadastroProdutoPage from "./CadastroProdutoPage";
 import Sidebar from "../../components/Sidebar";
@@ -9,12 +10,33 @@ import { Link } from "react-router-dom";
 import "../../index.css";
 
 export default function ProdutoPage() {
-    
+
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.successMessage) {
+            toast.success(location.state.successMessage);
+
+            window.history.replaceState({}, document.title);
+        }
+        if (location.state?.successMessage2) {
+            toast.success(location.state.successMessage2);
+
+            window.history.replaceState({}, document.title);
+        }
+        if (location.state?.successMessage3) {
+            toast.success(location.state.successMessage3);
+
+            window.history.replaceState({}, document.title);
+        }
+    }, []);
+
     const navigate = useNavigate();
 
     const [pesquisa, setPesquisa] = useState("")
     const [produtos, setProduto] = useState([])
     const [produtosFiltrados, setProdutosFiltrados] = useState([])
+    const [tipo2, setTipo2] = useState("todos");
     useEffect(() => {
         fetch("http://localhost:8080/produtos", {
             method: "GET",
@@ -31,69 +53,27 @@ export default function ProdutoPage() {
             })
     }, [])
     useEffect(() => {
+        const filtrados = produtos.filter(produto => {
+            const nomeOk = produto.nome
+                .toLowerCase()
+                .includes(pesquisa.toLowerCase());
 
-        if (!pesquisa.trim()) {
-            // Se pesquisa estiver vazia, mostra todos os produtos
-            setProdutosFiltrados(produtos);
-        } else {
-            // Filtra produtos baseado no nome (case insensitive)
-            const filtrados = produtos.filter(produto =>
-                produto.nome.toLowerCase().includes(pesquisa.toLowerCase())
-            );
-            setProdutosFiltrados(filtrados);
-            console.log(pesquisa);
-        }
-    }, [pesquisa, produtos]);
+            const tipoOk =
+                tipo2 === "todos" ||
+                tipo2 === "" ||
+                produto.tipo.toLowerCase().includes(tipo2.toLowerCase());
+
+            return nomeOk && tipoOk;
+        });
+
+        setProdutosFiltrados(filtrados);
+    }, [pesquisa, tipo2, produtos]);
 
     function filtrarPor(tipo) {
-
-        if (tipo == "todos") {
-
-            const button = document.getElementById("todos");
-            button.classList.add("selecionado")
-            const button2 = document.getElementById("tintas/pinturas");
-            button2.classList.remove("selecionado")
-            const button3 = document.getElementById("agulhas");
-            button3.classList.remove("selecionado")
-
-            const filtrados2 = produtos;
-            setProdutosFiltrados(filtrados2);
-            return;
-        }
-        if (tipo == "tintas/pintura") {
-
-            const button = document.getElementById("tintas/pinturas");
-            button.classList.add("selecionado")
-            const button2 = document.getElementById("todos");
-            button2.classList.remove("selecionado")
-            const button3 = document.getElementById("agulhas");
-            button3.classList.remove("selecionado")
-
-            const filtrados2 = produtos.filter(produto => {
-                const tipoProduto = produto.tipo.toLowerCase();
-                // Verifica se inclui "tinta" OU se inclui "pintura"
-                return tipoProduto.includes("tinta") || tipoProduto.includes("pintura");
-            });
-            setProdutosFiltrados(filtrados2);
-            return;
-        }
-        if (tipo == "agulha") {
-
-            const button = document.getElementById("agulhas");
-            button.classList.add("selecionado")
-            const button2 = document.getElementById("todos");
-            button2.classList.remove("selecionado")
-            const button3 = document.getElementById("tintas/pinturas");
-            button3.classList.remove("selecionado")
-
-            const filtrados2 = produtos.filter(produto =>
-                produto.tipo.toLowerCase().includes(tipo.toLowerCase())
-            );
-            setProdutosFiltrados(filtrados2);
-            return;
-        }
-
+        setTipo2(tipo);
     }
+
+    console.log(produtos);
 
     return (
         <main className="h-auto w-full flex bg-[#000C24] overflow-x-hidden">
@@ -128,7 +108,7 @@ export default function ProdutoPage() {
             <section className="grow h-full w-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
                     <div className="flex flex-col gap-2">
-                        <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">INVENTÁRIO</h1>
+                        <h1 className="text-4xl font-bold mr-15 text-[#DAE2FF]">PRODUTOS</h1>
 
                         <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
                     </div>
@@ -145,17 +125,45 @@ export default function ProdutoPage() {
 
 
                 <div className="ml-5 p-6 flex w-100 justify-between text-[#dae2ffb4] font-medium text-sm">
-                    <button id="todos" onClick={() => filtrarPor("todos")} className="selecionado px-5 py-2 rounded-2xl hover:cursor-pointer hover:text-[#48DCFC] hover:transition-colors transition-colors">Todos</button>
-                    <button id="tintas/pinturas" onClick={() => filtrarPor("tintas/pintura")} className="px-5 py-2 rounded-2xl hover:cursor-pointer hover:text-[#48DCFC] hover:transition-colors transition-colors">Tintas e pinturas</button>
-                    <button id="agulhas" onClick={() => filtrarPor("agulha")} className="px-5 py-2 rounded-2xl hover:cursor-pointer hover:text-[#48DCFC] hover:transition-colors transition-colors">Agulhas</button>
+                    <button
+                        onClick={() => filtrarPor("todos")}
+                        className={`px-5 py-2 rounded-2xl ${tipo2 === "todos" ? "selecionado" : ""
+                            }`}
+                    >
+                        Todos
+                    </button>
+
+                    <button
+                        onClick={() => filtrarPor("tintas")}
+                        className={`px-5 py-2 rounded-2xl ${tipo2 === "tintas" ? "selecionado" : ""
+                            }`}
+                    >
+                        Tintas
+                    </button>
+
+                    <button
+                        onClick={() => filtrarPor("agulhas")}
+                        className={`px-5 py-2 rounded-2xl ${tipo2 === "agulhas" ? "selecionado" : ""
+                            }`}
+                    >
+                        Agulhas
+                    </button>
+
+                    <button
+                        onClick={() => filtrarPor("luvas")}
+                        className={`px-5 py-2 rounded-2xl ${tipo2 === "luvas" ? "selecionado" : ""
+                            }`}
+                    >
+                        Luvas
+                    </button>
                 </div>
 
                 <div className="p-6 grid grid-cols-4 gap-y-15 w-full h-full text-center justify-between place-items-center" id="produtos_listagem">
 
                     {produtosFiltrados.length == 0 && pesquisa.length == 0 && (
                         <div className="col-span-4 text-center mt-25">
-                            <h1 className="font-bold text-3xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO</h1>
-                            <p className="text-2xl">Regriste seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
+                            <h1 className="font-bold text-4xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO</h1>
+                            <p className="text-2xl">Registre seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
                                 onClick={() => {
                                     console.log("Enviando:", pesquisa);
 
@@ -171,8 +179,8 @@ export default function ProdutoPage() {
 
                     {produtosFiltrados.length == 0 && pesquisa.length > 0 && (
                         <div className="col-span-4 text-center mt-25">
-                            <h1 className="font-bold text-3xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO PARA <span className="text-[#48DCFC] font-bold">"{pesquisa}"</span>!</h1>
-                            <p className="text-2xl">Regriste seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
+                            <h1 className="font-bold text-4xl text-[#DAE2FF]">NENHUM ITEM NO INVENTÁRIO PARA <span className="text-[#48DCFC] font-bold">"{pesquisa}"</span>!</h1>
+                            <p className="text-2xl">Registre seus produtos <button className="underline text-[#48DCFC] cursor-pointer"
                                 onClick={() => {
                                     console.log("Enviando:", pesquisa);
 
@@ -189,7 +197,7 @@ export default function ProdutoPage() {
                     {produtosFiltrados.length > 0 && (
     
                         produtosFiltrados.map((produto) => {
-                            
+
                             return (
                                 <CardProduto
 
@@ -199,8 +207,9 @@ export default function ProdutoPage() {
                                     quantidade={produto.qtdMinAlerta}
                                     descricao={produto.descricao}
                                     possuiValidade={produto.possuiValidade}
+                                    tipo={produto.tipo}
                                 />
-                                
+
                             )
                         })
                     )}

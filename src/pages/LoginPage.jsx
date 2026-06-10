@@ -65,6 +65,7 @@ export default function LoginPage() {
       .then((data) => {
         if (data != null) {
           localStorage.setItem("auth", JSON.stringify(data));
+          localStorage.setItem("nome", data.nome);
           localStorage.setItem("token", data.token);
 
           navigate("/dashboard");

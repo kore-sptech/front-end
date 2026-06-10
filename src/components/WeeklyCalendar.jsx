@@ -4,12 +4,11 @@ import {
   DAY_LABEL_BY_INDEX,
   ROW_HEIGHT_PX,
 } from "../const/Day";
-import { differenceInHours, isSameDay } from "date-fns";
+import { differenceInHours, differenceInMinutes, isSameDay } from "date-fns";
 import { useContext, useEffect, useRef, useState } from "react";
 
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { Clock } from "lucide-react";
-import { isOld } from "../utils/date";
 
 export function WeeklyCalendar({ sessions, colorByClient, weekDays }) {
   const scrollRef = useRef(null);
@@ -112,7 +111,10 @@ export function TimeSlot({ children }) {
 
 export function EventsGrid({ sessions, colorByClient }) {
   return (
-    <div className="relative grid grow grid-cols-7">
+    <div
+      className="relative grid grow grid-cols-7"
+      style={{ height: 24 * ROW_HEIGHT_PX }} // ← altura total explícita: 1440px
+    >
       {/* Células de fundo da grade (24h × 7 dias) */}
       {Array.from({ length: 24 * 7 }, (_, i) => (
         <div
@@ -132,11 +134,16 @@ export function EventsGrid({ sessions, colorByClient }) {
             key={session.id}
             session={session}
             color={colorByClient[session.cliente]}
-            startHour={new Date(session.inicio).getHours()}
-            durationHours={differenceInHours(
-              new Date(session.fim),
-              new Date(session.inicio),
-            )}
+            startHour={
+              new Date(session.inicio).getHours() +
+              new Date(session.inicio).getMinutes() / 60
+            }
+            durationHours={
+              differenceInMinutes(
+                new Date(session.fim),
+                new Date(session.inicio),
+              ) / 60
+            }
             dayLabel={DAY_LABEL_BY_INDEX[new Date(session.inicio).getDay()]}
           />
         );
@@ -171,21 +178,12 @@ export function CurrentTimeLine() {
 }
 
 // ─── Bloco de evento ──────────────────────────────────────────────────────────
-export function EventBlock({
-  session,
-  color,
-  startHour,
-  durationHours,
-  dayLabel,
-}) {
+export function EventBlock({ session, startHour, durationHours, dayLabel }) {
   const { openModal } = useContext(AgendamentoContext);
 
   let style = COLOR_STYLES.ghost;
   let dayIndex = DAY_COLUMN_INDEX[dayLabel];
 
-  console.log({
-    status: session.status,
-  });
   if (session.status === "CONFIRMADO_PAGAMENTO") style = COLOR_STYLES.green;
   else if (session.status === "CONFIRMADO") style = COLOR_STYLES.blue;
   else if (session.status == "AGUARDANDO") style = COLOR_STYLES.orange;
@@ -196,18 +194,22 @@ export function EventBlock({
   //   style,
   // });
 
+  console.log(session);
+
+  console.log(durationHours);
   return (
     <div
-      className="absolute z-10 p-1"
+      className="absolute z-10 overflow-hidden p-0.5" // ← overflow-hidden previne vazamento
       style={{
         top: startHour * ROW_HEIGHT_PX,
-        height: durationHours * ROW_HEIGHT_PX,
+        height: durationHours * ROW_HEIGHT_PX, // garante mínimo de 1 slot
+        minHeight: durationHours * ROW_HEIGHT_PX, // CSS safety net
         width: "calc(100% / 7)",
         left: `calc(100% / 7 * ${dayIndex})`,
       }}
     >
       <div
-        className={`h-full w-full ${style.bg} rounded-lg border-l-4 p-2 pl-4 ${style.border} flex cursor-pointer flex-col justify-between ${style.extra ?? ""}`}
+        className={`h-full w-full overflow-hidden ${style.bg} rounded-lg border-l-4 p-2 pl-4 ${style.border} flex cursor-pointer flex-col justify-between ${style.extra ?? ""}`}
         onClick={() => {
           console.log(session);
           openModal(session);

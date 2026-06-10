@@ -9,7 +9,7 @@ export default function EstoquePage() {
     const location = useLocation();
     const { id } = useParams();
     const navigate = useNavigate();
-    const [estoque, setEstoque] = useState(null);
+    const [estoque, setEstoque] = useState([]);
 
     const carregarEstoque = async () => {
         try {
@@ -37,17 +37,30 @@ export default function EstoquePage() {
             <Sidebar></Sidebar>
             <section className="grow h-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
-                    <h1 className="text-4xl font-bold">INVENTÁRIO</h1>
+                    <div className="flex flex-col gap-2">
+                        <h1 className="text-4xl font-bold">PRODUTOS</h1>
+
+                        <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
+                    </div>
                     <SearchBar></SearchBar>
                     <button
                         onClick={() => navigate(`adicionar`)}
-                        className="flex gap-2 px-6 py-2.5 bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl shadow-xl shadow-cyan-500/20 cursor-pointer">
+                        className="flex gap-2 px-6 py-2.5 bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl font-bold shadow-xl shadow-cyan-500/20 cursor-pointer items-center">
                         + Registrar
                     </button>
                 </div>
-                
+
                 {/* A alteração foi feita na div abaixo: adicionado flex-wrap e removido justify-between */}
                 <div className="p-6 flex w-full flex-wrap justify-start gap-4" id="produtos_listagem">
+
+                    {estoque.length == 0 && (
+                        <div className="text-center w-full h-full mt-70">
+                            <p className="text-4xl font-bold text-[#DAE2FF]">NENHUM ITEM NO ESTOQUE!</p>
+                            <p className="text-2xl">Cadastre um item <button onClick={() => navigate(`adicionar`)} className="underline text-[#48DCFC] font-bold cursor-pointer">clicando aqui!</button></p>
+                        </div>
+                    )}
+
+                    
                     {estoque?.filter(estoque => estoque.seAtivo === true).map((estoque) => {
                         return (
                             <CardItemEstoque
