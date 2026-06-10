@@ -94,10 +94,9 @@ const baseInput =
   "placeholder:text-gray-600 focus:outline-none transition-all duration-200";
 
 const inputCls = (hasError) =>
-  `${baseInput} ${
-    hasError
-      ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
-      : "border-gray-800 focus:border-cyan-400"
+  `${baseInput} ${hasError
+    ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
+    : "border-gray-800 focus:border-cyan-400"
   }`;
 
 // ─── Componente de mensagem de erro ──────────────────────────────────────────
@@ -210,13 +209,29 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
       const diff = Math.round((d2.getTime() - d1.getTime()) / 60000);
       if (diff > 0) initialDuration = diff;
     }
-  } catch (e) {
+  } catch {
     /* ignore */
   }
 
   const [durationMinutes, setDurationMinutes] = useState(initialDuration);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const [images, setImages] = useState(imagesDoAgendamento);
+  const [imageError, setImageError] = useState(false);
+  const [imageShaking, setImageShaking] = useState(false);
+  const fileInputRef = useRef();
+
+  // -- Materiais
+  const [produtosLista, setProdutosLista] = useState([]);
+  const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
+  const [isMateriaisModalOpen, setIsMateriaisModalOpen] = useState(false);
+
+  const formIsValid = isFormValid(fields, durationMinutes);
+  const canSubmit = formIsValid && images.length > 0;
 
   // Atualiza formulário quando `agendamento` ou `isOpen` mudarem
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!isOpen) return;
 
@@ -250,23 +265,53 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
       })) || [];
     setImages(imgs);
     setImageError(imgs.length === 0);
+
+    if (agendamento?.id) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.warn("Token ausente ao buscar materiais do agendamento");
+        setMateriaisSelecionados([]);
+      } else {
+        api.get(`/estoque/agendamento/${agendamento.id}`)
+          .then(({ data }) => {
+            if (!data || data.length === 0) {
+              setMateriaisSelecionados([]);
+              return;
+            }
+
+            const materiaisAgrupados = data.reduce((acc, item) => {
+              const prodId = item.produtoId || item.produto?.id;
+              const nomeProduto = item.nomeProduto || item.produto?.nome || "Produto";
+
+              if (!acc[prodId]) {
+                acc[prodId] = {
+                  produtoId: prodId,
+                  nome: nomeProduto,
+                  itens: []
+                };
+              }
+
+              acc[prodId].itens.push({
+                id: item.id,
+                nome: item.nome || nomeProduto
+              });
+
+              return acc;
+            }, {});
+
+            setMateriaisSelecionados(Object.values(materiaisAgrupados));
+          })
+          .catch((error) => {
+            console.error("Erro ao buscar materiais do agendamento:", error);
+            console.error("Status", error.response?.status, "data", error.response?.data);
+            toast.error("Erro ao carregar os materiais deste agendamento.");
+          });
+      }
+    } else {
+      setMateriaisSelecionados([]);
+    }
   }, [agendamento, isOpen]);
-
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-
-  const [images, setImages] = useState(imagesDoAgendamento);
-  const [imageError, setImageError] = useState(false);
-  const [imageShaking, setImageShaking] = useState(false);
-  const fileInputRef = useRef();
-
-  // -- Materiais
-  const [produtosLista, setProdutosLista] = useState([]);
-  const [materiaisSelecionados, setMateriaisSelecionados] = useState([]);
-  const [isMateriaisModalOpen, setIsMateriaisModalOpen] = useState(false);
-
-  const formIsValid = isFormValid(fields, durationMinutes);
-  const canSubmit = formIsValid && images.length > 0;
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleChange = (name, value) => {
     let nextFields = { ...fields, [name]: value };
@@ -299,14 +344,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   // -- Produtos refatorado
   const handleProdutos = async () => {
     try {
-      const { data } = await api.get("/produtos", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const { data } = await api.get("/produtos");
       setProdutosLista(data);
       setIsMateriaisModalOpen(true);
-    } catch (error) {
+    } catch {
       toast.error("Erro ao buscar produtos.");
     }
   };
@@ -479,7 +520,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         })
         .then(() => {
           const todosOsItensIds = materiaisSelecionados.flatMap((material) =>
-            material.itens.map((item) => item.id),
+            material.itens.map((item) => item.id)
           );
 
           //  mapeia os IDs para um array de requisições (Promises)
@@ -491,7 +532,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
-              },
+              }
             );
           });
 
@@ -505,6 +546,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         .catch(() => {
           toast.error("Erro ao atualizar agendamento.");
         });
+
 
       toast.success("Materiais salvos com sucesso!");
     } else {
@@ -529,8 +571,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         });
     }
   };
-
-  useEffect(() => {}, []);
 
   if (!isOpen) return null;
 
@@ -620,13 +660,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </label>
 
               <div
-                className={`rounded-2xl border p-4 transition-all duration-200 ${
-                  imageShaking ? "shake" : ""
-                } ${
-                  imageError
+                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""
+                  } ${imageError
                     ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
                     : "border-[#3C494D]/10 bg-[#263457]/20"
-                }`}
+                  }`}
                 onAnimationEnd={() => setImageShaking(false)}
               >
                 <div className="flex flex-wrap gap-3">
@@ -653,20 +691,18 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <button
                     type="button"
                     onClick={handleClickAdd}
-                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${
-                      imageError
+                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${imageError
                         ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
                         : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
-                    }`}
+                      }`}
                   >
                     <Plus
                       size={20}
                       className={imageError ? "text-red-400" : "text-gray-500"}
                     />
                     <span
-                      className={`text-[10px] ${
-                        imageError ? "text-red-400" : "text-gray-600"
-                      }`}
+                      className={`text-[10px] ${imageError ? "text-red-400" : "text-gray-600"
+                        }`}
                     >
                       Adicionar
                     </span>
@@ -796,68 +832,63 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                       <MessageCircle /> <span>Conversar</span>
                     </span>
                   </button>
-
-                  {agendamento.status != "CANCELADO" && (
-                    <button
-                      type="submit"
-                      disabled={!canSubmit}
-                      className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                        canSubmit
-                          ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
-                          : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
+                  <button
+                    type="submit"
+                    disabled={!canSubmit}
+                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
+                        ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
+                        : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
                       }`}
-                    >
-                      {canSubmit ? (
-                        <span className="flex w-full items-center justify-center gap-2">
-                          <CalendarArrowUp /> <span>Atualizar</span>
-                        </span>
-                      ) : (
-                        "Preencha todos os campos"
-                      )}
-                    </button>
-                  )}
+                  >
+                    {canSubmit ? (
+                      <span className="flex w-full items-center justify-center gap-2">
+                        <CalendarArrowUp /> <span>Atualizar</span>
+                      </span>
+                    ) : (
+                      "Preencha todos os campos"
+                    )}
+                  </button>
                 </div>
 
                 <div className="flex gap-3">
                   {(agendamento.status == "PENDENTE" ||
                     agendamento.status == "AGUARDANDO" ||
                     agendamento.status == "CONFIRMADO") && (
-                    <button
-                      type="button"
-                      disabled={!canSubmit}
-                      className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                      onClick={confirmarPagamaento}
-                    >
-                      <span className="flex w-full items-center justify-center gap-2">
-                        <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
-                      </span>
-                    </button>
-                  )}
+                      <button
+                        type="button"
+                        disabled={!canSubmit}
+                        className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                        onClick={confirmarPagamaento}
+                      >
+                        <span className="flex w-full items-center justify-center gap-2">
+                          <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
+                        </span>
+                      </button>
+                    )}
 
                   {(agendamento.status == "PENDENTE" ||
                     agendamento.status == "AGUARDANDO") && (
-                    <button
-                      type="button"
-                      onClick={confirmarSessao}
-                      disabled={!canSubmit}
-                      className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                    >
-                      <span className="flex w-full items-center justify-center gap-2">
-                        <CalendarCheck2 /> <span> Confirmar Sessão</span>
-                      </span>
-                    </button>
-                  )}
+                      <button
+                        type="button"
+                        onClick={confirmarSessao}
+                        disabled={!canSubmit}
+                        className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                      >
+                        <span className="flex w-full items-center justify-center gap-2">
+                          <CalendarCheck2 /> <span> Confirmar Sessão</span>
+                        </span>
+                      </button>
+                    )}
                 </div>
               </>
             ) : (
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
-                  canSubmit
+                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
                     ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
                     : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                }`}
+                  }`}
               >
                 {canSubmit
                   ? "Adicionar Agendamento"
@@ -869,16 +900,14 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
       </div>
 
       {/* ── Chamada do Modal de Lista ───────────────────────────────────── */}
-      {agendamento && (
-        <ModalLista
-          isOpen={isMateriaisModalOpen}
-          onClose={() => setIsMateriaisModalOpen(false)}
-          title="Estoque de Materiais"
-          items={produtosLista}
-          onMateriaisSelect={handleAddMateriais}
-          agendamentoId={agendamento.id}
-        />
-      )}
+      <ModalLista
+        isOpen={isMateriaisModalOpen}
+        onClose={() => setIsMateriaisModalOpen(false)}
+        title="Estoque de Materiais"
+        items={produtosLista}
+        onMateriaisSelect={handleAddMateriais}
+        agendamentoId={agendamento.id}
+      />
     </>
   );
 }
