@@ -104,7 +104,7 @@ export default function DashboardFinanceiraPage() {
             )}
 
             <div className="mt-10 grid grid-cols-2 gap-4">
-              <div>
+              {/* <div>
                 <p className="text-xs text-gray-400 uppercase">
                   Faturamento Bruto
                 </p>
@@ -116,7 +116,7 @@ export default function DashboardFinanceiraPage() {
                       })
                     : "—"}
                 </p>
-              </div>
+              </div> */}
               {/* <div>
                 <p className="text-xs text-gray-400 uppercase">
                   Previsão Próximo Mês
