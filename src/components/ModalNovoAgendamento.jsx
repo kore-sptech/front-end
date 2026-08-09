@@ -199,6 +199,17 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     return formatLocalInput(end);
   }
 
+  const buscarHorarioSugerido = async () => {
+    try {
+      const { data } = await api.get("/agendamentos/proximo-disponivel");
+      // data: { inicio: "2026-08-10T09:00:00", fim: "2026-08-10T09:30:00" }
+      return data?.inicio ? data.inicio.slice(0, 16) : "";
+    } catch (error) {
+      console.error("Erro ao buscar horário sugerido:", error);
+      return "";
+    }
+  };
+
   // inicializa duration (minutos) a partir do agendamento quando em edição
   const initialDe = agendamento?.inicio?.replace(" ", "T").slice(0, 16) ?? "";
   const initialAte = agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "";
@@ -236,88 +247,94 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   useEffect(() => {
     if (!isOpen) return;
 
-    const deVal = agendamento?.inicio?.replace(" ", "T").slice(0, 16) ?? "";
-    const ateVal = agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "";
+    const carregarFormulario = async () => {
+      let deVal = agendamento?.inicio?.replace(" ", "T").slice(0, 16) ?? "";
+      let ateVal = agendamento?.fim?.replace(" ", "T").slice(0, 16) ?? "";
 
-    setFields({
-      cliente: str(agendamento?.cliente),
-      preco: agendamento?.preco != null ? String(agendamento.preco) : "",
-      telefone: str(agendamento?.telefone),
-      pagamento: str(agendamento?.formaPagamento),
-      de: deVal,
-      ate: ateVal,
-    });
-
-    // atualizar duração a partir de inicio/fim quando existir
-    if (deVal && ateVal) {
-      const d1 = new Date(deVal);
-      const d2 = new Date(ateVal);
-      const diff = Math.round((d2.getTime() - d1.getTime()) / 60000);
-      if (!isNaN(diff) && diff > 0) {
-        setDurationMinutes(diff);
+      // ── Se for um agendamento NOVO (sem id), sugere o próximo horário disponível
+      if (!agendamento?.id) {
+        const sugestao = await buscarHorarioSugerido();
+        if (sugestao) {
+          deVal = sugestao;
+          ateVal = addMinutesToLocalInput(sugestao, durationMinutes);
+        }
       }
-    }
 
-    // atualizar imagens
-    const imgs =
-      agendamento?.referencias?.map((foto) => ({
-        ...foto,
-        url: foto.imageUrl,
-      })) || [];
-    setImages(imgs);
-    setImageError(imgs.length === 0);
+      setFields({
+        cliente: str(agendamento?.cliente),
+        preco: agendamento?.preco != null ? String(agendamento.preco) : "",
+        telefone: str(agendamento?.telefone),
+        pagamento: str(agendamento?.formaPagamento),
+        de: deVal,
+        ate: ateVal,
+      });
 
-    if (agendamento?.id) {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.warn("Token ausente ao buscar materiais do agendamento");
-        setMateriaisSelecionados([]);
-      } else {
-        api
-          .get(`/estoque/agendamento/${agendamento.id}`)
-          .then(({ data }) => {
-            if (!data || data.length === 0) {
-              setMateriaisSelecionados([]);
-              return;
-            }
+      // atualizar duração a partir de inicio/fim quando existir (edição)
+      if (agendamento?.inicio && agendamento?.fim) {
+        const d1 = new Date(deVal);
+        const d2 = new Date(ateVal);
+        const diff = Math.round((d2.getTime() - d1.getTime()) / 60000);
+        if (!isNaN(diff) && diff > 0) {
+          setDurationMinutes(diff);
+        }
+      }
 
-            const materiaisAgrupados = data.reduce((acc, item) => {
-              const prodId = item.produtoId || item.produto?.id;
-              const nomeProduto =
-                item.nomeProduto || item.produto?.nome || "Produto";
+      // atualizar imagens
+      const imgs =
+        agendamento?.referencias?.map((foto) => ({
+          ...foto,
+          url: foto.imageUrl,
+        })) || [];
+      setImages(imgs);
+      setImageError(imgs.length === 0);
 
-              if (!acc[prodId]) {
-                acc[prodId] = {
-                  produtoId: prodId,
-                  nome: nomeProduto,
-                  itens: [],
-                };
+      if (agendamento?.id) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.warn("Token ausente ao buscar materiais do agendamento");
+          setMateriaisSelecionados([]);
+        } else {
+          api
+            .get(`/estoque/agendamento/${agendamento.id}`)
+            .then(({ data }) => {
+              if (!data || data.length === 0) {
+                setMateriaisSelecionados([]);
+                return;
               }
 
-              acc[prodId].itens.push({
-                id: item.id,
-                nome: item.nome || nomeProduto,
-              });
+              const materiaisAgrupados = data.reduce((acc, item) => {
+                const prodId = item.produtoId || item.produto?.id;
+                const nomeProduto =
+                  item.nomeProduto || item.produto?.nome || "Produto";
 
-              return acc;
-            }, {});
+                if (!acc[prodId]) {
+                  acc[prodId] = {
+                    produtoId: prodId,
+                    nome: nomeProduto,
+                    itens: [],
+                  };
+                }
 
-            setMateriaisSelecionados(Object.values(materiaisAgrupados));
-          })
-          .catch((error) => {
-            console.error("Erro ao buscar materiais do agendamento:", error);
-            console.error(
-              "Status",
-              error.response?.status,
-              "data",
-              error.response?.data,
-            );
-            console.error("Erro ao carregar os materiais deste agendamento.");
-          });
+                acc[prodId].itens.push({
+                  id: item.id,
+                  nome: item.nome || nomeProduto,
+                });
+
+                return acc;
+              }, {});
+
+              setMateriaisSelecionados(Object.values(materiaisAgrupados));
+            })
+            .catch((error) => {
+              console.error("Erro ao buscar materiais do agendamento:", error);
+            });
+        }
+      } else {
+        setMateriaisSelecionados([]);
       }
-    } else {
-      setMateriaisSelecionados([]);
-    }
+    };
+
+    carregarFormulario();
   }, [agendamento, isOpen]);
   /* eslint-enable react-hooks/set-state-in-effect */
 

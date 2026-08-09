@@ -1,22 +1,23 @@
-import { useState } from "react";
+import "../index.css";
+
 import {
   ArrowLeftRight,
   Bell,
   Clock,
   Home,
+  LogOut,
   Package,
-  PiggyBank,
   PanelLeftClose,
   PanelLeftOpen,
+  PiggyBank,
   UserRound,
-  LogOut
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useSidebar } from "../context/SidebarContext";
-import { useNavigate } from "react-router-dom";
-import "../index.css"
 
 import { Logo } from "./Logo";
+import { useNavigate } from "react-router-dom";
+import { useSidebar } from "../context/SidebarContext";
+import { useState } from "react";
 
 export default function Sidebar() {
   const location = useLocation();
@@ -34,45 +35,54 @@ export default function Sidebar() {
   ];
 
   function deslogar() {
-
     localStorage.clear();
-    navigate("/")
-
+    navigate("/");
   }
 
   return (
     <>
-      <div className={`flex h-screen shrink-0 transition-all duration-300 ${collapsed ? "w-20" : "w-64"
+      <div
+        className={`flex h-screen shrink-0 transition-all duration-300 ${
+          collapsed ? "w-20" : "w-64"
         }`}
       />
 
-      <aside className={`fixed top-0 flex h-screen flex-col border-r border-gray-800 bg-[#061639] px-3 py-10 text-white transition-all duration-300 ${collapsed ? "w-20" : "w-64"
+      <aside
+        className={`fixed top-0 flex h-screen flex-col border-r border-gray-800 bg-[#061639] px-3 py-10 text-white transition-all duration-300 ${
+          collapsed ? "w-20" : "w-64"
         }`}
       >
-
-        <button onClick={() => setCollapsed(!collapsed)}
-          className="absolute top-4 right-4 rounded-lg transition-all p-2 hover:bg-white/10"
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute top-4 right-4 rounded-lg p-2 transition-all hover:bg-white/10"
         >
-          {collapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+          {collapsed ? (
+            <PanelLeftOpen size={20} />
+          ) : (
+            <PanelLeftClose size={20} />
+          )}
         </button>
 
-        <h1 className={`mb-10 flex justify-center transition-all ${collapsed ? "opacity-0 h-0 overflow-hidden" : ""
+        <h1
+          className={`mb-10 flex justify-center transition-all ${
+            collapsed ? "h-0 overflow-hidden opacity-0" : ""
           }`}
         >
           <Logo className="h-25 w-auto object-contain" />
         </h1>
 
-        <hr className="opacity-10 mb-2" />
+        <hr className="mb-2 opacity-10" />
 
         {!collapsed ? (
-
-          <div className="flex items-center w-full mb-10 mt-5 gap-5">
+          <div className="mt-5 mb-10 flex w-full items-center gap-5">
             <div className="flex-1"></div>
 
             <div className="flex flex-col items-center">
               <div className="avatar avatar-online avatar-placeholder">
-                <div className="bg-[#010d27] text-neutral-content w-20 rounded-full mb-3 border border-gray-500/20">
-                  <span className="text-xl">{localStorage.getItem("nome").slice(0,1)}</span>
+                <div className="text-neutral-content mb-3 w-20 rounded-full border border-gray-500/20 bg-[#010d27]">
+                  <span className="text-xl">
+                    {localStorage.getItem("nome").slice(0, 1)}
+                  </span>
                 </div>
               </div>
               <p className="text-white">
@@ -80,33 +90,39 @@ export default function Sidebar() {
               </p>
             </div>
 
-            <div className="flex-1 flex-col content-end h-full">
+            <div className="h-full flex-1 flex-col content-end">
               <LogOut
-                className="cursor-pointer w-5 h-5 -translate-y-0.5"
+                className="h-5 w-5 -translate-y-0.5 cursor-pointer"
                 onClick={() => document.getElementById("my_modal").showModal()}
               />
             </div>
           </div>
-        ) : (<LogOut className="cursor-pointer absolute w-11 h-11 left-5 bottom-20 px-3 py-2 hover:bg-white/5 rounded-lg transition-all" onClick={() => document.getElementById(`my_modal`).showModal()}></LogOut>)}
+        ) : (
+          <LogOut
+            className="absolute bottom-20 left-5 h-11 w-11 cursor-pointer rounded-lg px-3 py-2 transition-all hover:bg-white/5"
+            onClick={() => document.getElementById(`my_modal`).showModal()}
+          ></LogOut>
+        )}
 
         <div className="flex flex-col gap-4">
           {links.map((link, index) => (
             <Link
               key={index}
               to={link.path}
-              className={`flex items-center rounded-lg px-4 py-3 transition-all ${collapsed ? "justify-center" : "gap-3"
-                } ${location.pathname === link.path
+              className={`flex items-center rounded-lg px-4 py-3 transition-all ${
+                collapsed ? "justify-center" : "gap-3"
+              } ${
+                location.pathname === link.path
                   ? "border-l-4 border-cyan-400 bg-cyan-500/20 text-cyan-400"
                   : "hover:bg-white/5"
-                }`}
+              }`}
             >
               {link.icon}
 
               <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${collapsed
-                  ? "max-w-0 opacity-0"
-                  : "max-w-[200px] opacity-100"
-                  }`}
+                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
+                  collapsed ? "max-w-0 opacity-0" : "max-w-[200px] opacity-100"
+                }`}
               >
                 {link.name}
               </span>
@@ -149,8 +165,8 @@ export default function Sidebar() {
       </aside>
 
       <dialog id={`my_modal`} className="modal modal-fast">
-        <div className="p-5 rounded-lg bg-[#0A1F4B] text-center">
-          <h2 className="text-lg font-bold">Sair?</h2>
+        <div className="rounded-lg bg-[#0A1F4B] p-5 text-center">
+          <h2 className="text-lg font-bold">Tem certeza que deseja sair?</h2>
           <div className="modal-action">
             {/* if there is a button in form, it will close the modal */}
 
@@ -166,7 +182,7 @@ export default function Sidebar() {
               </button>
 
               <button
-                className="flex modal-fast cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-normal text-[#003640] opacity-65 shadow-xl transition-all hover:opacity-100 hover:shadow-cyan-500/20"
+                className="modal-fast flex cursor-pointer gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-normal text-[#003640] opacity-65 shadow-xl transition-all hover:opacity-100 hover:shadow-cyan-500/20"
                 onClick={(ev) => {
                   ev.preventDefault();
                   deslogar();
