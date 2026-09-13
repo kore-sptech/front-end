@@ -15,6 +15,7 @@
     "axios": "^1.15.2",
     "daisyui": "^5.5.19",
     "date-fns": "^4.1.0",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^1.7.0",
     "odometer": "^0.4.8",
     "react": "^19.2.4",

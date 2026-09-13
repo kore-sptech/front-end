@@ -12,8 +12,8 @@ createRoot(document.getElementById("root")).render(
   <NotificationProvider>
     <SidebarProvider>
       <ModalAgendamentoContextProvider>
-        <RouterProvider router={router} />
         <Toaster />
+        <RouterProvider router={router} />
       </ModalAgendamentoContextProvider>
     </SidebarProvider>
   </NotificationProvider>,
