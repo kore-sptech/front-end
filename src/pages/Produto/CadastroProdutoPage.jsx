@@ -124,17 +124,21 @@ export default function CadastroProdutoPage() {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify(produto),
-    }).then((response) => {
-      if (response.status === 201) {
-        navigate("/produtos", {
-          state: {
-            successMessage: "Produto cadastrado com sucesso!",
-          },
-        });
-      } else {
-        console.log(response.status);
-      }
-    });
+    })
+      .then((response) => {
+        if (response.status === 201) {
+          navigate("/produtos", {
+            state: {
+              successMessage: "Produto cadastrado com sucesso!",
+            },
+          });
+        } else {
+          console.log(response.status);
+        }
+      })
+      .catch((err) => {
+        handleApiError(err, "Não foi possível cadastrar o produto.");
+      });
   }
 
   return (

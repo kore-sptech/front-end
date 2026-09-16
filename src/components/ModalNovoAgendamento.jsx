@@ -95,9 +95,10 @@ const baseInput =
   "placeholder:text-gray-600 focus:outline-none transition-all duration-200";
 
 const inputCls = (hasError) =>
-  `${baseInput} ${hasError
-    ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
-    : "border-gray-800 focus:border-cyan-400"
+  `${baseInput} ${
+    hasError
+      ? "border-red-500 focus:border-red-400 shadow-[0_0_0_1px_rgba(239,68,68,0.3)]"
+      : "border-gray-800 focus:border-cyan-400"
   }`;
 
 // ─── Componente de mensagem de erro ──────────────────────────────────────────
@@ -205,8 +206,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
       // data: { inicio: "2026-08-10T09:00:00", fim: "2026-08-10T09:30:00" }
       return data?.inicio ? data.inicio.slice(0, 16) : "";
     } catch (error) {
-      console.error("Erro ao buscar horário sugerido:", error);
-      return "";
+      handleApiError(
+        error,
+        "Não foi possível buscar o próximo horário disponível.",
+      );
     }
   };
 
@@ -464,28 +467,32 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   };
 
   const handleFileChange = async (e) => {
-    await Promise.all(
-      Array.from(e.target.files).map(async (file) => {
-        const formData = new FormData();
-        formData.append("foto", file);
+    try {
+      await Promise.all(
+        Array.from(e.target.files).map(async (file) => {
+          const formData = new FormData();
+          formData.append("foto", file);
 
-        const { data } = await api.postForm("/fotos", formData, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        const { id } = data;
+          const { data } = await api.postForm("/fotos", formData, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+          const { id } = data;
 
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          setImages((prev) => [...prev, { id, url: ev.target.result }]);
-        };
-        reader.readAsDataURL(file);
-      }),
-    );
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            setImages((prev) => [...prev, { id, url: ev.target.result }]);
+          };
+          reader.readAsDataURL(file);
+        }),
+      );
 
-    e.target.value = "";
-    setImageError(false);
+      e.target.value = "";
+      setImageError(false);
+    } catch (err) {
+      handleApiError(err, "Não foi possível enviar a imagem. Tente novamente.");
+    }
   };
 
   const handleRemoveImage = (id) => {
@@ -634,7 +641,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   type="text"
                   value={
                     fields.preco
-                      ? (Number(fields.preco)).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                      ? Number(fields.preco).toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })
                       : ""
                   }
                   onChange={(e) => {
@@ -685,11 +695,13 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               </label>
 
               <div
-                className={`rounded-2xl border p-4 transition-all duration-200 ${imageShaking ? "shake" : ""
-                  } ${imageError
+                className={`rounded-2xl border p-4 transition-all duration-200 ${
+                  imageShaking ? "shake" : ""
+                } ${
+                  imageError
                     ? "border-red-500/50 bg-red-500/5 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]"
                     : "border-[#3C494D]/10 bg-[#263457]/20"
-                  }`}
+                }`}
                 onAnimationEnd={() => setImageShaking(false)}
               >
                 <div className="flex flex-wrap gap-3">
@@ -716,18 +728,20 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <button
                     type="button"
                     onClick={handleClickAdd}
-                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${imageError
+                    className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border transition-all hover:border-cyan-400/30 ${
+                      imageError
                         ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
                         : "border-[#3C494D]/20 bg-[#0A1A3D] hover:bg-[#0f2352]"
-                      }`}
+                    }`}
                   >
                     <Plus
                       size={20}
                       className={imageError ? "text-red-400" : "text-gray-500"}
                     />
                     <span
-                      className={`text-[10px] ${imageError ? "text-red-400" : "text-gray-600"
-                        }`}
+                      className={`text-[10px] ${
+                        imageError ? "text-red-400" : "text-gray-600"
+                      }`}
                     >
                       Adicionar
                     </span>
@@ -863,10 +877,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   <button
                     type="submit"
                     disabled={!canSubmit}
-                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
+                    className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+                      canSubmit
                         ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
                         : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                      }`}
+                    }`}
                   >
                     {canSubmit ? (
                       <span className="flex w-full items-center justify-center gap-2">
@@ -882,41 +897,42 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   {(agendamento.status == "PENDENTE" ||
                     agendamento.status == "AGUARDANDO" ||
                     agendamento.status == "CONFIRMADO") && (
-                      <button
-                        type="button"
-                        disabled={!canSubmit}
-                        className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                        onClick={confirmarPagamaento}
-                      >
-                        <span className="flex w-full items-center justify-center gap-2">
-                          <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
-                        </span>
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      disabled={!canSubmit}
+                      className="mt-2 flex w-full cursor-pointer items-center gap-0 rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                      onClick={confirmarPagamaento}
+                    >
+                      <span className="flex w-full items-center justify-center gap-2">
+                        <BanknoteArrowUp /> <span>Confirmar Pagamento</span>
+                      </span>
+                    </button>
+                  )}
 
                   {(agendamento.status == "PENDENTE" ||
                     agendamento.status == "AGUARDANDO") && (
-                      <button
-                        type="button"
-                        onClick={confirmarSessao}
-                        disabled={!canSubmit}
-                        className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
-                      >
-                        <span className="flex w-full items-center justify-center gap-2">
-                          <CalendarCheck2 /> <span> Confirmar Sessão</span>
-                        </span>
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={confirmarSessao}
+                      disabled={!canSubmit}
+                      className="mt-2 w-full cursor-pointer rounded-lg border border-cyan-400/30 py-4 text-sm font-bold tracking-widest text-cyan-400 uppercase transition-all hover:bg-cyan-400/10"
+                    >
+                      <span className="flex w-full items-center justify-center gap-2">
+                        <CalendarCheck2 /> <span> Confirmar Sessão</span>
+                      </span>
+                    </button>
+                  )}
                 </div>
               </>
             ) : (
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${canSubmit
+                className={`mt-2 w-full rounded-lg py-4 text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+                  canSubmit
                     ? "cursor-pointer bg-cyan-400 text-black shadow-lg shadow-cyan-400/20 hover:bg-cyan-300"
                     : "cursor-not-allowed bg-gray-800 text-gray-600 opacity-60"
-                  }`}
+                }`}
               >
                 {canSubmit
                   ? "Adicionar Agendamento"
