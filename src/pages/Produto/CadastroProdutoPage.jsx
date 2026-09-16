@@ -19,6 +19,7 @@ export default function CadastroProdutoPage() {
 
     const navigate = useNavigate();
     const location = useLocation();
+    const usuarioId = localStorage.getItem("usuarioId");
 
     const pesquisa = location.state?.pesquisa || "";
 
@@ -107,9 +108,10 @@ export default function CadastroProdutoPage() {
             descricao,
             possuiValidade,
             qtdMinAlerta: parseInt(qtdMinAlerta),
-            tipo
+            tipo,
+            usuarioId
         };
-        await fetch("http://localhost:8080/produtos", {
+        await fetch(`http://localhost:8080/produtos/${usuarioId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

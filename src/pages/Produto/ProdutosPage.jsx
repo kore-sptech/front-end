@@ -12,6 +12,7 @@ import "../../index.css";
 export default function ProdutoPage() {
 
     const location = useLocation();
+    const usuarioId = localStorage.getItem("usuarioId");
 
     useEffect(() => {
         if (location.state?.successMessage) {
@@ -38,7 +39,7 @@ export default function ProdutoPage() {
     const [produtosFiltrados, setProdutosFiltrados] = useState([])
     const [tipo2, setTipo2] = useState("todos");
     useEffect(() => {
-        fetch("http://localhost:8080/produtos", {
+        fetch(`http://localhost:8080/produtos/${usuarioId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

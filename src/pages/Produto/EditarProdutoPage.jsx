@@ -24,6 +24,8 @@ export default function EditarProdutoPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const usuarioId = localStorage.getItem("usuarioId");
+
     const {
 
         nome: nomeParams,
@@ -116,7 +118,7 @@ export default function EditarProdutoPage() {
             qtdMinAlerta: parseInt(qtdMinAlerta),
             tipo
         };
-        await fetch(`http://localhost:8080/produtos/${id}`, {
+        await fetch(`http://localhost:8080/produtos/${usuarioId}/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -137,7 +139,7 @@ export default function EditarProdutoPage() {
             })
     }
     async function deletar() {
-        await fetch(`http://localhost:8080/produtos/${id}`, {
+        await fetch(`http://localhost:8080/produtos/${usuarioId}/${id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",

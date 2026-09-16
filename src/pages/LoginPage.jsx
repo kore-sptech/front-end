@@ -67,6 +67,7 @@ export default function LoginPage() {
           localStorage.setItem("auth", JSON.stringify(data));
           localStorage.setItem("nome", data.nome);
           localStorage.setItem("token", data.token);
+          localStorage.setItem("usuarioId", data.id);
 
           navigate("/dashboard");
         } else {
