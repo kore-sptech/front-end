@@ -1,17 +1,22 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import { toast } from "sonner";
-import Sidebar from "../../components/Sidebar";
-import CardProduto from "../../components/CardProduto";
-import SearchBar from "../../components/SearchBar";
-import { api } from "../../utils/api";
-import { handleApiError } from "../../utils/errorHandler";
 import "../../index.css";
+import "../../index.css";
+
+import { data, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+import CadastroProdutoPage from "./CadastroProdutoPage";
+import CardProduto from "../../components/CardProduto";
+import { Link } from "react-router-dom";
+import SearchBar from "../../components/SearchBar";
+import Sidebar from "../../components/Sidebar";
+import { handleApiError } from "../../utils/errorHandler";
+import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 
 export default function ProdutoPage() {
 
     const location = useLocation();
+    const usuarioId = localStorage.getItem("usuarioId");
 
     useEffect(() => {
         if (location.state?.successMessage) {
@@ -38,8 +43,15 @@ export default function ProdutoPage() {
     const [produtosFiltrados, setProdutosFiltrados] = useState([])
     const [tipo2, setTipo2] = useState("todos");
     useEffect(() => {
-        api.get("/produtos")
-            .then(({ data }) => {
+        fetch(`http://localhost:8080/produtos/${usuarioId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
                 setProduto(data)
                 setProdutosFiltrados(data)
             })

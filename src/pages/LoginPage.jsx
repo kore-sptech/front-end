@@ -56,15 +56,23 @@ export default function LoginPage() {
       return;
     }
 
-    api
-      .post("/auth/login", { email, senha: password })
-      .then((response) => {
-        const data = response.data;
-        localStorage.setItem("auth", JSON.stringify(data));
-        localStorage.setItem("nome", data.nome);
-        localStorage.setItem("token", data.token);
+    fetch("http://localhost:8080/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, senha: password }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data != null) {
+          localStorage.setItem("auth", JSON.stringify(data));
+          localStorage.setItem("nome", data.nome);
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("usuarioId", data.id);
 
-        navigate("/dashboard");
+          navigate("/dashboard");
+        }
       })
       .catch((err) => {
         handleApiError(err, "Email ou senha incorretos.");
