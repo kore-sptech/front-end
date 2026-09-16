@@ -13,7 +13,7 @@ import { SidePanel } from "../components/SidePainel";
 import Sidebar from "../components/Sidebar";
 import { WeeklyCalendar } from "../components/WeeklyCalendar";
 import { api } from "../utils/api";
-import { toast } from "sonner";
+import { handleApiError } from "../utils/errorHandler";
 
 export default function AgendamentoPage() {
   const [selectedDate, setSelectedDate] = useState(new Date()); // ← sobe aqui
@@ -65,8 +65,8 @@ export default function AgendamentoPage() {
       .then((response) => {
         setSessions(response.data);
       })
-      .catch(() => {
-        toast.error("Erro ao carregar os agendamentos");
+      .catch((err) => {
+        handleApiError(err, "Não foi possível carregar os agendamentos.");
       });
   };
 

@@ -2,6 +2,7 @@ import { X, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import CardItemComCheckbox from "./CardItemComCheckbox";
 import { api } from "../../utils/api";
+import { extractErrorMessage } from "../../utils/errorHandler";
 import toast from "react-hot-toast";
 
 export default function ModalItensDosProdutos({
@@ -36,8 +37,9 @@ export default function ModalItensDosProdutos({
       setItens(data || []);
       setSelectedItems([]);
     } catch (error) {
-      console.error("Erro ao buscar itens:", error);
-      toast.error("Erro ao carregar itens do produto.");
+      toast.error(
+        extractErrorMessage(error, "Não foi possível carregar os itens do produto."),
+      );
       setItens([]);
     } finally {
       setLoading(false);

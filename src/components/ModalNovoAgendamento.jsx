@@ -17,6 +17,7 @@ import GridMateriaisAdicionados from "./IntegracaoEstoqueAgendamento/GridMateria
 import { IMaskInput } from "react-imask";
 import ModalLista from "./ModalLista";
 import { api } from "../utils/api";
+import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 
 // ─── Shake animation ──────────────────────────────────────────────────────────
@@ -324,8 +325,11 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
               setMateriaisSelecionados(Object.values(materiaisAgrupados));
             })
-            .catch((error) => {
-              console.error("Erro ao buscar materiais do agendamento:", error);
+            .catch((err) => {
+              handleApiError(
+                err,
+                "Não foi possível carregar os materiais do agendamento.",
+              );
             });
         }
       } else {
@@ -371,8 +375,8 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
       const { data } = await api.get("/produtos");
       setProdutosLista(data);
       setIsMateriaisModalOpen(true);
-    } catch {
-      console.log();
+    } catch (err) {
+      handleApiError(err, "Não foi possível carregar os produtos.");
     }
   };
 
@@ -414,10 +418,8 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
         toast.success("Sessão confirmada com sucesso!");
         onClose();
       })
-      .catch(() => {
-        console.log(
-          `[Toast] Erro ao confirmar agendamento id=${agendamento.id}`,
-        );
+      .catch((err) => {
+        handleApiError(err, "Não foi possível confirmar a sessão.");
       });
   };
 
@@ -452,12 +454,12 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
             toast.success("Transação adicionada com sucesso!");
             onClose();
           })
-          .catch(() => {
-            toast.error("Erro ao adicionar transação.");
+          .catch((err) => {
+            handleApiError(err, "Não foi possível adicionar a transação.");
           });
       })
-      .catch(() => {
-        toast.error("Erro ao confirmar pagamento.");
+      .catch((err) => {
+        handleApiError(err, "Não foi possível confirmar o pagamento.");
       });
   };
 
@@ -567,8 +569,8 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           toast.success("Agendamento e estoque atualizados com sucesso!");
           onClose();
         })
-        .catch(() => {
-          toast.error("Erro ao atualizar agendamento.");
+        .catch((err) => {
+          handleApiError(err, "Não foi possível atualizar o agendamento.");
         });
 
       toast.success("Materiais salvos com sucesso!");
@@ -584,13 +586,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           onClose();
         })
         .catch((err) => {
-          console.log(err);
-
-          if (err.status == 400 && err.response?.data?.message) {
-            toast.error(err.response.data.message);
-          } else {
-            toast.error("Erro ao adicionar agendamento.");
-          }
+          handleApiError(err, "Não foi possível adicionar o agendamento.");
         });
     }
   };

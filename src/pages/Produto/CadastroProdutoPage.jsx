@@ -1,9 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Sidebar from "../../components/Sidebar";
-import CardProduto from "../../components/CardProduto";
-import SearchBar from "../../components/SearchBar";
 import { useLocation } from "react-router-dom";
 import {
     AlertCircle,
@@ -13,6 +11,8 @@ import {
     Plus,
     X,
 } from "lucide-react";
+import { api } from "../../utils/api";
+import { handleApiError } from "../../utils/errorHandler";
 
 
 export default function CadastroProdutoPage() {
@@ -44,30 +44,34 @@ export default function CadastroProdutoPage() {
 
     // Processa os arquivos selecionados
     const handleFileChange = async (e) => {
-        await Promise.all(
-            Array.from(e.target.files).map(async (file) => {
-                const formData = new FormData();
-                formData.append("foto", file);
+        try {
+            await Promise.all(
+                Array.from(e.target.files).map(async (file) => {
+                    const formData = new FormData();
+                    formData.append("foto", file);
 
-                // Faz o upload para o servidor
-                const { data } = await api.postForm("/fotos", formData, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                });
-                const { id } = data;
+                    // Faz o upload para o servidor
+                    const { data } = await api.postForm("/fotos", formData, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    });
+                    const { id } = data;
 
-                // Gera o preview local para o usuário ver na hora
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    setImages((prev) => [...prev, { id, url: ev.target.result }]);
-                };
-                reader.readAsDataURL(file);
-            }),
-        );
+                    // Gera o preview local para o usuário ver na hora
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        setImages((prev) => [...prev, { id, url: ev.target.result }]);
+                    };
+                    reader.readAsDataURL(file);
+                }),
+            );
 
-        e.target.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo de novo
-        setImageError(false);
+            e.target.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo de novo
+            setImageError(false);
+        } catch (err) {
+            handleApiError(err, "Erro ao enviar a foto.");
+        }
     };
 
     // Remove a imagem da lista
@@ -109,25 +113,20 @@ export default function CadastroProdutoPage() {
             qtdMinAlerta: parseInt(qtdMinAlerta),
             tipo
         };
-        await fetch("http://localhost:8080/produtos", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify(produto)
-        })
-            .then((response) => {
-                if (response.status === 201) {
-                    navigate("/produtos", {
-                        state: {
-                            successMessage: "Produto cadastrado com sucesso!"
-                        }
-                    });
-                } else {
-                    console.log(response.status)
-                }
-            })
+        try {
+            const { status } = await api.post("/produtos", produto);
+            if (status === 201) {
+                navigate("/produtos", {
+                    state: {
+                        successMessage: "Produto cadastrado com sucesso!"
+                    }
+                });
+            } else {
+                handleApiError(new Error("Cadastro sem confirmação do servidor."), "Não foi possível cadastrar o produto.");
+            }
+        } catch (err) {
+            handleApiError(err, "Não foi possível cadastrar o produto.");
+        }
     }
 
     return (

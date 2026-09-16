@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import SearchBar from "../../components/SearchBar";
 import CardItemEstoque from "../../components/CardItemEstoque";
+import { api } from "../../utils/api";
+import { handleApiError } from "../../utils/errorHandler";
 
 export default function EstoquePage() {
     const location = useLocation();
@@ -13,17 +15,10 @@ export default function EstoquePage() {
 
     const carregarEstoque = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/estoque/${id}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            const data = await response.json();
+            const { data } = await api.get(`/estoque/${id}`);
             setEstoque(data);
-        } catch (error) {
-            console.error("Erro ao carregar estoque:", error);
+        } catch (err) {
+            handleApiError(err, "Não foi possível carregar o estoque.");
         }
     };
     useEffect(() => {

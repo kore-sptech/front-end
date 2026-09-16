@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 
 import { Logo } from "../components/Logo";
+import { api } from "../utils/api";
+import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -113,16 +115,10 @@ export default function SignUpPage() {
       return;
     }
 
-    fetch("http://localhost:8080/usuarios", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, nome: name, senha: password }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data?.id) {
+    api
+      .post("/usuarios", { email, nome: name, senha: password })
+      .then((response) => {
+        if (response.data?.id) {
           toast.success(
             "Cadastro realizado com sucesso! Faça login para continuar.",
           );
@@ -134,16 +130,11 @@ export default function SignUpPage() {
 
           navigate("/login");
         } else {
-          throw new Error("Erro ao cadastrar usuário.");
+          throw new Error(response.data?.message || "Cadastro sem confirmação do servidor.");
         }
       })
-      .catch(() => {
-        setErrorMessage((prev) => ({
-          ...prev,
-          email: "Já existe um usuário cadastrado com esse email!",
-        }));
-
-        toast.error("Já existe um usuário cadastrado com esse email!");
+      .catch((err) => {
+        handleApiError(err, "Não foi possível concluir o cadastro.");
       })
       .finally(() => {
         setIsLoading(false);

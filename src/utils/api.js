@@ -19,7 +19,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const url = error.config?.url || "";
+
+    // Não tratar /auth/login como "sessão expirada": a falha do login é esperada
+    // e o handler da página exibe a mensagem real ("Email ou senha inválidos").
+    const isLoginRequest = url.includes("/auth/login");
+
+    if (status === 401 && !isLoginRequest) {
       localStorage.removeItem("token");
       toast.error("Sua sessão expirou. Faça login novamente.");
       window.location.href = "/login";

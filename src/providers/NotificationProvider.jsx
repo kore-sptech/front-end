@@ -2,6 +2,7 @@ import { createContext, useCallback, useEffect, useRef, useState } from "react";
 
 import { SessionToast } from "../components/SessionToast";
 import { api } from "../utils/api";
+import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -149,9 +150,10 @@ export function NotificationProvider({ children }) {
                 toast.success("Agendamento confirmado com sucesso!");
                 window.location.reload();
               })
-              .catch(() => {
-                console.log(
-                  `[Toast] Erro ao confirmar agendamento id=${agendamento.id}`,
+              .catch((err) => {
+                handleApiError(
+                  err,
+                  "Não foi possível confirmar a sessão.",
                 );
               });
 
@@ -172,8 +174,11 @@ export function NotificationProvider({ children }) {
                 toast.success("Agendamento cancelado com sucesso!");
                 window.location.reload();
               })
-              .catch(() => {
-                toast.error("Erro ao cancelar agendamento.");
+              .catch((err) => {
+                handleApiError(
+                  err,
+                  "Não foi possível cancelar o agendamento.",
+                );
               });
           },
         });

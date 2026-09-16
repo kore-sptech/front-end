@@ -10,6 +10,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { api } from "../utils/api";
+import { extractErrorMessage } from "../utils/errorHandler";
 import toast from "react-hot-toast";
 
 export function WeeklyCalendar({ sessions, colorByClient, weekDays }) {
@@ -278,8 +279,10 @@ export function EventBlock({ session, startHour, durationHours, dayLabel }) {
                         toast.success("Agendamento cancelado com sucesso!");
                         window.location.reload();
                       })
-                      .catch(() => {
-                        toast.error("Erro ao cancelar agendamento.");
+                      .catch((error) => {
+                        toast.error(
+                          extractErrorMessage(error, "Não foi possível cancelar o agendamento."),
+                        );
                       });
                   }}
                 >

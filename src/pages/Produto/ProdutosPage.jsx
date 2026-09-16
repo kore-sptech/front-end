@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
-import CadastroProdutoPage from "./CadastroProdutoPage";
 import Sidebar from "../../components/Sidebar";
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
-import { Link } from "react-router-dom";
+import { api } from "../../utils/api";
+import { handleApiError } from "../../utils/errorHandler";
 import "../../index.css";
 
 export default function ProdutoPage() {
@@ -38,18 +38,13 @@ export default function ProdutoPage() {
     const [produtosFiltrados, setProdutosFiltrados] = useState([])
     const [tipo2, setTipo2] = useState("todos");
     useEffect(() => {
-        fetch("http://localhost:8080/produtos", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => {
+        api.get("/produtos")
+            .then(({ data }) => {
                 setProduto(data)
                 setProdutosFiltrados(data)
-                console.log(data)
+            })
+            .catch((err) => {
+                handleApiError(err, "Não foi possível carregar os produtos.");
             })
     }, [])
     useEffect(() => {

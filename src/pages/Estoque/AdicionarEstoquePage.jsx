@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
-import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
+import { api } from "../../utils/api";
+import { handleApiError } from "../../utils/errorHandler";
 import {
     AlertCircle,
     ArrowRight,
@@ -35,21 +36,17 @@ export default function AdicionarEstoquePage() {
             dataEntrada: dataEntradaFormatada,
             seAtivo: seAtivo
         };
-        await fetch(`http://localhost:8080/estoque/${quantidade}/${id}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify(estoque)
-        }).then((response) => {
-            if (response.status === 201) {
+        try {
+            const { status } = await api.post(`/estoque/${quantidade}/${id}`, estoque);
+            if (status === 201) {
                 navigate(`/estoque/${id}`);
                 //document.getElementById('modal_sucesso').showModal();
             } else {
-                console.log(response.status)
+                handleApiError(new Error("Adição sem confirmação do servidor."), "Não foi possível adicionar o estoque.");
             }
-        })
+        } catch (err) {
+            handleApiError(err, "Não foi possível adicionar o estoque.");
+        }
     }
     return (
         <main className="h-screen w-full flex bg-[#000C24] overflow-hidden">

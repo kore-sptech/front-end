@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import ModalNovaTransacao from "../components/ModalNovaTransacao";
 import Sidebar from "../components/Sidebar";
 import { api } from "../utils/api";
-import { toast } from "sonner";
+import { handleApiError } from "../utils/errorHandler";
 import { useNavigate } from "react-router-dom";
 
 const CORES_CATEGORIA = {
@@ -34,7 +34,7 @@ export default function DashboardFinanceiraPage() {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setMetricas(res.data))
-      .catch(() => toast.error("Erro ao carregar métricas"));
+      .catch((err) => handleApiError(err, "Não foi possível carregar as métricas."));
   };
 
   const fetchTransacoes = () => {
@@ -43,7 +43,9 @@ export default function DashboardFinanceiraPage() {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setTransacoes(res.data.content)) // ← Page<T> do Spring retorna .content
-      .catch(() => toast.error("Erro ao carregar transações"));
+      .catch((err) =>
+        handleApiError(err, "Não foi possível carregar as transações."),
+      );
   };
 
   useEffect(() => {

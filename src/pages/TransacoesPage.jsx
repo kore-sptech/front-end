@@ -15,6 +15,7 @@ import ModalNovaTransacao from "../components/ModalNovaTransacao";
 import Sidebar from "../components/Sidebar";
 import { TableTransacoes } from "../components/TableTransacoes";
 import { api } from "../utils/api";
+import { handleApiError } from "../utils/errorHandler";
 import { useSearchParams } from "react-router-dom";
 
 export default function TransacoesPage() {
@@ -76,6 +77,9 @@ export default function TransacoesPage() {
         setMetricas({
           ...data,
         });
+      })
+      .catch((err) => {
+        handleApiError(err, "Não foi possível carregar as métricas.");
       });
   }, []);
 
@@ -96,8 +100,10 @@ export default function TransacoesPage() {
       })
       .then((response) => {
         const { data } = response;
-        console.log(data);
         setTransacoes(data);
+      })
+      .catch((err) => {
+        handleApiError(err, "Não foi possível carregar as transações.");
       });
 
     obterMetricas();

@@ -1,20 +1,20 @@
-import stat from "daisyui/components/stat";
 import { useNavigate } from "react-router-dom";
+import { api } from "../utils/api";
+import { handleApiError } from "../utils/errorHandler";
 export default function CardProduto(props) {
   const navigate = useNavigate();
   async function deletar() {
-    await fetch(`http://localhost:8080/estoque/${props.id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }).then((response) => {
-      if (response.status === 204) {
+    try {
+      const { status } = await api.delete(`/estoque/${props.id}`);
+      if (status === 204) {
         //document.getElementById('modal_sucesso').showModal();                    atualizarLista={carregarEstoque} foi adicionado para atualizar a lista de produtos após a exclusão
         props.atualizarLista();
+      } else {
+        handleApiError(new Error("Exclusão sem confirmação do servidor."), "Não foi possível excluir o item.");
       }
-    });
+    } catch (err) {
+      handleApiError(err, "Não foi possível excluir o item.");
+    }
   }
   return (
     <div

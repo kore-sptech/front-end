@@ -10,6 +10,7 @@ import {
 import { formatCurrecy, formatDate } from "../utils/formmaters";
 
 import { api } from "../utils/api";
+import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
@@ -129,8 +130,8 @@ function TransacaoRow({
         obterTransacoes();
         obterMetricas();
       })
-      .catch(() => {
-        toast.error("Erro ao excluir transação!");
+      .catch((err) => {
+        handleApiError(err, "Não foi possível excluir a transação.");
       });
   };
 

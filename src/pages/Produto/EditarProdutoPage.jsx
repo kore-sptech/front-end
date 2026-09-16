@@ -1,11 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { data, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import CadastroProdutoPage from "./CadastroProdutoPage";
 import Sidebar from "../../components/Sidebar";
-import CardProduto from "../../components/CardProduto";
-import SearchBar from "../../components/SearchBar";
-import { Link } from "react-router-dom";
 import "../../index.css";
 import { useLocation } from "react-router-dom";
 
@@ -18,6 +14,8 @@ import {
     Plus,
     X,
 } from "lucide-react";
+import { api } from "../../utils/api";
+import { handleApiError } from "../../utils/errorHandler";
 
 export default function EditarProdutoPage() {
     const { id } = useParams();
@@ -51,30 +49,34 @@ export default function EditarProdutoPage() {
     }, [nomeParams])
     // Processa os arquivos selecionados
     const handleFileChange = async (e) => {
-        await Promise.all(
-            Array.from(e.target.files).map(async (file) => {
-                const formData = new FormData();
-                formData.append("foto", file);
+        try {
+            await Promise.all(
+                Array.from(e.target.files).map(async (file) => {
+                    const formData = new FormData();
+                    formData.append("foto", file);
 
-                // Faz o upload para o servidor
-                const { data } = await api.postForm("/fotos", formData, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                });
-                const { id } = data;
+                    // Faz o upload para o servidor
+                    const { data } = await api.postForm("/fotos", formData, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    });
+                    const { id } = data;
 
-                // Gera o preview local para o usuário ver na hora
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    setImages((prev) => [...prev, { id, url: ev.target.result }]);
-                };
-                reader.readAsDataURL(file);
-            }),
-        );
+                    // Gera o preview local para o usuário ver na hora
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        setImages((prev) => [...prev, { id, url: ev.target.result }]);
+                    };
+                    reader.readAsDataURL(file);
+                }),
+            );
 
-        e.target.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo de novo
-        setImageError(false);
+            e.target.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo de novo
+            setImageError(false);
+        } catch (err) {
+            handleApiError(err, "Erro ao enviar a foto.");
+        }
     };
 
     // Remove a imagem da lista
@@ -116,44 +118,36 @@ export default function EditarProdutoPage() {
             qtdMinAlerta: parseInt(qtdMinAlerta),
             tipo
         };
-        await fetch(`http://localhost:8080/produtos/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify(produto)
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    navigate("/produtos", {
-                        state: {
-                            successMessage3: "Produto alterado com sucesso!"
-                        }
-                    });
-                } else {
-                    console.log(response.status)
-                }
-            })
+        try {
+            const { status } = await api.put(`/produtos/${id}`, produto);
+            if (status === 200) {
+                navigate("/produtos", {
+                    state: {
+                        successMessage3: "Produto alterado com sucesso!"
+                    }
+                });
+            } else {
+                handleApiError(new Error("Alteração sem confirmação do servidor."), "Não foi possível alterar o produto.");
+            }
+        } catch (err) {
+            handleApiError(err, "Não foi possível alterar o produto.");
+        }
     }
     async function deletar() {
-        await fetch(`http://localhost:8080/produtos/${id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        }).then((response) => {
-            if (response.status === 204) {
+        try {
+            const { status } = await api.delete(`/produtos/${id}`);
+            if (status === 204) {
                 navigate("/produtos", {
                     state: {
                         successMessage2: "Produto excluído!"
                     }
                 });
             } else {
-                console.log(response.status)
+                handleApiError(new Error("Exclusão sem confirmação do servidor."), "Não foi possível excluir o produto.");
             }
-        })
+        } catch (err) {
+            handleApiError(err, "Não foi possível excluir o produto.");
+        }
     }
 
     return (

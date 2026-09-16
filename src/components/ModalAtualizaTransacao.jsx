@@ -1,6 +1,7 @@
 import { Loader2, X } from "lucide-react";
 
 import { api } from "../utils/api";
+import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -99,8 +100,8 @@ export default function ModalAtualizaTransacao({
         cleanForm();
         onClose();
       })
-      .catch(() => {
-        toast.error("Erro ao atualizar transação!");
+      .catch((err) => {
+        handleApiError(err, "Não foi possível atualizar a transação.");
       })
       .finally(() => {
         setIsLoading(false);

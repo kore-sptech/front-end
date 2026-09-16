@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 
 import { Logo } from "../components/Logo";
+import { api } from "../utils/api";
+import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -54,31 +56,18 @@ export default function LoginPage() {
       return;
     }
 
-    fetch("http://localhost:8080/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, senha: password }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data != null) {
-          localStorage.setItem("auth", JSON.stringify(data));
-          localStorage.setItem("nome", data.nome);
-          localStorage.setItem("token", data.token);
+    api
+      .post("/auth/login", { email, senha: password })
+      .then((response) => {
+        const data = response.data;
+        localStorage.setItem("auth", JSON.stringify(data));
+        localStorage.setItem("nome", data.nome);
+        localStorage.setItem("token", data.token);
 
-          navigate("/dashboard");
-        } else {
-          toast.error("Email ou senha incorretos.");
-          setErrorMessage((prev) => ({
-            ...prev,
-            email: "Email ou senha incorretos.",
-          }));
-        }
+        navigate("/dashboard");
       })
-      .catch(() => {
-        toast.error("Email ou senha incorretos.");
+      .catch((err) => {
+        handleApiError(err, "Email ou senha incorretos.");
         setErrorMessage((prev) => ({
           ...prev,
           email: "Email ou senha incorretos.",
