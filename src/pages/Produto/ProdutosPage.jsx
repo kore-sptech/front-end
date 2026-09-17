@@ -3,11 +3,10 @@ import "../../index.css";
 
 import { useEffect, useState } from "react";
 
-import CadastroProdutoPage from "./CadastroProdutoPage";
 import CardProduto from "../../components/CardProduto";
-import { Link } from "react-router-dom";
 import SearchBar from "../../components/SearchBar";
 import Sidebar from "../../components/Sidebar";
+import { api } from "../../utils/api";
 import { handleApiError } from "../../utils/errorHandler";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
@@ -40,44 +39,56 @@ export default function ProdutoPage() {
   const [pesquisa, setPesquisa] = useState("");
   const [produtos, setProduto] = useState([]);
   const [produtosFiltrados, setProdutosFiltrados] = useState([]);
-  const [tipo2, setTipo2] = useState("todos");
+  const [categorias, setCategorias] = useState([]);
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState("todos");
+
   useEffect(() => {
-    fetch(`http://localhost:8080/produtos/${usuarioId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Produtos carregados:", data);
-        setProduto(data);
-        setProdutosFiltrados(data);
-      })
-      .catch((err) => {
+    async function carregarDados() {
+      try {
+        const [produtosResponse, categoriasResponse] = await Promise.all([
+          api.get(`/produtos/${usuarioId}`),
+          api.get(`/categorias/${usuarioId}`),
+        ]);
+
+        const produtosData = Array.isArray(produtosResponse.data)
+          ? produtosResponse.data
+          : [];
+        const categoriasData = Array.isArray(categoriasResponse.data)
+          ? categoriasResponse.data
+          : [];
+
+        setProduto(produtosData);
+        setProdutosFiltrados(produtosData);
+        setCategorias(categoriasData);
+      } catch (err) {
         handleApiError(err, "Não foi possível carregar os produtos.");
-      });
+      }
+    }
+
+    carregarDados();
   }, []);
+
   useEffect(() => {
     const filtrados = produtos.filter((produto) => {
       const nomeOk = produto.nome
         .toLowerCase()
         .includes(pesquisa.toLowerCase());
 
-      const tipoOk =
-        tipo2 === "todos" ||
-        tipo2 === "" ||
-        produto.tipo.toLowerCase().includes(tipo2.toLowerCase());
+      const categoriaIdProduto =
+        produto.categoria?.id ?? produto.categoriaId ?? produto.fk_categoria;
 
-      return nomeOk && tipoOk;
+      const categoriaOk =
+        categoriaSelecionada === "todos" ||
+        String(categoriaIdProduto) === String(categoriaSelecionada);
+
+      return nomeOk && categoriaOk;
     });
 
     setProdutosFiltrados(filtrados);
-  }, [pesquisa, tipo2, produtos]);
+  }, [pesquisa, categoriaSelecionada, produtos]);
 
-  function filtrarPor(tipo) {
-    setTipo2(tipo);
+  function filtrarPorCategoria(categoriaId) {
+    setCategoriaSelecionada(categoriaId);
   }
 
   console.log(produtos);
@@ -192,42 +203,29 @@ export default function ProdutoPage() {
           </button>
         </div>
 
-        <div className="ml-5 flex w-100 justify-between p-6 text-sm font-medium text-[#dae2ffb4]">
+        <div className="ml-5 flex w-full flex-wrap gap-3 p-6 text-sm font-medium text-[#dae2ffb4]">
           <button
-            onClick={() => filtrarPor("todos")}
+            onClick={() => filtrarPorCategoria("todos")}
             className={`rounded-2xl px-5 py-2 ${
-              tipo2 === "todos" ? "selecionado" : ""
+              categoriaSelecionada === "todos" ? "selecionado" : ""
             }`}
           >
             Todos
           </button>
 
-          <button
-            onClick={() => filtrarPor("tintas")}
-            className={`rounded-2xl px-5 py-2 ${
-              tipo2 === "tintas" ? "selecionado" : ""
-            }`}
-          >
-            Tintas
-          </button>
-
-          <button
-            onClick={() => filtrarPor("agulhas")}
-            className={`rounded-2xl px-5 py-2 ${
-              tipo2 === "agulhas" ? "selecionado" : ""
-            }`}
-          >
-            Agulhas
-          </button>
-
-          <button
-            onClick={() => filtrarPor("luvas")}
-            className={`rounded-2xl px-5 py-2 ${
-              tipo2 === "luvas" ? "selecionado" : ""
-            }`}
-          >
-            Luvas
-          </button>
+          {categorias.map((categoria) => (
+            <button
+              key={categoria.id}
+              onClick={() => filtrarPorCategoria(categoria.id)}
+              className={`rounded-2xl px-5 py-2 ${
+                String(categoriaSelecionada) === String(categoria.id)
+                  ? "selecionado"
+                  : ""
+              }`}
+            >
+              {categoria.nome}
+            </button>
+          ))}
         </div>
 
         <div
@@ -288,10 +286,18 @@ export default function ProdutoPage() {
                   key={produto.id}
                   id={produto.id}
                   nome={produto.nome}
-                  quantidade={produto.qtdMinAlerta}
+                  quantidade={
+                    produto.itens.filter((item) => item.seAtivo).length
+                  }
                   descricao={produto.descricao}
                   possuiValidade={produto.possuiValidade}
                   tipo={produto.tipo}
+                  imagem={produto.imagemKey}
+                  categoriaId={
+                    produto.categoria?.id ??
+                    produto.categoriaId ??
+                    produto.fk_categoria
+                  }
                 />
               );
             })}

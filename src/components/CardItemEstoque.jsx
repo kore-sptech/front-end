@@ -1,8 +1,11 @@
-import { useNavigate } from "react-router-dom";
 import { api } from "../utils/api";
 import { handleApiError } from "../utils/errorHandler";
-export default function CardProduto(props) {
+import { useNavigate } from "react-router-dom";
+export default function CardItemEstoque(props) {
   const navigate = useNavigate();
+  const imagemPadrao =
+    "https://via.placeholder.com/600x400/1F2937/CBD5E1?text=Sem+Imagem";
+  const imagemProduto = props.imagem || imagemPadrao;
   async function deletar() {
     try {
       const { status } = await api.delete(`/estoque/${props.id}`);
@@ -10,7 +13,10 @@ export default function CardProduto(props) {
         //document.getElementById('modal_sucesso').showModal();                    atualizarLista={carregarEstoque} foi adicionado para atualizar a lista de produtos após a exclusão
         props.atualizarLista();
       } else {
-        handleApiError(new Error("Exclusão sem confirmação do servidor."), "Não foi possível excluir o item.");
+        handleApiError(
+          new Error("Exclusão sem confirmação do servidor."),
+          "Não foi possível excluir o item.",
+        );
       }
     } catch (err) {
       handleApiError(err, "Não foi possível excluir o item.");
@@ -23,8 +29,8 @@ export default function CardProduto(props) {
     >
       <figure className="h-50 w-full">
         <img
-          src="https://tattoounleashed.com/cdn/shop/articles/the-pros-and-cons-of-different-tattoo-machines-198448.jpg?v=1715856207"
-          alt="Shoes"
+          src={imagemProduto}
+          alt={props.nome || "Produto"}
           className="h-50 w-full rounded-xl object-cover"
         />
       </figure>
@@ -112,9 +118,11 @@ export default function CardProduto(props) {
       <div className="card-body h-auto flex-col items-center justify-between text-center">
         <h2 className="card-title text-sm">{props.dataValidade}</h2>
         <div className="card-actions justify-end">
-          <div className="badge bg-[#48dbfc1a]">
-            <p className="text-[#48DCFC]">Quantidade:</p>{" "}
-          </div>
+          {props.valorUnitario && (
+            <div className="badge bg-[#48dbfc1a]">
+              <p className="text-[#48DCFC]">Preço: R$ {props.valorUnitario}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 import { PrivateRoute } from "./components/PrivateRoute";
 import ProdutoPage from "./pages/Produto/ProdutosPage";
 import SignUpPage from "./pages/SignUpPage";
+import TestValidationPage from "./pages/TestValidationPage";
 import TransacoesPage from "./pages/TransacoesPage";
 
 const router = createBrowserRouter([
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "/signup", // carol
         element: <SignUpPage />,
+      },
+      {
+        path: "/test-validation",
+        element: <TestValidationPage />,
       },
       {
         element: <PrivateRoute />,

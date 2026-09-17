@@ -11,7 +11,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { AgendamentoContext } from "../context/ModalAgendamentoContext";
 import { api } from "../utils/api";
 import { extractErrorMessage } from "../utils/errorHandler";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 export function WeeklyCalendar({ sessions, colorByClient, weekDays }) {
   const scrollRef = useRef(null);

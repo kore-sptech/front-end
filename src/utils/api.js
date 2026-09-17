@@ -31,6 +31,13 @@ api.interceptors.response.use(
       toast.error("Sua sessão expirou. Faça login novamente.");
       window.location.href = "/login";
     }
+
+    // NOVO: Log para debugging de erros de validação
+    if (status === 400) {
+      console.log("🔍 [api.js interceptor] Erro 400 detectado");
+      console.log("🔍 error.response.data:", error.response?.data);
+    }
+
     return Promise.reject(error);
   },
 );

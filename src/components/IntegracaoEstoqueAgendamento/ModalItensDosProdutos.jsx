@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import CardItemComCheckbox from "./CardItemComCheckbox";
 import { api } from "../../utils/api";
 import { extractErrorMessage } from "../../utils/errorHandler";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 export default function ModalItensDosProdutos({
   isOpen,

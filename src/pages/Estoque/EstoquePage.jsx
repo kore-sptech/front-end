@@ -1,74 +1,135 @@
 import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import Sidebar from "../../components/Sidebar";
-import SearchBar from "../../components/SearchBar";
+
 import CardItemEstoque from "../../components/CardItemEstoque";
+import SearchBar from "../../components/SearchBar";
+import Sidebar from "../../components/Sidebar";
 import { api } from "../../utils/api";
 import { handleApiError } from "../../utils/errorHandler";
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export default function EstoquePage() {
-    const location = useLocation();
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [estoque, setEstoque] = useState([]);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [estoque, setEstoque] = useState([]);
+  const [imagemProduto, setImagemProduto] = useState("");
+  const [reloadToken, setReloadToken] = useState(0);
 
-    const carregarEstoque = async () => {
-        try {
-            const { data } = await api.get(`/estoque/${id}`);
-            setEstoque(data);
-        } catch (err) {
-            handleApiError(err, "Não foi possível carregar o estoque.");
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarEstoque() {
+      try {
+        const usuarioId = localStorage.getItem("usuarioId");
+        const [estoqueResponse, produtosResponse] = await Promise.all([
+          api.get(`/estoque/${id}`),
+          api.get(`/produtos/${usuarioId}`),
+        ]);
+
+        const estoqueData = Array.isArray(estoqueResponse.data)
+          ? estoqueResponse.data
+          : [];
+        const produtosData = Array.isArray(produtosResponse.data)
+          ? produtosResponse.data
+          : [];
+
+        const produtoSelecionado = produtosData.find(
+          (produto) => String(produto.id) === String(id),
+        );
+
+        if (!ativo) {
+          return;
         }
+
+        setEstoque(estoqueData);
+        setImagemProduto(produtoSelecionado?.imagemKey || "");
+      } catch (err) {
+        if (!ativo) {
+          return;
+        }
+
+        if (err.response?.status === 204) {
+          setEstoque([]);
+          return;
+        }
+
+        handleApiError(err, "Não foi possível carregar o estoque.");
+      }
+    }
+
+    if (id) {
+      void carregarEstoque();
+    }
+
+    return () => {
+      ativo = false;
     };
-    useEffect(() => {
-        if (id) {
-            carregarEstoque();
-        }
-    }, [id]);
+  }, [id, reloadToken]);
 
-    return (
-        <main className="h-screen w-full flex bg-[#000C24] overflow-hidden">
-            <Sidebar></Sidebar>
-            <section className="grow h-full overflow-auto">
-                <div className="p-6 flex w-full justify-between">
-                    <div className="flex flex-col gap-2">
-                        <h1 className="text-4xl font-bold">PRODUTOS</h1>
+  const estoqueAtivo = Array.isArray(estoque)
+    ? estoque.filter((item) => item.seAtivo === true)
+    : [];
 
-                        <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
-                    </div>
-                    <SearchBar></SearchBar>
-                    <button
-                        onClick={() => navigate(`adicionar`)}
-                        className="flex gap-2 px-6 py-2.5 bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] text-[#003640] rounded-xl font-bold shadow-xl shadow-cyan-500/20 cursor-pointer items-center">
-                        + Registrar
-                    </button>
-                </div>
+  return (
+    <main className="flex h-screen w-full overflow-hidden bg-[#000C24]">
+      <Sidebar></Sidebar>
+      <section className="h-full grow overflow-auto">
+        <div className="flex w-full justify-between p-6">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl font-bold">PRODUTOS</h1>
 
-                {/* A alteração foi feita na div abaixo: adicionado flex-wrap e removido justify-between */}
-                <div className="p-6 flex w-full flex-wrap justify-start gap-4" id="produtos_listagem">
+            <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
+          </div>
+          <SearchBar></SearchBar>
+          <button
+            onClick={() => navigate(`adicionar`)}
+            className="flex cursor-pointer items-center gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
+          >
+            + Registrar
+          </button>
+        </div>
 
-                    {estoque.length == 0 && (
-                        <div className="text-center w-full h-full mt-70">
-                            <p className="text-4xl font-bold text-[#DAE2FF]">NENHUM ITEM NO ESTOQUE!</p>
-                            <p className="text-2xl">Cadastre um item <button onClick={() => navigate(`adicionar`)} className="underline text-[#48DCFC] font-bold cursor-pointer">clicando aqui!</button></p>
-                        </div>
-                    )}
+        {/* A alteração foi feita na div abaixo: adicionado flex-wrap e removido justify-between */}
+        <div
+          className="flex w-full flex-wrap justify-start gap-4 p-6"
+          id="produtos_listagem"
+        >
+          {estoqueAtivo.length == 0 && (
+            <div className="mt-70 h-full w-full text-center">
+              <p className="text-4xl font-bold text-[#DAE2FF]">
+                NENHUM ITEM NO ESTOQUE!
+              </p>
+              <p className="text-2xl">
+                Cadastre um item{" "}
+                <button
+                  onClick={() => navigate(`adicionar`)}
+                  className="cursor-pointer font-bold text-[#48DCFC] underline"
+                >
+                  clicando aqui!
+                </button>
+              </p>
+            </div>
+          )}
 
-                    
-                    {estoque?.filter(estoque => estoque.seAtivo === true).map((estoque) => {
-                        return (
-                            <CardItemEstoque
-                                key={estoque.id}
-                                id={estoque.id}
-                                dataValidade={estoque.dataValidade ? new Date(estoque.dataValidade).toLocaleDateString() : "Sem validade"}
-                                quantidade={estoque.quantidade}
-                                atualizarLista={carregarEstoque}
-                            />
-                        )
-                    })}
-                </div>
-            </section>
-        </main>
-    )
+          {estoqueAtivo.map((estoque) => {
+            return (
+              <CardItemEstoque
+                key={estoque.id}
+                id={estoque.id}
+                dataValidade={
+                  estoque.dataValidade
+                    ? new Date(estoque.dataValidade).toLocaleDateString()
+                    : "Sem validade"
+                }
+                quantidade={estoque.quantidade}
+                valorUnitario={estoque.valorUnitario}
+                imagem={imagemProduto}
+                atualizarLista={() => setReloadToken((current) => current + 1)}
+              />
+            );
+          })}
+        </div>
+      </section>
+    </main>
+  );
 }

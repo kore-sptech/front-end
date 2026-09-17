@@ -12,6 +12,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import CategoriaSelector from "../../components/CategoriaSelector";
 import Sidebar from "../../components/Sidebar";
 import { api } from "../../utils/api";
 import { handleApiError } from "../../utils/errorHandler";
@@ -31,9 +32,12 @@ export default function EditarProdutoPage() {
     quantidade: quantidadeParams,
     possuiValidade: possuiValidadeParams,
     tipo: tipoParams,
+    imagem: imagemParams,
+    categoriaId: categoriaIdParams,
   } = location.state || {};
 
   const [images, setImages] = useState([]); // Armazena as imagens {id, url}
+  const [imagemSelecionada, setImagemSelecionada] = useState(null);
   const [imageError, setImageError] = useState(false); // Controle de validação
   const [imageShaking, setImageShaking] = useState(false); // Efeito visual de erro
   const fileInputRef = useRef();
@@ -45,46 +49,46 @@ export default function EditarProdutoPage() {
     possuiValidadeParams || false,
   );
   const [qtdMinAlerta, setQtdMinAlerta] = useState(quantidadeParams || 0);
-  const [tipo, setTipo] = useState(tipoParams || "");
+  const [categoriaId, setCategoriaId] = useState(categoriaIdParams || null);
   // Abre a janela de seleção de arquivos do sistema
   const handleClickAdd = () => fileInputRef.current.click();
+
+  useEffect(() => {
+    if (imagemParams) {
+      setImages([{ id: "imagem-atual", url: imagemParams }]);
+    }
+  }, [imagemParams]);
+
   useEffect(() => {
     console.log(nomeParams);
   }, [nomeParams]);
   // Processa os arquivos selecionados
   const handleFileChange = async (e) => {
     try {
-      await Promise.all(
-        Array.from(e.target.files).map(async (file) => {
-          const formData = new FormData();
-          formData.append("foto", file);
+      const [file] = Array.from(e.target.files || []);
 
-          // Faz o upload para o servidor
-          const { data } = await api.postForm("/fotos", formData, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          });
-          const { id } = data;
+      if (!file) {
+        return;
+      }
 
-          // Gera o preview local para o usuário ver na hora
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            setImages((prev) => [...prev, { id, url: ev.target.result }]);
-          };
-          reader.readAsDataURL(file);
-        }),
-      );
+      setImagemSelecionada(file);
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setImages([{ id: Date.now(), url: ev.target.result }]);
+      };
+      reader.readAsDataURL(file);
 
       e.target.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo de novo
       setImageError(false);
     } catch (err) {
-      handleApiError(err, "Erro ao enviar a foto.");
+      handleApiError(err, "Erro ao carregar a imagem.");
     }
   };
 
   // Remove a imagem da lista
   const handleRemoveImage = (id) => {
+    setImagemSelecionada(null);
     setImages((prev) => {
       const next = prev.filter((img) => img.id !== id);
       if (next.length === 0) {
@@ -111,7 +115,7 @@ export default function EditarProdutoPage() {
       toast.error("A quantidade mínima deve ser um número positivo.");
       return;
     }
-    if (tipo === "") {
+    if (!categoriaId) {
       toast.error("O produto deve possuir uma categoria.");
       return;
     }
@@ -120,30 +124,29 @@ export default function EditarProdutoPage() {
       descricao,
       possuiValidade,
       qtdMinAlerta: parseInt(qtdMinAlerta),
-      tipo,
+      tipo: tipoParams || "",
+      categoriaId,
+      usuario: usuarioId,
     };
-    await fetch(`http://localhost:8080/produtos/${usuarioId}/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(produto),
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          navigate("/produtos", {
-            state: {
-              successMessage3: "Produto alterado com sucesso!",
-            },
-          });
-        } else {
-          console.log(response.status);
-        }
-      })
-      .catch((err) => {
-        handleApiError(err, "Não foi possível alterar o produto.");
-      });
+    try {
+      const response = await api.put(`/produtos/${usuarioId}/${id}`, produto);
+
+      if (response.status === 200 && imagemSelecionada) {
+        const formData = new FormData();
+        formData.append("imagem", imagemSelecionada);
+        await api.postForm(`/produtos/${id}/imagem`, formData);
+      }
+
+      if (response.status === 200) {
+        navigate("/produtos", {
+          state: {
+            successMessage3: "Produto alterado com sucesso!",
+          },
+        });
+      }
+    } catch (err) {
+      handleApiError(err, "Não foi possível alterar o produto.");
+    }
   }
   async function deletar() {
     await fetch(`http://localhost:8080/produtos/${usuarioId}/${id}`, {
@@ -326,49 +329,11 @@ export default function EditarProdutoPage() {
               <label className="label mt-4">
                 <span className="text-[#BBC9CD]">CATEGORIA</span>
               </label>
-              <form className="flex gap-3">
-                <input
-                  className="btn btn-square rounded-lg border-[#bbc9cd70] bg-transparent"
-                  type="button"
-                  value="x"
-                  onClick={() => setTipo("")}
-                />
-                <button
-                  type="button"
-                  onClick={() => setTipo("Tintas")}
-                  className={`btn rounded-lg transition-all ${
-                    tipo === "Tintas"
-                      ? "border-cyan-400 bg-cyan-400 text-[#003640]"
-                      : "border-[#bbc9cd70] bg-transparent text-white"
-                  }`}
-                >
-                  Tintas
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setTipo("Luvas")}
-                  className={`btn rounded-lg transition-all ${
-                    tipo === "Luvas"
-                      ? "border-cyan-400 bg-cyan-400 text-[#003640]"
-                      : "border-[#bbc9cd70] bg-transparent text-white"
-                  }`}
-                >
-                  Luvas
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setTipo("Agulhas")}
-                  className={`btn rounded-lg transition-all ${
-                    tipo === "Agulhas"
-                      ? "border-cyan-400 bg-cyan-400 text-[#003640]"
-                      : "border-[#bbc9cd70] bg-transparent text-white"
-                  }`}
-                >
-                  Agulhas
-                </button>
-              </form>
+              <CategoriaSelector
+                value={categoriaId}
+                onChange={setCategoriaId}
+                usuarioId={usuarioId}
+              />
             </div>
           </fieldset>
           <fieldset className="fieldset rounded-box max-w-50 grow border border-none bg-[#0A1A3D] p-6">
