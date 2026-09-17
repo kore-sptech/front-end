@@ -1,7 +1,6 @@
 import "../../index.css";
-import "../../index.css";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
@@ -32,13 +31,16 @@ export default function ProdutoPage() {
 
       window.history.replaceState({}, document.title);
     }
-  }, []);
+  }, [
+    location.state?.successMessage,
+    location.state?.successMessage2,
+    location.state?.successMessage3,
+  ]);
 
   const navigate = useNavigate();
 
   const [pesquisa, setPesquisa] = useState("");
   const [produtos, setProduto] = useState([]);
-  const [produtosFiltrados, setProdutosFiltrados] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("todos");
 
@@ -58,7 +60,6 @@ export default function ProdutoPage() {
           : [];
 
         setProduto(produtosData);
-        setProdutosFiltrados(produtosData);
         setCategorias(categoriasData);
       } catch (err) {
         handleApiError(err, "Não foi possível carregar os produtos.");
@@ -66,10 +67,10 @@ export default function ProdutoPage() {
     }
 
     carregarDados();
-  }, []);
+  }, [usuarioId]);
 
-  useEffect(() => {
-    const filtrados = produtos.filter((produto) => {
+  const produtosFiltrados = useMemo(() => {
+    return produtos.filter((produto) => {
       const nomeOk = produto.nome
         .toLowerCase()
         .includes(pesquisa.toLowerCase());
@@ -83,15 +84,11 @@ export default function ProdutoPage() {
 
       return nomeOk && categoriaOk;
     });
-
-    setProdutosFiltrados(filtrados);
   }, [pesquisa, categoriaSelecionada, produtos]);
 
   function filtrarPorCategoria(categoriaId) {
     setCategoriaSelecionada(categoriaId);
   }
-
-  console.log(produtos);
 
   return (
     <main className="flex h-auto w-full overflow-x-hidden bg-[#000C24]">
@@ -185,8 +182,8 @@ export default function ProdutoPage() {
         </defs>
       </svg>
 
-      <section className="h-full w-full grow overflow-auto">
-        <div className="flex w-full justify-between p-6">
+      <section className="h-full w-full grow overflow-x-hidden overflow-y-auto">
+        <div className="flex w-full flex-col gap-4 px-4 py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-2">
             <h1 className="mr-15 text-4xl font-bold text-[#DAE2FF]">
               PRODUTOS
@@ -203,7 +200,7 @@ export default function ProdutoPage() {
           </button>
         </div>
 
-        <div className="ml-5 flex w-full flex-wrap gap-3 p-6 text-sm font-medium text-[#dae2ffb4]">
+        <div className="flex w-full flex-wrap gap-3 px-4 pb-4 text-sm font-medium text-[#dae2ffb4] sm:px-6">
           <button
             onClick={() => filtrarPorCategoria("todos")}
             className={`rounded-2xl px-5 py-2 ${
@@ -229,11 +226,11 @@ export default function ProdutoPage() {
         </div>
 
         <div
-          className="grid h-full w-full grid-cols-4 place-items-center justify-between gap-y-15 p-6 text-center"
+          className="grid h-full w-full grid-cols-1 justify-items-center gap-6 px-4 pb-6 text-center sm:grid-cols-2 sm:px-6 lg:grid-cols-3 xl:grid-cols-4"
           id="produtos_listagem"
         >
           {produtosFiltrados.length == 0 && pesquisa.length == 0 && (
-            <div className="col-span-4 mt-25 text-center">
+            <div className="col-span-full mt-25 text-center">
               <h1 className="text-4xl font-bold text-[#DAE2FF]">
                 NENHUM ITEM NO INVENTÁRIO
               </h1>
@@ -256,7 +253,7 @@ export default function ProdutoPage() {
           )}
 
           {produtosFiltrados.length == 0 && pesquisa.length > 0 && (
-            <div className="col-span-4 mt-25 text-center">
+            <div className="col-span-full mt-25 text-center">
               <h1 className="text-4xl font-bold text-[#DAE2FF]">
                 NENHUM ITEM NO INVENTÁRIO PARA{" "}
                 <span className="font-bold text-[#48DCFC]">"{pesquisa}"</span>!

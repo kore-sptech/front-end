@@ -12,13 +12,7 @@ createRoot(document.getElementById("root")).render(
   <NotificationProvider>
     <SidebarProvider>
       <ModalAgendamentoContextProvider>
-        <Toaster
-          position="top-right"
-          expand={true}
-          richColors
-          closeButton
-          duration={4000}
-        />
+        <Toaster duration={4000} />
         <RouterProvider router={router} />
       </ModalAgendamentoContextProvider>
     </SidebarProvider>

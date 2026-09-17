@@ -73,8 +73,8 @@ export default function EstoquePage() {
   return (
     <main className="flex h-screen w-full overflow-hidden bg-[#000C24]">
       <Sidebar></Sidebar>
-      <section className="h-full grow overflow-auto">
-        <div className="flex w-full justify-between p-6">
+      <section className="h-full grow overflow-x-hidden overflow-y-auto">
+        <div className="flex w-full flex-col gap-4 px-4 py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl font-bold">PRODUTOS</h1>
 
@@ -89,13 +89,12 @@ export default function EstoquePage() {
           </button>
         </div>
 
-        {/* A alteração foi feita na div abaixo: adicionado flex-wrap e removido justify-between */}
         <div
-          className="flex w-full flex-wrap justify-start gap-4 p-6"
+          className="grid w-full grid-cols-1 gap-6 px-4 pb-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 xl:grid-cols-4"
           id="produtos_listagem"
         >
           {estoqueAtivo.length == 0 && (
-            <div className="mt-70 h-full w-full text-center">
+            <div className="col-span-full mt-70 h-full w-full text-center">
               <p className="text-4xl font-bold text-[#DAE2FF]">
                 NENHUM ITEM NO ESTOQUE!
               </p>

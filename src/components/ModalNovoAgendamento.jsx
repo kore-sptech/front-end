@@ -329,10 +329,10 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               setMateriaisSelecionados(Object.values(materiaisAgrupados));
             })
             .catch((err) => {
-              handleApiError(
-                err,
-                "Não foi possível carregar os materiais do agendamento.",
-              );
+              // handleApiError(
+              //   err,
+              //   "Não foi possível carregar os materiais do agendamento.",
+              // );
             });
         }
       } else {
@@ -658,7 +658,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 />
               </Field>
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <Field
                 label="Telefone"
@@ -688,7 +687,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 </select>
               </Field>
             </div>
-
             <div>
               <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
                 Referência Visual
@@ -775,9 +773,8 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 onChange={handleFileChange}
               />
             </div>
-
             {/* ── Materiais Refatorado ───────────────────────────────────── */}
-
+            {/* 
             {agendamento && (
               <div>
                 <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
@@ -794,14 +791,12 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   </button>
                 </div>
               </div>
-            )}
-
+            )} */}
             {/* ── Grid de Materiais Adicionados ────────────────────────────── */}
             <GridMateriaisAdicionados
               materiais={materiaisSelecionados}
               onRemover={handleRemoverMaterial}
             />
-
             <div className="flex items-start gap-4">
               <Field label="De" error={errors.de}>
                 <input
@@ -853,7 +848,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                 </select>
               </Field>
             </div>
-
             {agendamento?.id ? (
               <>
                 <div className="flex gap-3">

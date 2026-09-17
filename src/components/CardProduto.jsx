@@ -7,7 +7,7 @@ export default function CardProduto(props) {
 
   return (
     <div
-      className="card mb-6 h-65 w-80 rounded-2xl bg-[#0A1A3D] shadow-sm transition-all hover:cursor-pointer hover:shadow-cyan-300 hover:transition-all"
+      className="card relative h-65 w-full max-w-80 rounded-2xl bg-[#0A1A3D] shadow-sm transition-all hover:cursor-pointer hover:shadow-cyan-300 hover:transition-all"
       onClick={() => navigate(`/estoque/${props.id}`)}
     >
       <figure className="h-50 w-full">
