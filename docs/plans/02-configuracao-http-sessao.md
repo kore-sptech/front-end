@@ -10,6 +10,8 @@ O logout remove somente o token no interceptor, enquanto `src/components/Sidebar
 
 Criar uma infraestrutura única para configuração de ambientes, cliente HTTP, sessão, autorização e erros, sem mudar as rotas existentes. A nova camada deve permitir trocar URLs por ambiente, centralizar o comportamento de 401 e tornar explícito como o SSE é autenticado.
 
+**Regra de compatibilidade:** a configuração de ambiente, o cliente HTTP e a sessão devem ser extraídos sem alterar a URL efetiva de desenvolvimento, os caminhos, os métodos, os cabeçalhos, os corpos de requisição, a resposta de login, o tratamento de 401 ou o formato do SSE já aceito pelo backend. A URL e as rotas só podem mudar por variável de configuração, sem edição silenciosa dos contratos.
+
 ## Passo a Passo de Execução
 
 1. Mapear todas as rotas, métodos, cabeçalhos, parâmetros de consulta e formatos de resposta em uma matriz de contrato.
@@ -49,3 +51,4 @@ Criar uma infraestrutura única para configuração de ambientes, cliente HTTP, 
 - Os cabeçalhos de autorização são injetados uma única vez pela infraestrutura.
 - O comportamento do SSE é validado com autenticação, reconexão e evento de cancelamento.
 - Build e lint continuam passando.
+- Nenhuma alteração de ambiente, cliente HTTP ou sessão modifica o contrato efetivo da API, exceto a configuração externa explicitamente aprovada.

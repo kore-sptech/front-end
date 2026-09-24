@@ -10,6 +10,8 @@ Há ainda funções de retorno assíncronas que não retornam a Promise, notific
 
 Dividir formulários extensos em componentes e hooks de regras de negócio com responsabilidade única, mantendo os mesmos campos, validações, corpos de requisição e sequências de requisição. A extração deve tornar o fluxo observável e fácil de validar manualmente, sem criar abstrações prematuras para casos sem reuso.
 
+**Regra de compatibilidade:** a divisão dos modais não pode alterar nenhum contrato de API já funcional. Devem ser preservados o método e caminho de cada operação, os campos e tipos aceitos, o formato monetário, os parâmetros de rota, a ordem das requisições, o tratamento de envio de imagens e o momento exato em que a notificação de sucesso é exibida. Nenhuma correção deve transformar um dado recebido em outro campo sem validar a resposta real do backend.
+
 ## Passo a Passo de Execução
 
 1. Documentar o corpo atual das requisições de criação e atualização de agendamento, transação, produto, foto e associação de estoque.
@@ -56,3 +58,4 @@ Dividir formulários extensos em componentes e hooks de regras de negócio com r
 - A notificação de sucesso só aparece após todas as operações assíncronas da ação.
 - Fechar/reabrir modais sincroniza os dados corretamente.
 - Lint, build e validação manual de regressão dos fluxos passam.
+- A divisão dos modais preserva todos os contratos de API, inclusive ordem das operações, envio de imagens, autenticação e notificações.

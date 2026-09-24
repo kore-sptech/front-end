@@ -10,6 +10,8 @@ Além disso, já foram identificados riscos funcionais em `src/pages/Estoque/Est
 
 Criar uma base confiável antes de mover responsabilidades. O objetivo imediato não é reescrever a aplicação, mas impedir falhas em tempo de execução, garantir que o build e o lint sejam verificações reproduzíveis e corrigir inconsistências que podem gerar dados errados ou perda de integração.
 
+**Regra de compatibilidade:** registrar antes das correções as rotas, métodos, parâmetros, cabeçalhos, corpos de requisição e respostas que já funcionam. As correções de estado, navegação e formulários devem alterar apenas o comportamento local defeituoso, nunca o contrato enviado ou recebido pela API. Os dashboards simulados permanecem fora dessa regra porque não possuem integração de API.
+
 ## Passo a Passo de Execução
 
 1. Registrar o estado inicial: executar `npm run lint`, `npm run build` e os fluxos manuais de login, produtos, estoque, transações e agendamentos.
@@ -50,4 +52,4 @@ Criar uma base confiável antes de mover responsabilidades. O objetivo imediato 
 - A navegação a partir de um item de estoque abre o produto/estoque correto.
 - Editar transações sucessivamente carrega os dados da transação selecionada.
 - O valor `qtdMinAlerta` não é sobrescrito silenciosamente pela quantidade atual.
-- Login, cadastro, produto, estoque, transação e agendamento continuam usando as mesmas rotas.
+- Login, cadastro, produto, estoque, transação e agendamento continuam usando as mesmas rotas, métodos, parâmetros, corpos de requisição e respostas.

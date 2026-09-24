@@ -12,6 +12,8 @@ Estabelecer uma arquitetura incremental, baseada em responsabilidades claras, qu
 
 Todo o código novo e a documentação dos planos deverão ser escritos em português. Nomes de arquivos e símbolos já existentes podem ser preservados para evitar uma renomeação em massa que aumente o risco da refatoração.
 
+**Regra de compatibilidade da API:** toda rota, método, parâmetro de rota/consulta, cabeçalho, corpo de requisição, formato de resposta, paginação, autenticação, SSE e ordem de operações que já funciona é um contrato inviolável desta refatoração. A única exceção são os dashboards, métricas financeiras e o gráfico de barras, que permanecem simulados de propósito. Qualquer alteração nesses contratos exige confirmação explícita do backend e uma etapa própria, nunca uma alteração implícita durante a extração de componentes.
+
 ## Passo a Passo de Execução
 
 1. **Etapa 0 — Base e correções de estabilidade:** executar o plano `01-baseline-estabilidade.md`.
@@ -41,7 +43,7 @@ A ordem é obrigatória. Não iniciar a divisão de um formulário antes de seu 
 ## Critérios de Aceite
 
 - Cada plano pode ser executado e revisado separadamente.
-- Nenhuma etapa altera rota, método HTTP, formato do corpo de requisição ou regra de negócio sem confirmação explícita do contrato do backend.
+- Nenhuma etapa altera rota, método HTTP, formato do corpo de requisição ou regra de negócio sem confirmação explícita do contrato do backend; a exceção é a organização dos dashboards simulados.
 - A aplicação continua compilando e os fluxos críticos continuam sendo validados manualmente após cada etapa.
 - A cada etapa existe uma revisão das alterações, validação de lint/build e registro dos riscos restantes.
 - A arquitetura final mantém uma única fonte para configuração, sessão, chamadas de API, validação e componentes compartilhados.

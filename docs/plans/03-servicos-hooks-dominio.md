@@ -10,6 +10,8 @@ O estado remoto está concentrado em `useState` dentro das páginas. Isso repete
 
 Criar fronteiras estáveis entre interface e backend. Os serviços devem concentrar rota, corpo de requisição e normalização de resposta; os hooks devem concentrar estado remoto, carregamento, erro, recarga e cancelamento; os componentes que consomem esses hooks não devem conhecer Axios nem cabeçalhos de autorização.
 
+**Regra de compatibilidade:** a extração para serviços e hooks é apenas uma mudança de organização. Cada função deve preservar exatamente o método, caminho, parâmetros, cabeçalhos, corpo de requisição, tratamento de resposta e efeitos colaterais da chamada original. A normalização deve ocorrer depois da resposta e nunca alterar o formato enviado ao backend. A única exceção de integração é a ausência deliberada de API nos dashboards simulados.
+
 ## Passo a Passo de Execução
 
 1. Definir entidades e contratos mínimos de cada área com base nas respostas reais da API: autenticação, produto, categoria, estoque, transação, agendamento, foto e notificação.
@@ -60,4 +62,4 @@ Criar fronteiras estáveis entre interface e backend. Os serviços devem concent
 - Respostas paginadas, materiais e métricas possuem uma representação interna única.
 - Trocar uma página ou filtro não apresenta dados obsoletos da requisição anterior.
 - Carregamento, erro, vazio e sucesso possuem comportamento previsível nos formulários e listas.
-- Lint e build passam após cada área migrada.
+- Lint e build passam após cada área migrada sem alteração do contrato de API.

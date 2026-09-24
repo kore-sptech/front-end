@@ -10,6 +10,8 @@
 
 Manter os dashboards e o gráfico como dados simulados intencionais, sem criar chamadas de API ou serviço de métricas neste momento. Organizar apenas a estrutura dos dados simulados, a nomenclatura e a apresentação dos protótipos. Migrar a página de notificações para a fonte real somente se essa integração já estiver disponível e aprovada pelo backend.
 
+**Regra de compatibilidade:** os dashboards, métricas financeiras e `GraficoBarra` são a exceção documentada: não possuem contrato de API ativo e não devem ser conectados ao backend nesta refatoração. Todas as demais integrações, incluindo SSE, confirmação, cancelamento e notificações existentes, devem preservar seus contratos atuais. A organização dos dados simulados não pode ser confundida com uma alteração de contrato.
+
 ## Passo a Passo de Execução
 
 1. Documentar no próprio código e no README que dashboards, métricas financeiras e gráfico de barras usam dados simulados de propósito.
@@ -47,3 +49,4 @@ Manter os dashboards e o gráfico como dados simulados intencionais, sem criar c
 - Eventos duplicados não geram entradas duplicadas; reconexão não cria ouvintes acumulados.
 - A paginação e os filtros continuam com a mesma semântica visual.
 - Lint e build passam e os fluxos são validados manualmente com dados simulados e, quando aplicável, com respostas reais.
+- Nenhuma integração existente é alterada; somente dashboards, métricas financeiras e gráfico de barras permanecem explicitamente simulados.

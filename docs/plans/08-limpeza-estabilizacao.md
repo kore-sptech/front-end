@@ -8,6 +8,8 @@ Após as migrações incrementais, podem permanecer importações antigas, servi
 
 Remover legado com segurança, consolidar o padrão arquitetural e entregar uma base sustentável e mantível, sem alterar as integrações ou o comportamento aprovado nas etapas anteriores.
 
+**Regra de compatibilidade:** a limpeza final somente poderá remover código legado depois de confirmar que não há consumidor e que a integração correspondente mantém o mesmo contrato de API. Não renomear, remover, converter ou normalizar rotas, métodos, parâmetros, cabeçalhos, corpos de requisição, respostas, paginação, autenticação, SSE ou ordem de operações sem aprovação explícita do backend. A exceção continua sendo exclusivamente o conjunto de dashboards e gráfico simulados.
+
 ## Passo a Passo de Execução
 
 1. Executar busca por importações de `api`, `fetch`, URLs absolutas, cabeçalhos manuais, `localStorage.clear`, `window.location.reload` e `console.log`.
@@ -47,3 +49,4 @@ Remover legado com segurança, consolidar o padrão arquitetural e entregar uma 
 - Login, produtos, estoque, transações, agendamentos, envio de imagens e notificações foram validados em ambiente integrado.
 - A estratégia de reversão de cada etapa está documentada e não exige alteração do backend.
 - A dívida restante possui responsável, impacto e plano futuro, sem misturar escopo de manutenção com funcionalidades novas.
+- A revisão final confirma que nenhuma integração existente teve rota, método, parâmetros, cabeçalhos, corpo de requisição, resposta ou ordem de operações alterados.

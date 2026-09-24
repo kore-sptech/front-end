@@ -10,6 +10,8 @@ O sistema mistura `sonner`, `react-hot-toast`, alertas, mensagens locais e `cons
 
 Separar a estrutura das páginas, os componentes de regras de negócio e os componentes visuais reutilizáveis. Criar abstrações pequenas e parametrizadas, com contratos explícitos para estado visual, acessibilidade, carregamento, erro e composição, sem alterar a experiência funcional.
 
+**Regra de compatibilidade:** componentes genéricos, estruturas de página e componentes reutilizáveis não podem alterar chamadas, parâmetros ou formato dos dados enviados à API. A extração deve preservar o estado recebido pelos componentes atuais e a ordem de carregamento das operações. O layout dos dashboards simulados pode ser reorganizado, mas seus dados de protótipo não devem ser conectados à API nesta etapa.
+
 ## Passo a Passo de Execução
 
 1. Criar `src/estruturas/estruturaAutenticada.jsx` com Sidebar, área de conteúdo, Outlet e responsividade.
@@ -54,3 +56,4 @@ Separar a estrutura das páginas, os componentes de regras de negócio e os comp
 - Nenhum componente genérico acessa regra de negócio ou importa serviço de API.
 - A aplicação mantém aparência e comportamento nos principais tamanhos de tela.
 - Lint e build passam.
+- A extração visual não altera nenhum contrato de API; dashboards simulados permanecem sem conexão com a API.

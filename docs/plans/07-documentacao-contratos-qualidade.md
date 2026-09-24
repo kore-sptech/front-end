@@ -10,6 +10,8 @@ A validação desta etapa será feita por lint, build e por um roteiro manual do
 
 Melhorar a documentação dos contratos, organizar a tipagem gradual quando necessária e estabelecer um roteiro manual de validação. O foco é reduzir a dependência de conhecimento implícito sem adicionar dependências desnecessárias.
 
+**Regra de compatibilidade:** a documentação deve registrar o contrato efetivo de cada integração existente, incluindo rota, método, parâmetros, cabeçalhos, corpo de requisição, resposta, paginação, autenticação, SSE e erros relevantes. Essa documentação serve para proteger a refatoração, não para autorizar mudanças implícitas. Dashboards, métricas financeiras e gráfico de barras devem ser marcados como simulados, sem contrato de API.
+
 ## Passo a Passo de Execução
 
 1. Documentar os contratos dos serviços: rota, método, parâmetros, corpo da requisição, resposta e erros esperados.
@@ -42,3 +44,4 @@ Melhorar a documentação dos contratos, organizar a tipagem gradual quando nece
 - A documentação diferencia dados reais, dados simulados e protótipos.
 - A migração de tipos, se realizada futuramente, não altera os corpos de requisição enviados ao backend.
 - O código novo e a documentação são escritos em português.
+- O roteiro manual confirma que as integrações existentes continuam usando exatamente os contratos documentados.
