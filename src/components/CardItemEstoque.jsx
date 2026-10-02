@@ -1,4 +1,4 @@
-import { api } from "../utils/api";
+import { excluirItemEstoque } from "../servicos/estoque";
 import { handleApiError } from "../utils/errorHandler";
 import { useNavigate } from "react-router-dom";
 export default function CardItemEstoque(props) {
@@ -8,7 +8,7 @@ export default function CardItemEstoque(props) {
   const imagemProduto = props.imagem || imagemPadrao;
   async function deletar() {
     try {
-      const { status } = await api.delete(`/estoque/${props.id}`);
+      const { status } = await excluirItemEstoque(props.id);
       if (status === 204) {
         //document.getElementById('modal_sucesso').showModal();                    atualizarLista={carregarEstoque} foi adicionado para atualizar a lista de produtos após a exclusão
         props.atualizarLista();
@@ -25,7 +25,7 @@ export default function CardItemEstoque(props) {
   return (
     <div
       className="card relative h-65 w-full max-w-80 rounded-2xl bg-[#0A1A3D] shadow-sm transition-all hover:cursor-pointer hover:shadow-cyan-300 hover:transition-all"
-      onClick={() => navigate(`/estoque/${props.id}`)}
+      onClick={() => navigate(`/estoque/${props.produtoId}`)}
     >
       <figure className="h-50 w-full">
         <img

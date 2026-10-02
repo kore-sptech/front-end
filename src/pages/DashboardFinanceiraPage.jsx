@@ -34,7 +34,9 @@ export default function DashboardFinanceiraPage() {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setMetricas(res.data))
-      .catch((err) => handleApiError(err, "Não foi possível carregar as métricas."));
+      .catch((err) =>
+        handleApiError(err, "Não foi possível carregar as métricas."),
+      );
   };
 
   const fetchTransacoes = () => {
@@ -55,8 +57,6 @@ export default function DashboardFinanceiraPage() {
 
   return (
     <div className="flex min-h-screen bg-[#000C24] text-white">
-      <Sidebar />
-
       <main className="flex-1 p-6">
         {/* Header */}
         <header className="mb-10 flex items-center justify-between">

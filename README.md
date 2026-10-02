@@ -1,6 +1,6 @@
 # Kore Front-end
 
-Este diretório reúne a interface web do sistema Kore, desenvolvida em React com Vite e estilização em Tailwind + DaisyUI. A aplicação consume a API do backend principal, gerencia autenticação, exibe dashboards e integra notificações em tempo real via SSE.
+Este diretório reúne a interface web do sistema Kore, desenvolvida em React com Vite e estilização em Tailwind + DaisyUI. A aplicação consome a API do backend principal, gerencia autenticação, exibe telas operacionais e integra notificações em tempo real via SSE. Os dashboards são protótipos com dados simulados de propósito.
 
 ## Visão geral
 
@@ -27,7 +27,7 @@ A aplicação foi criada para gerenciar operações de salões e estúdios, incl
 - Lucide React
 - Sonner / react-hot-toast
 - react-day-picker
-- react-hook-form + zod
+- date-fns
 
 ## Estrutura do frontend
 
@@ -38,9 +38,13 @@ front-end/
 ├── src/
 │   ├── assets/
 │   ├── components/
+│   ├── config/
 │   ├── context/
+│   ├── estruturas/
+│   ├── hooks/
 │   ├── pages/
 │   ├── providers/
+│   ├── servicos/
 │   ├── utils/
 │   ├── index.css
 │   ├── main.jsx
@@ -58,12 +62,13 @@ front-end/
 - rotas públicas e privadas
 - configuração de token JWT via axios
 - tratamento de erros com toast
-- painel financeiro e métricas
+- telas financeiras e operacionais
 - listagem e cadastro de produtos
 - controle de estoque
 - agendamentos com confirmação e pagamento
 - visualização de notificações em tempo real
-- integração com backend em `localhost:8080`
+- dados simulados identificados no módulo `src/utils/dadosDashboardSimulados.js` para os dashboards
+- integração com backend por `VITE_API_URL`
 
 ## Requisitos
 
@@ -74,6 +79,13 @@ Antes de executar o frontend, verifique se você possui:
 - acesso ao backend em execução
 
 ## Configuração do ambiente
+
+Na raiz do frontend, crie um arquivo `.env.local` quando necessário:
+
+```bash
+VITE_API_URL=http://localhost:8080
+VITE_SSE_URL=http://localhost:8080
+```
 
 Na raiz do frontend:
 
@@ -116,6 +128,10 @@ cd front-end
 npm run lint
 ```
 
+## Validação manual
+
+A validação é feita com lint, build e pelo roteiro manual dos fluxos de autenticação, produtos, estoque, transações, agendamentos, imagens e notificações. O projeto não utiliza testes automatizados.
+
 ## Integração com backend
 
 A aplicação se conecta ao backend principal em:
@@ -123,6 +139,8 @@ A aplicação se conecta ao backend principal em:
 ```text
 http://localhost:8080
 ```
+
+A integração existente é organizada em `src/servicos/`, sem alterar rotas, métodos, parâmetros, cabeçalhos, corpos de requisição, respostas ou ordem das operações. Os dashboards usam dados simulados de propósito e não representam uma integração com a API.
 
 O arquivo de cliente HTTP fica em `src/utils/api.js` e já realiza:
 

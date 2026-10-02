@@ -8,7 +8,6 @@ export default function ModalLista({
   onClose,
   title = "Selecione uma opção",
   items = [],
-  ItemComponent,
   onMateriaisSelect,
   agendamentoId,
 }) {
@@ -30,9 +29,6 @@ export default function ModalLista({
     setSelectedProduto(null);
     onClose();
   };
-
-  console.log("--------------------ITENS--------------------");
-  console.log(items);
 
   return (
     <>

@@ -5,11 +5,11 @@ import {
   ROW_HEIGHT_PX,
 } from "../const/Day";
 import { Clock, X } from "lucide-react";
-import { differenceInHours, differenceInMinutes, isSameDay } from "date-fns";
+import { differenceInMinutes, isSameDay } from "date-fns";
 import { useContext, useEffect, useRef, useState } from "react";
 
-import { AgendamentoContext } from "../context/ModalAgendamentoContext";
-import { api } from "../utils/api";
+import { AgendamentoContext } from "../context/ContextoAgendamento";
+import { cancelarAgendamento } from "../servicos/agendamentos";
 import { extractErrorMessage } from "../utils/errorHandler";
 import { toast } from "sonner";
 
@@ -265,16 +265,7 @@ export function EventBlock({ session, startHour, durationHours, dayLabel }) {
                   onClick={(ev) => {
                     ev.preventDefault();
 
-                    api
-                      .patch(
-                        `/agendamentos/cancelar/${session.id}`,
-                        {},
-                        {
-                          headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                          },
-                        },
-                      )
+                    cancelarAgendamento(session.id)
                       .then(() => {
                         toast.success("Agendamento cancelado com sucesso!");
                         window.location.reload();

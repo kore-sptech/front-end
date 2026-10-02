@@ -8,7 +8,6 @@ import Kpi from "../components/Kpi";
 import Lucro from "../assets/Lucro.png";
 import Notificacao from "../components/Notificacao";
 import Ocupacao from "../assets/Ocupacao.png";
-import Sidebar from "../components/Sidebar";
 import {AlertTriangle, Calendar, Clock, AlertCircleIcon } from "lucide-react";
 import {
   CircleDollarSign,
@@ -111,8 +110,6 @@ export default function DashboardPage() {
 
   return (
     <main className="h-auto w-full flex bg-[#000C24] overflow-x-hidden">
-      <Sidebar />
-
       <svg className="right-0 top-0 absolute pointer-events-none" width="745" height="721" viewBox="0 0 745 721" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g filter="url(#filter0_f_460_506)">
                     <rect x="120" y="68" width="532" height="533" rx="266" fill="#48DCFC" fill-opacity="0.05" />

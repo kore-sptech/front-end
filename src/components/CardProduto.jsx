@@ -24,8 +24,9 @@ export default function CardProduto(props) {
           navigate(`/produtos/editar/${props.id}`, {
             state: {
               nome: props.nome,
-              quantidade: props.quantidade,
-              descricao: props.descricao,
+               quantidade: props.quantidade,
+               qtdMinAlerta: props.qtdMinAlerta,
+               descricao: props.descricao,
               possuiValidade: props.possuiValidade,
               tipo: props.tipo,
               imagem: props.imagem,

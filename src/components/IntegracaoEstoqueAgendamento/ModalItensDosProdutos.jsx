@@ -1,7 +1,7 @@
 import { X, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CardItemComCheckbox from "./CardItemComCheckbox";
-import { api } from "../../utils/api";
+import { listarEstoque } from "../../servicos/estoque";
 import { extractErrorMessage } from "../../utils/errorHandler";
 import { toast } from "sonner";
 
@@ -11,29 +11,15 @@ export default function ModalItensDosProdutos({
   produtoId,
   produtoNome,
   onSalvar,
-  agendamentoId
 }) {
-  if (!isOpen) return null;
-
   const [itens, setItens] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
 
-  // Fetch items quando a modal abre
-  useEffect(() => {
-    if (isOpen && produtoId) {
-      fetchItens();
-    }
-  }, [isOpen, produtoId]);
-
-  const fetchItens = async () => {
+  const fetchItens = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await api.get(`/estoque/${produtoId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const { data } = await listarEstoque(produtoId);
       setItens(data || []);
       setSelectedItems([]);
     } catch (error) {
@@ -44,7 +30,15 @@ export default function ModalItensDosProdutos({
     } finally {
       setLoading(false);
     }
-  };
+  }, [produtoId]);
+
+  useEffect(() => {
+    if (isOpen && produtoId) {
+      void Promise.resolve().then(() => fetchItens());
+    }
+  }, [fetchItens, isOpen, produtoId]);
+
+  if (!isOpen) return null;
 
   const handleToggleItem = (itemId) => {
     setSelectedItems((prev) => {
@@ -109,7 +103,6 @@ export default function ModalItensDosProdutos({
             itens.filter(item => item.seAtivo === true).map((item) => (
               <CardItemComCheckbox
                 key={item.id}
-                id={item.id}
                 produtoNome={produtoNome}
                 valorUnitario={item.valorUnitario}
                 dataValidade={item.dataValidade}

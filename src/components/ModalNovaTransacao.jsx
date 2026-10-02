@@ -1,21 +1,14 @@
 import { Loader2, X } from "lucide-react";
 
-import { api } from "../utils/api";
+import EntradaValor from "../componentes/base/EntradaValor";
+import { criarTransacao } from "../servicos/transacoes";
 import { handleApiError } from "../utils/errorHandler";
+import {
+  converterValorBrasileiro,
+  formatarValorBrasileiro,
+} from "../utils/valores";
 import { toast } from "sonner";
 import { useState } from "react";
-
-function parseValorBR(valorFormatado) {
-  return parseFloat(valorFormatado.replace(/\./g, "").replace(",", ".")) || 0;
-}
-
-function formatarValorBR(apenasDigitos) {
-  const numero = parseInt(apenasDigitos || "0", 10) / 100;
-  return numero.toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
 
 export default function ModalNovaTransacao({
   isOpen,
@@ -45,8 +38,8 @@ export default function ModalNovaTransacao({
   function handleValorChange(e) {
     const apenasDigitos = e.target.value.replace(/\D/g, "");
 
-    const formatado = formatarValorBR(apenasDigitos);
-    const limpo = parseValorBR(formatado);
+    const formatado = formatarValorBrasileiro(apenasDigitos);
+    const limpo = converterValorBrasileiro(formatado);
 
     setValorDisplay("R$ " + formatado);
     setValorFloat(limpo);
@@ -75,12 +68,7 @@ export default function ModalNovaTransacao({
       body.categoria = "SESSAO";
     }
 
-    api
-      .post("/transacoes", body, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
+    criarTransacao(body)
       .then(() => {
         toast.success("Transação adicionada com sucesso!");
         obterTransacoes();
@@ -129,14 +117,7 @@ export default function ModalNovaTransacao({
               <label className="mb-1 block text-xs font-bold text-gray-400 uppercase">
                 Valor (R$)
               </label>
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="R$ 0,00"
-                className="w-full rounded-lg border border-gray-800 bg-[#000C24] px-4 py-3 text-sm text-white focus:border-cyan-400 focus:outline-none"
-                value={valorDisplay}
-                onChange={handleValorChange}
-              />
+              <EntradaValor valor={valorDisplay} aoAlterar={handleValorChange} />
             </div>
             <div>
               <label className="mb-1 block text-xs font-bold text-gray-400 uppercase">

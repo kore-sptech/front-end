@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 
 import { Logo } from "../components/Logo";
-import { api } from "../utils/api";
+import { entrar } from "../servicos/autenticacao";
+import { saveSession } from "../utils/auth";
 import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -28,7 +29,7 @@ export default function LoginPage() {
     }
   }
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
 
@@ -38,9 +39,7 @@ export default function LoginPage() {
         ...prev,
         email: "O campo de email é obrigatório.",
       }));
-
       setIsLoading(false);
-
       return;
     }
 
@@ -50,40 +49,23 @@ export default function LoginPage() {
         ...prev,
         password: "O campo de senha é obrigatório.",
       }));
-
       setIsLoading(false);
-
       return;
     }
 
-    fetch("http://localhost:8080/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, senha: password }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data != null) {
-          localStorage.setItem("auth", JSON.stringify(data));
-          localStorage.setItem("nome", data.nome);
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("usuarioId", data.id);
-
-          navigate("/dashboard");
-        }
-      })
-      .catch((err) => {
-        handleApiError(err, "Email ou senha incorretos.");
-        setErrorMessage((prev) => ({
-          ...prev,
-          email: "Email ou senha incorretos.",
-        }));
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    try {
+      const { data } = await entrar(email, password);
+      saveSession(data);
+      navigate("/dashboard");
+    } catch (error) {
+      handleApiError(error, "Email ou senha incorretos.");
+      setErrorMessage((prev) => ({
+        ...prev,
+        email: "Email ou senha incorretos.",
+      }));
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#021134] text-white">

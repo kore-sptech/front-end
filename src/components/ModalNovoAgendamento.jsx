@@ -12,11 +12,21 @@ import {
 } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
 
-import { AgendamentoContext } from "../context/ModalAgendamentoContext";
+import { AgendamentoContext } from "../context/ContextoAgendamento";
 import GridMateriaisAdicionados from "./IntegracaoEstoqueAgendamento/GridMateriaisAdicionados";
 import { IMaskInput } from "react-imask";
 import ModalLista from "./ModalLista";
-import { api } from "../utils/api";
+import {
+  atualizarAgendamento,
+  buscarProximoDisponivel,
+  confirmarAgendamento,
+  confirmarPagamento,
+  criarAgendamento,
+} from "../servicos/agendamentos";
+import { criarTransacaoDoAgendamento } from "../servicos/transacoes";
+import { listarTodosProdutos } from "../servicos/produtos";
+import { associarItemEstoque, listarEstoqueDoAgendamento } from "../servicos/estoque";
+import { enviarFoto } from "../servicos/fotos";
 import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 
@@ -35,7 +45,32 @@ const shakeStyle = `
   .shake { animation: shake 0.45s ease; }
 `;
 
-// ─── Garante string vazia se valor for null/undefined ─────────────────────────
+function pad(numero) {
+  return String(numero).padStart(2, "0");
+}
+
+function formatarDataLocal(data) {
+  return (
+    data.getFullYear() +
+    "-" +
+    pad(data.getMonth() + 1) +
+    "-" +
+    pad(data.getDate()) +
+    "T" +
+    pad(data.getHours()) +
+    ":" +
+    pad(data.getMinutes())
+  );
+}
+
+function addMinutesToLocalInput(deStr, minutes) {
+  if (!deStr) return "";
+  const data = new Date(deStr);
+  if (isNaN(data.getTime())) return "";
+  const fim = new Date(data.getTime() + minutes * 60000);
+  return formatarDataLocal(fim);
+}
+
 const str = (v) => (v != null ? String(v) : "");
 
 // ─── Validação pura (substitui o schema Zod) ─────────────────────────────────
@@ -174,35 +209,9 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   });
 
   // --- Helpers para calcular fim a partir de inicio + duração (minutos)
-  function pad(n) {
-    return String(n).padStart(2, "0");
-  }
-
-  function formatLocalInput(date) {
-    return (
-      date.getFullYear() +
-      "-" +
-      pad(date.getMonth() + 1) +
-      "-" +
-      pad(date.getDate()) +
-      "T" +
-      pad(date.getHours()) +
-      ":" +
-      pad(date.getMinutes())
-    );
-  }
-
-  function addMinutesToLocalInput(deStr, minutes) {
-    if (!deStr) return "";
-    const dt = new Date(deStr);
-    if (isNaN(dt.getTime())) return "";
-    const end = new Date(dt.getTime() + minutes * 60000);
-    return formatLocalInput(end);
-  }
-
   const buscarHorarioSugerido = async () => {
     try {
-      const { data } = await api.get("/agendamentos/proximo-disponivel");
+      const { data } = await buscarProximoDisponivel();
       // data: { inicio: "2026-08-10T09:00:00", fim: "2026-08-10T09:30:00" }
       return data?.inicio ? data.inicio.slice(0, 16) : "";
     } catch (error) {
@@ -246,7 +255,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   const canSubmit = formIsValid && images.length > 0;
 
   // Atualiza formulário quando `agendamento` ou `isOpen` mudarem
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!isOpen) return;
 
@@ -297,8 +305,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           console.warn("Token ausente ao buscar materiais do agendamento");
           setMateriaisSelecionados([]);
         } else {
-          api
-            .get(`/estoque/agendamento/${agendamento.id}`)
+          listarEstoqueDoAgendamento(agendamento.id)
             .then(({ data }) => {
               if (!data || data.length === 0) {
                 setMateriaisSelecionados([]);
@@ -328,12 +335,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
               setMateriaisSelecionados(Object.values(materiaisAgrupados));
             })
-            .catch((err) => {
-              // handleApiError(
-              //   err,
-              //   "Não foi possível carregar os materiais do agendamento.",
-              // );
-            });
+            .catch(() => {});
         }
       } else {
         setMateriaisSelecionados([]);
@@ -341,8 +343,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     };
 
     carregarFormulario();
-  }, [agendamento, isOpen]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+  }, [agendamento, durationMinutes, isOpen]);
 
   const handleChange = (name, value) => {
     let nextFields = { ...fields, [name]: value };
@@ -375,7 +376,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   // -- Produtos refatorado
   const handleProdutos = async () => {
     try {
-      const { data } = await api.get("/produtos");
+      const { data } = await listarTodosProdutos();
       setProdutosLista(data);
       setIsMateriaisModalOpen(true);
     } catch (err) {
@@ -407,16 +408,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     toast.success("Material removido.");
   };
   const confirmarSessao = () => {
-    api
-      .patch(
-        `/agendamentos/confirmar/${agendamento.id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        },
-      )
+    confirmarAgendamento(agendamento.id)
       .then(() => {
         toast.success("Sessão confirmada com sucesso!");
         onClose();
@@ -427,32 +419,14 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
   };
 
   const confirmarPagamaento = () => {
-    api
-      .patch(
-        `/agendamentos/confirmar_pagamento/${agendamento.id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        },
-      )
+    confirmarPagamento(agendamento.id)
       .then(() => {
-        api
-          .post(
-            `/transacoes/${agendamento.id}`,
-            {
-              nome: "Tatuagem do " + fields.cliente,
-              tipo: "ENTRADA",
-              valor: parseFloat(fields.preco),
-              categoria: "SESSAO",
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            },
-          )
+        criarTransacaoDoAgendamento(agendamento.id, {
+          nome: "Tatuagem do " + fields.cliente,
+          tipo: "ENTRADA",
+          valor: parseFloat(fields.preco),
+          categoria: "SESSAO",
+        })
           .then(() => {
             toast.success("Transação adicionada com sucesso!");
             onClose();
@@ -470,14 +444,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     try {
       await Promise.all(
         Array.from(e.target.files).map(async (file) => {
-          const formData = new FormData();
-          formData.append("foto", file);
-
-          const { data } = await api.postForm("/fotos", formData, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          });
+          const { data } = await enviarFoto(file);
           const { id } = data;
 
           const reader = new FileReader();
@@ -545,12 +512,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
     };
 
     if (agendamento?.id) {
-      api
-        .put(`/agendamentos/${agendamento.id}`, payload, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        })
+      atualizarAgendamento(agendamento.id, payload)
         .then(() => {
           const todosOsItensIds = materiaisSelecionados.flatMap((material) =>
             material.itens.map((item) => item.id),
@@ -558,15 +520,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
 
           //  mapeia os IDs para um array de requisições (Promises)
           const requisicoesEstoque = todosOsItensIds.map((itemId) => {
-            return api.put(
-              `/estoque/${itemId}/${agendamento.id}`,
-              {}, // corpo requisição é vazio
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-              },
-            );
+            return associarItemEstoque(itemId, agendamento.id);
           });
 
           //  executa todas as requisições em paralelo e aguarda o resultado
@@ -580,14 +534,9 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
           handleApiError(err, "Não foi possível atualizar o agendamento.");
         });
 
-      toast.success("Materiais salvos com sucesso!");
+
     } else {
-      api
-        .post("/agendamentos", payload, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        })
+      criarAgendamento(payload)
         .then(() => {
           toast.success("Agendamento adicionado com sucesso!");
           onClose();
@@ -774,7 +723,6 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
               />
             </div>
             {/* ── Materiais Refatorado ───────────────────────────────────── */}
-            {/* 
             {agendamento && (
               <div>
                 <label className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
@@ -791,7 +739,7 @@ export default function ModalNovoAgendamento({ isOpen, onClose }) {
                   </button>
                 </div>
               </div>
-            )} */}
+            )}
             {/* ── Grid de Materiais Adicionados ────────────────────────────── */}
             <GridMateriaisAdicionados
               materiais={materiaisSelecionados}

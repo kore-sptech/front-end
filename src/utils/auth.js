@@ -1,7 +1,24 @@
 import { jwtDecode } from "jwt-decode";
 
+const CHAVES_SESSAO = ["auth", "nome", "token", "usuarioId"];
+
 export function getToken() {
   return localStorage.getItem("token");
+}
+
+export function getSession() {
+  return {
+    token: localStorage.getItem("token"),
+    nome: localStorage.getItem("nome"),
+    usuarioId: localStorage.getItem("usuarioId"),
+  };
+}
+
+export function saveSession(session) {
+  localStorage.setItem("auth", JSON.stringify(session));
+  localStorage.setItem("nome", session.nome);
+  localStorage.setItem("token", session.token);
+  localStorage.setItem("usuarioId", String(session.id));
 }
 
 export function isTokenValido(token) {
@@ -16,10 +33,9 @@ export function isTokenValido(token) {
 }
 
 export function isAutenticado() {
-  const token = getToken();
-  return isTokenValido(token);
+  return isTokenValido(getToken());
 }
 
 export function logout() {
-  localStorage.removeItem("token");
+  CHAVES_SESSAO.forEach((chave) => localStorage.removeItem(chave));
 }

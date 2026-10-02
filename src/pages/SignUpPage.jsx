@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 
 import { Logo } from "../components/Logo";
-import { api } from "../utils/api";
+import { cadastrarUsuario } from "../servicos/autenticacao";
 import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -115,8 +115,7 @@ export default function SignUpPage() {
       return;
     }
 
-    api
-      .post("/usuarios", { email, nome: name, senha: password })
+    cadastrarUsuario({ email, nome: name, senha: password })
       .then((response) => {
         if (response.data?.id) {
           toast.success(

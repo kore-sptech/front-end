@@ -17,7 +17,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Logo } from "./Logo";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
-import { useState } from "react";
+import { logout } from "../utils/auth";
 
 export default function Sidebar() {
   const location = useLocation();
@@ -35,8 +35,8 @@ export default function Sidebar() {
   ];
 
   function deslogar() {
-    localStorage.clear();
-    navigate("/");
+    logout();
+    navigate("/login");
   }
 
   return (

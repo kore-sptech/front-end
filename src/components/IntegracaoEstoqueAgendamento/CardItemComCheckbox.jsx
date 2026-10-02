@@ -1,7 +1,6 @@
 import { Check } from "lucide-react";
 
 export default function CardItemComCheckbox({
-  id,
   produtoNome,
   valorUnitario,
   dataValidade,

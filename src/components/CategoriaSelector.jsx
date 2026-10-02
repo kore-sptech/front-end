@@ -1,7 +1,10 @@
 import { Plus, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { api } from "../utils/api";
+import {
+  criarCategoria as criarCategoriaServico,
+  listarCategorias,
+} from "../servicos/produtos";
 import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 
@@ -12,13 +15,9 @@ export default function CategoriaSelector({ value, onChange, usuarioId }) {
   const [novaCategoriaDescricao, setNovaCategoriaDescricao] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    carregarCategorias();
-  }, [usuarioId]);
-
-  async function carregarCategorias() {
+  const carregarCategorias = useCallback(async () => {
     try {
-      const { data } = await api.get(`/categorias/${usuarioId}`);
+      const { data } = await listarCategorias(usuarioId);
       setCategorias(Array.isArray(data) ? data : []);
     } catch (err) {
       if (err.response?.status === 204) {
@@ -28,7 +27,11 @@ export default function CategoriaSelector({ value, onChange, usuarioId }) {
         setCategorias([]);
       }
     }
-  }
+  }, [usuarioId]);
+
+  useEffect(() => {
+    void Promise.resolve().then(() => carregarCategorias());
+  }, [carregarCategorias]);
 
   async function criarCategoria() {
     if (novaCategoriaNome.trim().length < 3) {
@@ -46,7 +49,7 @@ export default function CategoriaSelector({ value, onChange, usuarioId }) {
 
     setLoading(true);
     try {
-      const { data } = await api.post(`/categorias/${usuarioId}`, {
+      const { data } = await criarCategoriaServico(usuarioId, {
         nome: novaCategoriaNome,
         descricao: novaCategoriaDescricao,
       });

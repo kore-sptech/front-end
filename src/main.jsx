@@ -1,9 +1,9 @@
 import "./index.css";
 
-import { ModalAgendamentoContextProvider } from "./context/ModalAgendamentoContext";
+import { ModalAgendamentoContextProvider } from "./context/ModalAgendamentoProvider";
 import { NotificationProvider } from "./providers/NotificationProvider";
 import { RouterProvider } from "react-router-dom";
-import { SidebarProvider } from "./context/SidebarContext";
+import { SidebarProvider } from "./context/SidebarProvider";
 import { Toaster } from "sonner";
 import { createRoot } from "react-dom/client";
 import { router } from "./router";

@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 import CardItemEstoque from "../../components/CardItemEstoque";
 import SearchBar from "../../components/SearchBar";
-import Sidebar from "../../components/Sidebar";
-import { api } from "../../utils/api";
+import { listarProdutos } from "../../servicos/produtos";
+import { listarEstoque } from "../../servicos/estoque";
 import { handleApiError } from "../../utils/errorHandler";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
@@ -14,6 +14,7 @@ export default function EstoquePage() {
   const [estoque, setEstoque] = useState([]);
   const [imagemProduto, setImagemProduto] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
+  const [busca, setBusca] = useState("");
 
   useEffect(() => {
     let ativo = true;
@@ -22,8 +23,8 @@ export default function EstoquePage() {
       try {
         const usuarioId = localStorage.getItem("usuarioId");
         const [estoqueResponse, produtosResponse] = await Promise.all([
-          api.get(`/estoque/${id}`),
-          api.get(`/produtos/${usuarioId}`),
+          listarEstoque(id),
+          listarProdutos(usuarioId),
         ]);
 
         const estoqueData = Array.isArray(estoqueResponse.data)
@@ -67,12 +68,17 @@ export default function EstoquePage() {
   }, [id, reloadToken]);
 
   const estoqueAtivo = Array.isArray(estoque)
-    ? estoque.filter((item) => item.seAtivo === true)
+    ? estoque.filter(
+        (item) =>
+          item.seAtivo === true &&
+          `${item.nome || ""} ${item.descricao || ""}`
+            .toLowerCase()
+            .includes(busca.toLowerCase()),
+      )
     : [];
 
   return (
     <main className="flex h-screen w-full overflow-hidden bg-[#000C24]">
-      <Sidebar></Sidebar>
       <section className="h-full grow overflow-x-hidden overflow-y-auto">
         <div className="flex w-full flex-col gap-4 px-4 py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-2">
@@ -80,7 +86,7 @@ export default function EstoquePage() {
 
             <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
           </div>
-          <SearchBar></SearchBar>
+          <SearchBar value={busca} onChange={setBusca} />
           <button
             onClick={() => navigate(`adicionar`)}
             className="flex cursor-pointer items-center gap-2 rounded-xl bg-linear-to-r from-[#48DCFC] to-[#0CC0DF] px-6 py-2.5 font-bold text-[#003640] shadow-xl shadow-cyan-500/20"
@@ -115,6 +121,7 @@ export default function EstoquePage() {
               <CardItemEstoque
                 key={estoque.id}
                 id={estoque.id}
+                produtoId={id}
                 dataValidade={
                   estoque.dataValidade
                     ? new Date(estoque.dataValidade).toLocaleDateString()

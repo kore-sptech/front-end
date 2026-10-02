@@ -9,12 +9,11 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import CategoriaSelector from "../../components/CategoriaSelector";
-import Sidebar from "../../components/Sidebar";
-import { api } from "../../utils/api";
+import { atualizarProduto, enviarImagemProduto, excluirProduto } from "../../servicos/produtos";
 import { handleApiError } from "../../utils/errorHandler";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
@@ -29,14 +28,17 @@ export default function EditarProdutoPage() {
   const {
     nome: nomeParams,
     descricao: descricaoParams,
-    quantidade: quantidadeParams,
-    possuiValidade: possuiValidadeParams,
+     quantidade: quantidadeParams,
+     qtdMinAlerta: qtdMinAlertaParams,
+     possuiValidade: possuiValidadeParams,
     tipo: tipoParams,
     imagem: imagemParams,
     categoriaId: categoriaIdParams,
   } = location.state || {};
 
-  const [images, setImages] = useState([]); // Armazena as imagens {id, url}
+  const [images, setImages] = useState(
+    imagemParams ? [{ id: "imagem-atual", url: imagemParams }] : [],
+  ); // Armazena as imagens {id, url}
   const [imagemSelecionada, setImagemSelecionada] = useState(null);
   const [imageError, setImageError] = useState(false); // Controle de validação
   const [imageShaking, setImageShaking] = useState(false); // Efeito visual de erro
@@ -45,24 +47,13 @@ export default function EditarProdutoPage() {
   const [nome, setNome] = useState(nomeParams || "");
 
   const [descricao, setDescricao] = useState(descricaoParams || "");
-  const [possuiValidade, setPossuiValidade] = useState(
-    possuiValidadeParams || false,
+  const possuiValidade = possuiValidadeParams || false;
+  const [qtdMinAlerta, setQtdMinAlerta] = useState(
+    qtdMinAlertaParams ?? quantidadeParams ?? 0,
   );
-  const [qtdMinAlerta, setQtdMinAlerta] = useState(quantidadeParams || 0);
   const [categoriaId, setCategoriaId] = useState(categoriaIdParams || null);
   // Abre a janela de seleção de arquivos do sistema
-  const handleClickAdd = () => fileInputRef.current.click();
-
-  useEffect(() => {
-    if (imagemParams) {
-      setImages([{ id: "imagem-atual", url: imagemParams }]);
-    }
-  }, [imagemParams]);
-
-  useEffect(() => {
-    console.log(nomeParams);
-  }, [nomeParams]);
-  // Processa os arquivos selecionados
+  const handleClickAdd = () => fileInputRef.current.click();  // Processa os arquivos selecionados
   const handleFileChange = async (e) => {
     try {
       const [file] = Array.from(e.target.files || []);
@@ -129,12 +120,10 @@ export default function EditarProdutoPage() {
       usuario: usuarioId,
     };
     try {
-      const response = await api.put(`/produtos/${usuarioId}/${id}`, produto);
+      const response = await atualizarProduto(usuarioId, id, produto);
 
       if (response.status === 200 && imagemSelecionada) {
-        const formData = new FormData();
-        formData.append("imagem", imagemSelecionada);
-        await api.postForm(`/produtos/${id}/imagem`, formData);
+        await enviarImagemProduto(id, imagemSelecionada);
       }
 
       if (response.status === 200) {
@@ -149,13 +138,7 @@ export default function EditarProdutoPage() {
     }
   }
   async function deletar() {
-    await fetch(`http://localhost:8080/produtos/${usuarioId}/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
+    await excluirProduto(usuarioId, id)
       .then((response) => {
         if (response.status === 204) {
           navigate("/produtos", {
@@ -174,8 +157,6 @@ export default function EditarProdutoPage() {
 
   return (
     <main className="flex h-auto w-full overflow-x-hidden bg-[#000C24]">
-      <Sidebar />
-
       <svg
         className="pointer-events-none absolute top-0 right-0"
         width="745"

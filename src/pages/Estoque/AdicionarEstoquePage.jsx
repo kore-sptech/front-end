@@ -1,8 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Sidebar from "../../components/Sidebar";
 import SearchBar from "../../components/SearchBar";
-import { api } from "../../utils/api";
+import { adicionarEstoque } from "../../servicos/estoque";
 import { handleApiError } from "../../utils/errorHandler";
 import {
     AlertCircle,
@@ -22,8 +21,21 @@ export default function AdicionarEstoquePage() {
     const [dataValidade, setDataValidade] = useState('');
     const [quantidade, setQuantidade] = useState('');
     const [valorUnitario, setValorUnitario] = useState('');
-    const [seAtivo, setSeAtivo] = useState(true);
+    const seAtivo = true;
     async function cadastrar() {
+        const quantidadeNumero = Number(quantidade);
+        const valorNumero = Number(valorUnitario);
+
+        if (!Number.isInteger(quantidadeNumero) || quantidadeNumero <= 0) {
+            handleApiError(new Error("Quantidade inválida."), "Informe uma quantidade válida.");
+            return;
+        }
+
+        if (!Number.isFinite(valorNumero) || valorNumero < 0) {
+            handleApiError(new Error("Valor inválido."), "Informe um valor unitário válido.");
+            return;
+        }
+
         const agora = new Date();
         const dataEntradaFormatada = new Date(agora.getTime() - (agora.getTimezoneOffset() * 60000))
             .toISOString()
@@ -31,13 +43,13 @@ export default function AdicionarEstoquePage() {
         const dataValidadeFormatada = dataValidade ? `${dataValidade}T00:00:00` : null;
 
         const estoque = {
-            valorUnitario: parseFloat(valorUnitario),
+            valorUnitario: valorNumero,
             dataValidade: dataValidadeFormatada,
             dataEntrada: dataEntradaFormatada,
             seAtivo: seAtivo
         };
         try {
-            const { status } = await api.post(`/estoque/${quantidade}/${id}`, estoque);
+            const { status } = await adicionarEstoque(id, quantidade, estoque);
             if (status === 201) {
                 navigate(`/estoque/${id}`);
                 //document.getElementById('modal_sucesso').showModal();
@@ -50,7 +62,6 @@ export default function AdicionarEstoquePage() {
     }
     return (
         <main className="h-screen w-full flex bg-[#000C24] overflow-hidden">
-            <Sidebar></Sidebar>
             <section className="grow h-full overflow-auto">
                 <div className="p-6 flex w-full justify-between">
                     <div className="breadcrumbs text-sm">

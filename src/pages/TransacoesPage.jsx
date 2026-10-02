@@ -12,9 +12,11 @@ import { useCallback, useEffect, useState } from "react";
 import { KpiTransacoes } from "../components/KpiTransacoes";
 import ModalAtualizaTransacao from "../components/ModalAtualizaTransacao";
 import ModalNovaTransacao from "../components/ModalNovaTransacao";
-import Sidebar from "../components/Sidebar";
 import { TableTransacoes } from "../components/TableTransacoes";
-import { api } from "../utils/api";
+import {
+  listarMetricas,
+  listarTransacoes,
+} from "../servicos/transacoes";
 import { handleApiError } from "../utils/errorHandler";
 import { useSearchParams } from "react-router-dom";
 
@@ -65,12 +67,7 @@ export default function TransacoesPage() {
   });
 
   const obterMetricas = useCallback(() => {
-    api
-      .get("/transacoes/metricas", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
+    listarMetricas()
       .then((response) => {
         const { data } = response;
 
@@ -85,19 +82,13 @@ export default function TransacoesPage() {
 
   const obterTransacoes = useCallback(() => {
     // TODO: pequisar sobre compoertamento do use Callback
-    api
-      .get("/transacoes", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        params: {
-          page: page,
-          tipo: filters.tipo,
-          dataCriacao: filters.dataCriacao,
-          sort: filters.sort,
-          busca: filters.nome,
-        },
-      })
+    listarTransacoes({
+      page: page,
+      tipo: filters.tipo,
+      dataCriacao: filters.dataCriacao,
+      sort: filters.sort,
+      busca: filters.nome,
+    })
       .then((response) => {
         const { data } = response;
         setTransacoes(data);
@@ -143,8 +134,6 @@ export default function TransacoesPage() {
 
   return (
     <div className="flex min-h-screen bg-[#000C24] text-white">
-      <Sidebar />
-
       <main className="flex-1 p-6">
         {/* Header */}
         <header className="mb-10 flex items-center justify-between">
@@ -273,6 +262,7 @@ export default function TransacoesPage() {
       />
 
       <ModalAtualizaTransacao
+        key={`${transacaoAtual?.id ?? "modal"}-${isModalAtualizaOpen ? "aberto" : "fechado"}`}
         isOpen={isModalAtualizaOpen}
         onClose={() => setIsModalAtualizaOpen(false)}
         transacao={transacaoAtual}

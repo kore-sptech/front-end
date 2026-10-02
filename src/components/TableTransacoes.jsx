@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { formatCurrecy, formatDate } from "../utils/formmaters";
 
-import { api } from "../utils/api";
+import { excluirTransacao } from "../servicos/transacoes";
 import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
@@ -27,12 +27,12 @@ export function TableTransacoes({
   const [searchParams, setSearchParams] = useSearchParams();
 
   const paginaAtual = searchParams.get("page")
-    ? parseInt(searchParams.get("page"))
+    ? parseInt(searchParams.get("page")) + 1
     : 1;
 
   const mudarDePagina = (pagina) => {
     setSearchParams((prev) => {
-      prev.set("page", pagina);
+      prev.set("page", pagina - 1);
       return prev;
     });
   };
@@ -70,9 +70,9 @@ export function TableTransacoes({
         {/* Paginação */}
         <div className="flex items-center justify-between border-t border-gray-800 p-6 text-xs text-gray-500">
           <p>
-            Exibindo {paginaAtual * itemPorPagina + 1} -{" "}
+            Exibindo {(paginaAtual - 1) * itemPorPagina + 1} -{" "}
             {Math.min(
-              paginaAtual * itemPorPagina + itemPorPagina,
+              paginaAtual * itemPorPagina,
               totalElementos,
             )}{" "}
             de {totalElementos} transações
@@ -81,7 +81,7 @@ export function TableTransacoes({
             {Array.from({
               length: totalPaginas,
             }).map((_, index) => {
-              if (index == paginaAtual)
+               if (index + 1 == paginaAtual)
                 return (
                   <button className="flex h-8 w-8 cursor-pointer items-center justify-center rounded bg-cyan-400 font-bold text-black">
                     {index + 1}
@@ -91,7 +91,7 @@ export function TableTransacoes({
               return (
                 <button
                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded hover:bg-white/10"
-                  onClick={() => mudarDePagina(index)}
+                   onClick={() => mudarDePagina(index + 1)}
                 >
                   {index + 1}
                 </button>
@@ -114,16 +114,9 @@ function TransacaoRow({
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log({ item });
-
   const deletarTransacao = (id) => {
     setIsLoading(true);
-    api
-      .delete(`/transacoes/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
+    excluirTransacao(id)
       .then(() => {
         setIsLoading(false);
         toast.success("Transação excluída com sucesso!");

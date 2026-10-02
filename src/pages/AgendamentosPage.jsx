@@ -1,18 +1,14 @@
 import "react-day-picker/style.css";
 
-import {
-  AgendamentoContext,
-  ModalAgendamentoContextProvider,
-} from "../context/ModalAgendamentoContext";
+import { AgendamentoContext } from "../context/ContextoAgendamento";
 import { buildColorMapByClient, buildWeekDays } from "../utils/build";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 
 import { CalendarPlus } from "lucide-react";
 import ModalNovoAgendamento from "../components/ModalNovoAgendamento";
 import { SidePanel } from "../components/SidePainel";
-import Sidebar from "../components/Sidebar";
-import { WeeklyCalendar } from "../components/WeeklyCalendar";
-import { api } from "../utils/api";
+ import { WeeklyCalendar } from "../components/WeeklyCalendar";
+import { listarAgendamentos } from "../servicos/agendamentos";
 import { handleApiError } from "../utils/errorHandler";
 
 export default function AgendamentoPage() {
@@ -39,7 +35,7 @@ export default function AgendamentoPage() {
   const weekDays = buildWeekDays(selectedDate);
   const colorByClient = buildColorMapByClient(sessions);
 
-  const fetchSessions = () => {
+  const fetchSessions = useCallback(() => {
     const weekDays = buildWeekDays(selectedDate);
     const primaryDay = weekDays[0];
     const lastDay = weekDays[weekDays.length - 1];
@@ -52,42 +48,29 @@ export default function AgendamentoPage() {
     finalDate = finalDate.setHours(23, 59, 59, 999);
     finalDate = new Date(finalDate);
 
-    const url = `agendamentos?inicio=${initialDate.toISOString()}&fim=${finalDate.toISOString()}`;
-
     console.log(`Fetching sessions for ${selectedDate.toDateString()}`);
 
-    api
-      .get(url, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
+    listarAgendamentos(initialDate.toISOString(), finalDate.toISOString())
       .then((response) => {
         setSessions(response.data);
       })
       .catch((err) => {
         handleApiError(err, "Não foi possível carregar os agendamentos.");
       });
-  };
-
-  useEffect(() => {
-    fetchSessions();
   }, [selectedDate]);
 
   useEffect(() => {
-    console.log({
-      isOpen,
-      agendamento,
-    });
+    fetchSessions();
+  }, [fetchSessions]);
+
+  useEffect(() => {
     if (!isOpen && agendamento == null) {
       fetchSessions();
     }
-  }, [isOpen]);
+  }, [agendamento, fetchSessions, isOpen]);
 
   return (
     <main className="flex h-screen w-full bg-[#000C24] text-[#DAE2FF]">
-      <Sidebar />
-
       <section className="h-full grow">
         {/* Cabeçalho da página */}
         <PageHeader onOpenModal={onOpenModal} />

@@ -10,8 +10,7 @@ import { useEffect, useRef, useState } from "react";
 
 import CategoriaSelector from "../../components/CategoriaSelector";
 import SearchBar from "../../components/SearchBar";
-import Sidebar from "../../components/Sidebar";
-import { api } from "../../utils/api";
+import { criarProduto, enviarImagemProduto } from "../../servicos/produtos";
 import { handleApiError } from "../../utils/errorHandler";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
@@ -115,13 +114,11 @@ export default function CadastroProdutoPage() {
         categoriaId,
       };
 
-      const response = await api.post(`/produtos/${usuarioId}`, produto);
+      const response = await criarProduto(usuarioId, produto);
 
       if (response.status === 201) {
         if (imagemSelecionada && response.data?.id) {
-          const formData = new FormData();
-          formData.append("imagem", imagemSelecionada);
-          await api.postForm(`/produtos/${response.data.id}/imagem`, formData);
+          await enviarImagemProduto(response.data.id, imagemSelecionada);
         }
 
         navigate("/produtos", {
@@ -137,8 +134,6 @@ export default function CadastroProdutoPage() {
 
   return (
     <main className="flex h-screen w-full overflow-hidden bg-[#000C24]">
-      <Sidebar />
-
       <svg
         className="pointer-events-none absolute top-0 right-0"
         width="745"

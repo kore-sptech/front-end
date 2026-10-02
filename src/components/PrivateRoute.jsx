@@ -15,7 +15,7 @@ export function PrivateRoute() {
       logout();
       toast.error("Sua sessão expirou. Faça login novamente.");
     }
-  }, []);
+  }, [autenticado, token]);
 
   if (!token || !autenticado) {
     return <Navigate to="/login" replace />;

@@ -1,12 +1,10 @@
-import { createContext, useState } from "react";
+import { useState } from "react";
 
 import ModalNovoAgendamento from "../components/ModalNovoAgendamento";
+import { AgendamentoContext } from "./ContextoAgendamento";
 
-export const AgendamentoContext = createContext({});
-
-export const ModalAgendamentoContextProvider = ({ children }) => {
+export function ModalAgendamentoContextProvider({ children }) {
   const [agendamento, setAgendamento] = useState(null);
-
   const [isOpen, setIsOpen] = useState(false);
 
   const openModal = (agendamento) => {
@@ -24,8 +22,7 @@ export const ModalAgendamentoContextProvider = ({ children }) => {
       value={{ isOpen, setIsOpen, agendamento, setAgendamento, openModal }}
     >
       {children}
-
       <ModalNovoAgendamento isOpen={isOpen} onClose={onClose} />
     </AgendamentoContext.Provider>
   );
-};
+}

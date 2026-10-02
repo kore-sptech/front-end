@@ -1,13 +1,16 @@
-import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { ContextoNotificacoes } from "../context/ContextoNotificacoes";
 import { SessionToast } from "../components/SessionToast";
-import { api } from "../utils/api";
+import {
+  cancelarAgendamento,
+  confirmarAgendamento,
+} from "../servicos/agendamentos";
+import { abrirStreamDeNotificacoes } from "../servicos/notificacoes";
 import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const NotificationProviderContext = createContext({});
 
 /** Formata "2026-06-08T15:10:00" → "15:10" */
 function formatTime(isoString) {
@@ -103,7 +106,7 @@ export function NotificationProvider({ children }) {
   // ── SSE ──────────────────────────────────────────────────────────────────
 
   function connect() {
-    const eventSource = new EventSource("http://localhost:8080/sse/stream");
+    const eventSource = abrirStreamDeNotificacoes();
     console.log("Conectando ao SSE...");
     eventSourceRef.current = eventSource;
 
@@ -135,17 +138,8 @@ export function NotificationProvider({ children }) {
 
           // ── Callbacks de ação ──────────────────────────────────────────
           // Substitua pelo seu serviço de API real
-          onConfirm: async () => {
-            api
-              .patch(
-                `/agendamentos/confirmar/${agendamento.id}`,
-                {},
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                },
-              )
+          onConfirm: () =>
+            confirmarAgendamento(agendamento.id)
               .then(() => {
                 toast.success("Agendamento confirmado com sucesso!");
                 window.location.reload();
@@ -155,21 +149,9 @@ export function NotificationProvider({ children }) {
                   err,
                   "Não foi possível confirmar a sessão.",
                 );
-              });
-
-            // await agendamentoService.confirmar(agendamento.id);
-          },
-          onCancel: async () => {
-            api
-              .patch(
-                `/agendamentos/cancelar/${agendamento.id}`,
-                {},
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                },
-              )
+              }),
+          onCancel: () =>
+            cancelarAgendamento(agendamento.id)
               .then(() => {
                 toast.success("Agendamento cancelado com sucesso!");
                 window.location.reload();
@@ -179,8 +161,7 @@ export function NotificationProvider({ children }) {
                   err,
                   "Não foi possível cancelar o agendamento.",
                 );
-              });
-          },
+              }),
         });
       }
     };
@@ -206,10 +187,10 @@ export function NotificationProvider({ children }) {
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <NotificationProviderContext.Provider
+    <ContextoNotificacoes.Provider
       value={{ notifications, showSessionToast, dismissToast, dismissAll }}
     >
       {children}
-    </NotificationProviderContext.Provider>
+    </ContextoNotificacoes.Provider>
   );
 }

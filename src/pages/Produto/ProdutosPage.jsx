@@ -4,8 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import CardProduto from "../../components/CardProduto";
 import SearchBar from "../../components/SearchBar";
-import Sidebar from "../../components/Sidebar";
-import { api } from "../../utils/api";
+import { listarCategorias, listarProdutos } from "../../servicos/produtos";
 import { handleApiError } from "../../utils/errorHandler";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
@@ -48,8 +47,8 @@ export default function ProdutoPage() {
     async function carregarDados() {
       try {
         const [produtosResponse, categoriasResponse] = await Promise.all([
-          api.get(`/produtos/${usuarioId}`),
-          api.get(`/categorias/${usuarioId}`),
+          listarProdutos(usuarioId),
+          listarCategorias(usuarioId),
         ]);
 
         const produtosData = Array.isArray(produtosResponse.data)
@@ -92,8 +91,6 @@ export default function ProdutoPage() {
 
   return (
     <main className="flex h-auto w-full overflow-x-hidden bg-[#000C24]">
-      <Sidebar />
-
       <svg
         className="pointer-events-none absolute top-0 right-0"
         width="745"
@@ -285,6 +282,9 @@ export default function ProdutoPage() {
                   nome={produto.nome}
                   quantidade={
                     produto.itens.filter((item) => item.seAtivo).length
+                  }
+                  qtdMinAlerta={
+                    produto.qtdMinAlerta ?? produto.quantidadeMinimaAlerta
                   }
                   descricao={produto.descricao}
                   possuiValidade={produto.possuiValidade}

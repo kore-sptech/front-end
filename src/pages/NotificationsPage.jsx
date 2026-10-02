@@ -1,6 +1,7 @@
 import { useState } from "react";
-import Sidebar from "../components/Sidebar";
+import { useNotificacoes } from "../context/ContextoNotificacoes";
 import NotificationCard from "../components/CardNotificacoes";
+import { normalizarNotificacao } from "../utils/notificacoes";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Odometer from "react-odometerjs";
 import "odometer/themes/odometer-theme-default.css";
@@ -152,8 +153,13 @@ const ITEMS_PER_PAGE = 5;
 export default function NotificationsPage() {
   const [filtroAtivo, setFiltroAtivo] = useState("TODAS");
   const [paginaAtual, setPaginaAtual] = useState(1);
+  const { notifications } = useNotificacoes();
+  const notificacoesExibidas =
+    notifications.length > 0
+      ? notifications.map(normalizarNotificacao)
+      : initialNotifications;
 
-  const notificationsFiltradas = initialNotifications.filter((n) => {
+  const notificationsFiltradas = notificacoesExibidas.filter((n) => {
     if (filtroAtivo === "TODAS") return true;
     if (filtroAtivo === "ESTOQUE") return n.tipo === "CRITICO";
     if (filtroAtivo === "SESSÕES") return n.tipo === "INFORMATIVO";
@@ -208,8 +214,6 @@ const informativo = notificationsFiltradas.filter(
 
   return (
     <div className="flex min-h-screen bg-[#000C24] text-[#DAE2FF]">
-      <Sidebar />
-
       <main className="flex-1 p-6 flex flex-col justify-between">
         <div>
           {/* Header com Filtros superiores */}

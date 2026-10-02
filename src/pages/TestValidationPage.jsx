@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { api } from "../utils/api";
+import { cadastrarUsuario } from "../servicos/autenticacao";
 import { handleApiError } from "../utils/errorHandler";
 import { toast } from "sonner";
 
@@ -15,7 +15,7 @@ export default function TestValidationPage() {
     addLog("Disparando POST /usuarios com dados vazios...");
 
     try {
-      const response = await api.post("/usuarios", {
+      const response = await cadastrarUsuario({
         nome: "",
         email: "",
         senha: "",
