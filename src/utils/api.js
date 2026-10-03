@@ -1,8 +1,10 @@
+import { API_URL } from "../config/env";
 import axios from "axios";
+import { logout } from "./auth";
 import { toast } from "sonner";
 
 export const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: API_URL,
 });
 
 api.interceptors.request.use((config) => {
@@ -21,21 +23,12 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     const url = error.config?.url || "";
+    const requisicaoDeLogin = url.includes("/auth/login");
 
-    // Não tratar /auth/login como "sessão expirada": a falha do login é esperada
-    // e o handler da página exibe a mensagem real ("Email ou senha inválidos").
-    const isLoginRequest = url.includes("/auth/login");
-
-    if (status === 401 && !isLoginRequest) {
-      localStorage.removeItem("token");
+    if (status === 401 && !requisicaoDeLogin) {
+      logout();
       toast.error("Sua sessão expirou. Faça login novamente.");
       window.location.href = "/login";
-    }
-
-    // NOVO: Log para debugging de erros de validação
-    if (status === 400) {
-      console.log("🔍 [api.js interceptor] Erro 400 detectado");
-      console.log("🔍 error.response.data:", error.response?.data);
     }
 
     return Promise.reject(error);

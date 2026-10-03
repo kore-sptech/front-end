@@ -1,215 +1,138 @@
-import { createContext, useCallback, useEffect, useRef, useState } from "react";
-
-import { SessionToast } from "../components/SessionToast";
-import { api } from "../utils/api";
-import { handleApiError } from "../utils/errorHandler";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+import { NotificationsContext } from "./notificationsContext";
+import { buildSessionToastPayload } from "../features/notifications/sessionToast";
+import {
+  cancelarAgendamento,
+  confirmarAgendamento,
+} from "../services/agendamentos";
+import { abrirStreamDeNotificacoes } from "../services/notificacoes";
+import SessionToast from "../ui/organisms/SessionToast";
+import { handleApiError } from "../utils/errorHandler";
 
-const NotificationProviderContext = createContext({});
-
-/** Formata "2026-06-08T15:10:00" → "15:10" */
-function formatTime(isoString) {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-  return date.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+const RECONNECT_DELAY_MS = 5000;
 
 /**
- * Deriva o tipo de sessão a partir dos dados disponíveis.
- * Prioriza o campo `tipo` da notificação; como fallback usa "Sessão".
- * Adapte esta função conforme seu domínio crescer.
+ * Organismo de estado: stream SSE de notificações + toasts de sessão.
+ *
+ * @param {object} props
+ * @param {React.ReactNode} props.children
+ * @param {() => void} [props.onSessionChanged] Chamado quando um agendamento
+ *   é confirmado/cancelado pelo toast, para recarregar as telas abertas.
  */
-function resolveSessionType(notificacao, agendamento) {
-  if (agendamento?.referencias?.length > 0) return "Tatuagem";
-  if (notificacao?.tipo && notificacao.tipo !== "NORMAL")
-    return notificacao.tipo;
-  return "Sessão";
-}
-
-/**
- * Monta a descrição exibida no toast a partir do payload.
- * Inclui forma de pagamento e valor quando disponíveis.
- */
-function buildDescription(agendamento) {
-  if (!agendamento) return undefined;
-
-  const parts = [];
-
-  if (agendamento.preco != null) {
-    const valor = Number(agendamento.preco).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-    parts.push(`Valor: ${valor}`);
-  }
-
-  if (agendamento.formaPagamento) {
-    parts.push(`Pagamento: ${agendamento.formaPagamento}`);
-  }
-
-  if (agendamento.telefone) {
-    parts.push(`Tel: ${agendamento.telefone}`);
-  }
-
-  return parts.length > 0 ? parts.join(" · ") : undefined;
-}
-
-// ─── Provider ─────────────────────────────────────────────────────────────────
-
-export function NotificationProvider({ children }) {
+export function NotificationProvider({ children, onSessionChanged }) {
   const [notifications, setNotifications] = useState([]);
   const retryTimeout = useRef(null);
   const eventSourceRef = useRef(null);
+  const reloadRef = useRef(onSessionChanged);
 
-  // ── Toast helpers ────────────────────────────────────────────────────────
-
-  const showSessionToast = useCallback((options) => {
-    const id = crypto.randomUUID();
-
-    toast.custom(
-      (toastId) => (
-        <SessionToast
-          id={toastId}
-          clientName={options.clientName}
-          sessionType={options.sessionType}
-          scheduledTime={options.scheduledTime}
-          description={options.description}
-          onConfirm={options.onConfirm}
-          onCancel={options.onCancel}
-        />
-      ),
-      {
-        id,
-        duration: Infinity,
-        position: "bottom-right",
-        unstyled: true,
-        classNames: {
-          toast: "!bg-transparent !border-0 !shadow-none !p-0",
-        },
-      },
-    );
-
-    return id;
-  }, []);
+  useEffect(() => {
+    reloadRef.current = onSessionChanged;
+  }, [onSessionChanged]);
 
   const dismissToast = useCallback((id) => toast.dismiss(id), []);
   const dismissAll = useCallback(() => toast.dismiss(), []);
 
-  // ── SSE ──────────────────────────────────────────────────────────────────
+  const runSessionAction = useCallback(
+    ({ successMessage, errorMessage, action }) =>
+      action()
+        .then(() => {
+          toast.success(successMessage);
+          reloadRef.current?.();
+        })
+        .catch((error) => handleApiError(error, errorMessage)),
+    [],
+  );
 
-  function connect() {
-    const eventSource = new EventSource("http://localhost:8080/sse/stream");
-    console.log("Conectando ao SSE...");
-    eventSourceRef.current = eventSource;
+  const showSessionToast = useCallback(
+    (session, notification = {}) => {
+      const id = crypto.randomUUID();
 
-    eventSource.onmessage = (event) => {
-      if (event.data === "heartbeat") return;
-
-      let parsed;
-      try {
-        parsed = JSON.parse(event.data);
-      } catch (err) {
-        console.error("[SSE] Payload inválido:", event.data, err);
-        return;
-      }
-
-      console.log("[SSE] Evento recebido:", parsed);
-
-      // Atualiza o estado de notificações (lista/sino)
-      setNotifications((prev) => [...prev, parsed]);
-
-      // Dispara o toast apenas para notificações de agendamento próximo
-      const { notificacao, agendamento } = parsed;
-
-      if (agendamento?.id) {
-        showSessionToast({
-          clientName: agendamento.cliente,
-          sessionType: resolveSessionType(notificacao, agendamento),
-          scheduledTime: formatTime(agendamento.inicio),
-          description: buildDescription(agendamento),
-
-          // ── Callbacks de ação ──────────────────────────────────────────
-          // Substitua pelo seu serviço de API real
-          onConfirm: async () => {
-            api
-              .patch(
-                `/agendamentos/confirmar/${agendamento.id}`,
-                {},
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                },
-              )
-              .then(() => {
-                toast.success("Agendamento confirmado com sucesso!");
-                window.location.reload();
+      toast.custom(
+        (toastId) => (
+          <SessionToast
+            id={toastId}
+            {...buildSessionToastPayload(session, notification)}
+            onConfirm={() =>
+              runSessionAction({
+                successMessage: "Agendamento confirmado com sucesso!",
+                errorMessage: "Não foi possível confirmar a sessão.",
+                action: () => confirmarAgendamento(session.id),
               })
-              .catch((err) => {
-                handleApiError(
-                  err,
-                  "Não foi possível confirmar a sessão.",
-                );
-              });
-
-            // await agendamentoService.confirmar(agendamento.id);
-          },
-          onCancel: async () => {
-            api
-              .patch(
-                `/agendamentos/cancelar/${agendamento.id}`,
-                {},
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                },
-              )
-              .then(() => {
-                toast.success("Agendamento cancelado com sucesso!");
-                window.location.reload();
+            }
+            onCancel={() =>
+              runSessionAction({
+                successMessage: "Agendamento cancelado com sucesso!",
+                errorMessage: "Não foi possível cancelar o agendamento.",
+                action: () => cancelarAgendamento(session.id),
               })
-              .catch((err) => {
-                handleApiError(
-                  err,
-                  "Não foi possível cancelar o agendamento.",
-                );
-              });
+            }
+          />
+        ),
+        {
+          id,
+          duration: Infinity,
+          position: "bottom-right",
+          unstyled: true,
+          classNames: {
+            toast: "!bg-transparent !border-0 !shadow-none !p-0",
           },
-        });
-      }
-    };
-
-    eventSource.onerror = (err) => {
-      console.error("[SSE] Erro na conexão:", err);
-      eventSource.close();
-      retryTimeout.current = setTimeout(() => {
-        console.info("[SSE] Tentando reconectar...");
-        connect();
-      }, 5000);
-    };
-  }
+        },
+      );
+    },
+    [runSessionAction],
+  );
 
   useEffect(() => {
+    let ativo = true;
+
+    function connect() {
+      if (!ativo) return;
+
+      const eventSource = abrirStreamDeNotificacoes();
+      eventSourceRef.current = eventSource;
+
+      eventSource.onmessage = (event) => {
+        if (event.data === "heartbeat") return;
+
+        let parsed;
+        try {
+          parsed = JSON.parse(event.data);
+        } catch {
+          return;
+        }
+
+        setNotifications((prev) => [...prev, parsed]);
+
+        const { agendamento } = parsed;
+
+        if (agendamento?.id) showSessionToast(agendamento, parsed);
+      };
+
+      eventSource.onerror = () => {
+        eventSource.close();
+        retryTimeout.current = setTimeout(connect, RECONNECT_DELAY_MS);
+      };
+    }
+
     connect();
+
     return () => {
+      ativo = false;
       eventSourceRef.current?.close();
       clearTimeout(retryTimeout.current);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showSessionToast]);
 
-  // ─────────────────────────────────────────────────────────────────────────
+  const value = useMemo(
+    () => ({ notifications, showSessionToast, dismissToast, dismissAll }),
+    [notifications, showSessionToast, dismissToast, dismissAll],
+  );
 
   return (
-    <NotificationProviderContext.Provider
-      value={{ notifications, showSessionToast, dismissToast, dismissAll }}
-    >
+    <NotificationsContext.Provider value={value}>
       {children}
-    </NotificationProviderContext.Provider>
+    </NotificationsContext.Provider>
   );
 }
