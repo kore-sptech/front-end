@@ -1,10 +1,15 @@
-import { Plus } from "lucide-react";
+import {
+  buildProductTrail,
+  stockEntryRoute,
+} from "../../features/products/productTrail";
 import { useNavigate, useParams } from "react-router-dom";
 
+import Breadcrumbs from "../../ui/molecules/Breadcrumbs";
 import Button from "../../ui/atoms/Button";
 import ConfirmDialog from "../../ui/molecules/ConfirmDialog";
 import EmptyState from "../../ui/molecules/EmptyState";
 import PageHeader from "../../ui/molecules/PageHeader";
+import { Plus } from "lucide-react";
 import SearchInput from "../../ui/molecules/SearchInput";
 import StockItemCard from "../../ui/molecules/StockItemCard";
 import { useState } from "react";
@@ -19,12 +24,14 @@ export default function InventoryPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { items, productImage, search, setSearch, remove } = useStockItems({
-    productId: id,
-  });
+  const { items, productImage, productName, search, setSearch, remove } =
+    useStockItems({ productId: id });
 
   const [pendingDelete, setPendingDelete] = useState(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  const goToEntry = () =>
+    navigate(stockEntryRoute(id), { state: { nome: productName } });
 
   const requestDelete = (item) => {
     setPendingDelete(item);
@@ -44,6 +51,15 @@ export default function InventoryPage() {
       <PageHeader
         title="ESTOQUE"
         className="p-4 sm:p-6"
+        subtitle={
+          <Breadcrumbs
+            items={buildProductTrail({
+              level: "stock",
+              productId: id,
+              productName,
+            })}
+          />
+        }
         actions={
           <>
             <SearchInput
@@ -53,7 +69,9 @@ export default function InventoryPage() {
               placeholder="Buscar item..."
             />
 
-            <Button onClick={() => navigate("adicionar")}>+ Registrar</Button>
+            <Button onClick={goToEntry}>
+              <Plus size={20} /> Registrar
+            </Button>
           </>
         }
       />
@@ -65,7 +83,7 @@ export default function InventoryPage() {
             description="Cadastre um item para começar a controlar este produto."
             action={{
               label: "Registrar item",
-              onClick: () => navigate("adicionar"),
+              onClick: goToEntry,
             }}
           />
         ) : (

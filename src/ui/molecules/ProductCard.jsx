@@ -1,8 +1,7 @@
-import { Pencil } from "lucide-react";
-
 import Badge from "../atoms/Badge";
 import Card from "../atoms/Card";
 import IconButton from "../atoms/IconButton";
+import { Pencil } from "lucide-react";
 
 const PLACEHOLDER_IMAGE =
   "https://via.placeholder.com/600x400/1F2937/CBD5E1?text=Sem+Imagem";
@@ -43,11 +42,17 @@ export default function ProductCard({
 
       {onEdit && (
         <IconButton
-          onClick={onEdit}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit?.();
+          }}
           title={`Editar ${name}`}
           className="absolute top-1 right-1 h-11 w-11 rounded-sm"
         >
-          <Pencil className="text-[#48DCFC]" size={18} />
+          <Pencil
+            className="rounded bg-[#0A1A3D] p-1 text-[#48DCFC]"
+            size={24}
+          />
         </IconButton>
       )}
 

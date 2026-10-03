@@ -96,7 +96,7 @@ export default function SignUpPage() {
     <AuthLayout
       title="Jefferson"
       highlight="Pimentel"
-      subtitle="Plataforma para gestão de estúdios de tatuagem."
+      subtitle="Plataforma premium para gestão de estúdios de tatuagem."
     >
       <AuthCard
         title="Cadastro"

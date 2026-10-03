@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-import Button from "../../ui/atoms/Button";
-import PageHeader from "../../ui/molecules/PageHeader";
-import TransactionFormModal from "../../ui/organisms/TransactionFormModal";
 import {
   BalanceCard,
   CashflowCards,
   CategoryChart,
   RecentTransactions,
 } from "../../ui/organisms/FinanceReport";
+
+import Button from "../../ui/atoms/Button";
+import PageHeader from "../../ui/molecules/PageHeader";
 import { Plus } from "lucide-react";
+import TransactionFormModal from "../../ui/organisms/TransactionFormModal";
 import { useFinanceReport } from "../../features/transactions/useFinanceReport";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 /**
  * Page: relatório financeiro com saldo, fluxo de caixa, gastos por categoria
@@ -41,7 +41,7 @@ export default function FinanceDashboardPage() {
         }
       />
 
-      <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
         <BalanceCard metrics={metrics} />
         <CashflowCards metrics={metrics} />
         <CategoryChart expenses={metrics?.gastosPorCategoria} />

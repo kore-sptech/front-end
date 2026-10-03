@@ -1,18 +1,24 @@
-import { Plus } from "lucide-react";
-import { useEffect } from "react";
+import {
+  buildProductTrail,
+  productCreateRoute,
+  productEditRoute,
+  productStockRoute,
+} from "../../features/products/productTrail";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { ALL_CATEGORIES } from "../../constants/products";
+import Breadcrumbs from "../../ui/molecules/Breadcrumbs";
 import Button from "../../ui/atoms/Button";
 import EmptyState from "../../ui/molecules/EmptyState";
 import FilterChips from "../../ui/molecules/FilterChips";
 import PageHeader from "../../ui/molecules/PageHeader";
+import { Plus } from "lucide-react";
 import ProductCard from "../../ui/molecules/ProductCard";
 import SearchInput from "../../ui/molecules/SearchInput";
-import { toast } from "sonner";
 import { getSession } from "../../utils/auth";
+import { toast } from "sonner";
+import { useEffect } from "react";
 import { useProducts } from "../../features/products/useProducts";
-
-const ALL_CATEGORIES = "todos";
 
 /**
  * Page: listagem de produtos com busca e filtro por categoria.
@@ -27,7 +33,8 @@ export default function ProductsPage() {
   const { products, categories, search, setSearch, categoryId, setCategoryId } =
     useProducts({ usuarioId });
 
-  const { successMessage, successMessage2, successMessage3 } = location.state ?? {};
+  const { successMessage, successMessage2, successMessage3 } =
+    location.state ?? {};
 
   useEffect(() => {
     const message = successMessage || successMessage2 || successMessage3;
@@ -38,7 +45,8 @@ export default function ProductsPage() {
     window.history.replaceState({}, document.title);
   }, [successMessage, successMessage2, successMessage3]);
 
-  const goToRegister = () => navigate("cadastro", { state: { pesquisa: search } });
+  const goToRegister = () =>
+    navigate(productCreateRoute, { state: { pesquisa: search } });
 
   const categoryOptions = [
     { value: ALL_CATEGORIES, label: "Todos" },
@@ -53,6 +61,7 @@ export default function ProductsPage() {
       <PageHeader
         title="PRODUTOS"
         className="p-4 sm:p-6"
+        subtitle={<Breadcrumbs items={buildProductTrail({ level: "list" })} />}
         actions={
           <>
             <SearchInput
@@ -87,7 +96,9 @@ export default function ProductsPage() {
                 : "NENHUM ITEM NO INVENTÁRIO"
             }
             description={
-              search ? "Tente outro termo de busca." : "Registre seus produtos para começar."
+              search
+                ? "Tente outro termo de busca."
+                : "Registre seus produtos para começar."
             }
             action={{ label: "Registrar produto", onClick: goToRegister }}
           />
@@ -96,12 +107,14 @@ export default function ProductsPage() {
             <ProductCard
               key={product.id}
               name={product.nome}
-              quantity={(product.itens ?? []).filter((item) => item.seAtivo).length}
+              quantity={
+                (product.itens ?? []).filter((item) => item.seAtivo).length
+              }
               type={product.tipo}
               imageUrl={product.imagemKey}
-              onClick={() => navigate(`/estoque/${product.id}`)}
+              onClick={() => navigate(productStockRoute(product.id))}
               onEdit={() =>
-                navigate(`/produtos/editar/${product.id}`, {
+                navigate(productEditRoute(product.id), {
                   state: {
                     nome: product.nome,
                     quantidade: product.quantidade,
@@ -112,7 +125,9 @@ export default function ProductsPage() {
                     qtdMinAlerta:
                       product.qtdMinAlerta ?? product.quantidadeMinimaAlerta,
                     categoriaId:
-                      product.categoria?.id ?? product.categoriaId ?? product.fk_categoria,
+                      product.categoria?.id ??
+                      product.categoriaId ??
+                      product.fk_categoria,
                   },
                 })
               }

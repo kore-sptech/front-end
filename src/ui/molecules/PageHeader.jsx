@@ -3,7 +3,7 @@
  *
  * @param {object} props
  * @param {string} props.title Título da tela (uppercase por padrão).
- * @param {React.ReactNode} [props.subtitle] Linha de apoio abaixo do título.
+ * @param {React.ReactNode} [props.subtitle] Apoio abaixo do título (texto, trilha de navegação, etc).
  * @param {React.ReactNode} [props.actions] Botões/ações alinhados à direita.
  * @param {React.ReactNode} [props.children] Inserido entre título e ações.
  */
@@ -24,7 +24,7 @@ export default function PageHeader({
           {title}
         </h1>
         <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
-        {subtitle && <p className="text-sm text-[#BBC9CD]">{subtitle}</p>}
+        {subtitle && <div className="text-sm text-[#BBC9CD]">{subtitle}</div>}
       </div>
 
       {children}

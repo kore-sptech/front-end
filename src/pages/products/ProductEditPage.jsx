@@ -1,10 +1,15 @@
-import { useMemo } from "react";
+import {
+  buildProductTrail,
+  productsRoute,
+} from "../../features/products/productTrail";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import AmbientGlow from "../../ui/molecules/AmbientGlow";
 import Breadcrumbs from "../../ui/molecules/Breadcrumbs";
 import ProductForm from "../../ui/organisms/ProductForm";
 import { getSession } from "../../utils/auth";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useMemo } from "react";
+import { useProductName } from "../../features/products/useProductName";
 
 /**
  * Traduz o `state` da navegação (payload enviado pela listagem) no objeto
@@ -42,19 +47,24 @@ export default function ProductEditPage() {
     [id, location.state],
   );
 
+const productName = useProductName(id, {
+    initialName: location.state?.nome ?? "",
+  });
+
   return (
     <main className="relative h-full w-full overflow-y-auto bg-[#000C24]">
       <AmbientGlow topRight bottomLeft />
 
-      <div className="relative flex flex-col gap-6 p-6">
-        <Breadcrumbs
-          items={[
-            { label: "PRODUTOS", onClick: () => navigate("/produtos") },
-            { label: "EDITAR PRODUTO" },
-          ]}
-        />
-
+      <div className="relative flex flex-col gap-2 p-6">
         <h1 className="text-4xl font-bold text-[#DAE2FF]">EDITAR PRODUTO</h1>
+        <span className="block h-1 w-12 rounded-3xl bg-[#48DCFC]" />
+        <Breadcrumbs
+          items={buildProductTrail({
+            level: "edit",
+            productId: id,
+            productName,
+          })}
+        />
       </div>
 
       <div className="relative flex flex-1 justify-center px-6 pb-6">
@@ -63,16 +73,16 @@ export default function ProductEditPage() {
           produto={product}
           usuarioId={usuarioId}
           onSaved={() =>
-            navigate("/produtos", {
+            navigate(productsRoute, {
               state: { successMessage3: "Produto alterado com sucesso!" },
             })
           }
           onRemoved={() =>
-            navigate("/produtos", {
+            navigate(productsRoute, {
               state: { successMessage2: "Produto excluído!" },
             })
           }
-          onCancel={() => navigate("/produtos")}
+          onCancel={() => navigate(productsRoute)}
         />
       </div>
     </main>

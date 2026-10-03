@@ -1,7 +1,6 @@
-import { X } from "lucide-react";
-
 import Card from "../atoms/Card";
 import IconButton from "../atoms/IconButton";
+import { X } from "lucide-react";
 import { formatCurrency } from "../../utils/formatters";
 
 const PLACEHOLDER_IMAGE =
@@ -50,7 +49,7 @@ export default function StockItemCard({
           title={`Excluir item ${id}`}
           className="absolute top-1 right-1 h-11 w-11 rounded-sm"
         >
-          <X className="text-[#48DCFC]" size={18} />
+          <X className="rounded bg-[#0A1A3D] p-1 text-[#48DCFC]" size={24} />
         </IconButton>
       )}
 
@@ -59,9 +58,7 @@ export default function StockItemCard({
 
         {unitPrice ? (
           <div className="badge bg-[#48dbfc1a]">
-            <p className="text-[#48DCFC]">
-              Preço: {formatCurrency(unitPrice)}
-            </p>
+            <p className="text-[#48DCFC]">Preço: {formatCurrency(unitPrice)}</p>
           </div>
         ) : (
           <div />

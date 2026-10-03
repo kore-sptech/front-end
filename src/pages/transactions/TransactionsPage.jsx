@@ -52,6 +52,7 @@ export default function TransactionsPage() {
     <main className="h-full w-full overflow-auto bg-[#000C24] p-6 text-white">
       <PageHeader
         title="TRANSAÇÕES FINANCEIRAS"
+        className="mb-6"
         actions={
           <Button onClick={() => setIsCreateOpen(true)}>
             <Plus size={20} /> Nova Transação

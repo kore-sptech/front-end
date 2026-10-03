@@ -1,9 +1,9 @@
+import { excluirItemEstoque, listarEstoque } from "../../services/estoque";
 import { useCallback, useEffect, useState } from "react";
 
+import { getSession } from "../../utils/auth";
 import { handleApiError } from "../../utils/errorHandler";
 import { listarProdutos } from "../../services/produtos";
-import { excluirItemEstoque, listarEstoque } from "../../services/estoque";
-import { getSession } from "../../utils/auth";
 
 /**
  * Hook: itens de estoque de um produto + imagem do produto para os cards.
@@ -15,6 +15,7 @@ import { getSession } from "../../utils/auth";
 export function useStockItems({ productId } = {}) {
   const [items, setItems] = useState([]);
   const [productImage, setProductImage] = useState("");
+  const [productName, setProductName] = useState("");
   const [search, setSearch] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
 
@@ -48,6 +49,7 @@ export function useStockItems({ productId } = {}) {
 
         setItems(Array.isArray(stockResponse.data) ? stockResponse.data : []);
         setProductImage(product?.imagemKey || "");
+        setProductName(product?.nome || "");
       } catch (error) {
         if (!active) return;
 
@@ -81,15 +83,18 @@ export function useStockItems({ productId } = {}) {
     [refresh],
   );
 
-  const visibleItems = items.filter((item) =>
-    `${item.nome || ""} ${item.descricao || ""}`
-      .toLowerCase()
-      .includes(search.trim().toLowerCase()),
-  );
+  const visibleItems = items
+    .filter((item) => item?.seAtivo !== false)
+    .filter((item) =>
+      `${item.nome || ""} ${item.descricao || ""}`
+        .toLowerCase()
+        .includes(search.trim().toLowerCase()),
+    );
 
   return {
     items: visibleItems,
     productImage,
+    productName,
     search,
     setSearch,
     remove,

@@ -50,8 +50,8 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
-      title="Precision in"
-      highlight="Ink"
+      title="O Essencial"
+      highlight="Importa"
       subtitle="Plataforma premium para gestão de estúdios de tatuagem."
     >
       <AuthCard
