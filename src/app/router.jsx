@@ -1,6 +1,7 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 
 import AuthenticatedLayout from "../ui/templates/AuthenticatedLayout";
+import DashboardPage from "../pages/dashboard/DashboardPage";
 import FinanceDashboardPage from "../pages/dashboard/FinanceDashboardPage";
 import InventoryPage from "../pages/inventory/InventoryPage";
 import LoginPage from "../pages/auth/LoginPage";
@@ -14,7 +15,6 @@ import SignUpPage from "../pages/auth/SignUpPage";
 import StockEntryPage from "../pages/inventory/StockEntryPage";
 import TestValidationPage from "../pages/dev/TestValidationPage";
 import TransactionsPage from "../pages/transactions/TransactionsPage";
-import DashboardPage from "../pages/dashboard/DashboardPage";
 
 /**
  * Tabela de rotas da aplicação.

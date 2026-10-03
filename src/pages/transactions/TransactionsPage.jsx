@@ -1,5 +1,8 @@
 import { Download, Plus, X } from "lucide-react";
-import { useState } from "react";
+import {
+  TRANSACTION_SORTS,
+  TRANSACTION_TYPES,
+} from "../../features/transactions/transactionForm";
 
 import Button from "../../ui/atoms/Button";
 import Control from "../../ui/atoms/Control";
@@ -10,10 +13,7 @@ import PageHeader from "../../ui/molecules/PageHeader";
 import SearchInput from "../../ui/molecules/SearchInput";
 import TransactionFormModal from "../../ui/organisms/TransactionFormModal";
 import TransactionsTable from "../../ui/organisms/TransactionsTable";
-import {
-  TRANSACTION_SORTS,
-  TRANSACTION_TYPES,
-} from "../../features/transactions/transactionForm";
+import { useState } from "react";
 import { useTransactions } from "../../features/transactions/useTransactions";
 
 /**
@@ -61,7 +61,7 @@ export default function TransactionsPage() {
 
       <FinanceMetrics metrics={metrics} />
 
-      <div className="mb-8 flex flex-nowrap items-center gap-4 overflow-x-auto no-scrollbar">
+      <div className="no-scrollbar mb-8 flex flex-nowrap items-center gap-4 overflow-x-auto">
         <div className="flex shrink-0 items-center rounded-lg border border-gray-800 bg-[#061639] p-1">
           <Control
             as="input"
@@ -88,7 +88,7 @@ export default function TransactionsPage() {
         </div>
 
         <SearchInput
-          className="min-w-[280px] flex-1"
+          className="h-12 w-72"
           value={search}
           onChange={setSearch}
           placeholder="Nome, descrição ou categoria..."
@@ -98,11 +98,12 @@ export default function TransactionsPage() {
           as="select"
           aria-label="Ordenar transações"
           value={filters.sort}
+          width="compact"
           onChange={(event) => setFilter("sort", event.target.value)}
-          className="w-20 shrink-0 text-xs"
+          className="h-12 text-xs"
         >
           {TRANSACTION_SORTS.map((sort) => (
-            <option key={sort.value} value={sort.value}>
+            <option key={sort.value} value={sort.value} className="text-xs">
               {sort.label}
             </option>
           ))}
