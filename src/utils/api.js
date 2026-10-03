@@ -1,8 +1,7 @@
-import axios from "axios";
-import { toast } from "sonner";
-
 import { API_URL } from "../config/env";
+import axios from "axios";
 import { logout } from "./auth";
+import { toast } from "sonner";
 
 export const api = axios.create({
   baseURL: API_URL,

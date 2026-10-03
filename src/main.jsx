@@ -1,20 +1,6 @@
 import "./index.css";
 
-import { ModalAgendamentoContextProvider } from "./context/ModalAgendamentoProvider";
-import { NotificationProvider } from "./providers/NotificationProvider";
-import { RouterProvider } from "react-router-dom";
-import { SidebarProvider } from "./context/SidebarProvider";
-import { Toaster } from "sonner";
+import App from "./app/App";
 import { createRoot } from "react-dom/client";
-import { router } from "./router";
 
-createRoot(document.getElementById("root")).render(
-  <NotificationProvider>
-    <SidebarProvider>
-      <ModalAgendamentoContextProvider>
-        <Toaster duration={4000} />
-        <RouterProvider router={router} />
-      </ModalAgendamentoContextProvider>
-    </SidebarProvider>
-  </NotificationProvider>,
-);
+createRoot(document.getElementById("root")).render(<App />);
