@@ -2,7 +2,8 @@ import { Plus, X } from "lucide-react";
 
 import IconButton from "../atoms/IconButton";
 
-const THUMB = "group relative h-24 w-24 overflow-hidden rounded-lg border border-gray-700/50";
+const THUMB =
+  "group relative h-24 w-24 overflow-hidden rounded-lg border border-gray-700/50";
 
 /**
  * Molecule: seletor de imagens com pré-visualização, adição e remoção.
@@ -81,7 +82,9 @@ export default function ImageUploader({
           </IconButton>
         </div>
 
-        {footer && <p className="mt-3 text-[11px] text-cyan-400/40">{footer}</p>}
+        {footer && (
+          <p className="mt-3 text-[11px] text-cyan-400/40">{footer}</p>
+        )}
       </div>
 
       {emptyError && (

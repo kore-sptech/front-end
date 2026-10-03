@@ -1,14 +1,13 @@
-import { useState } from "react";
-
 import Button from "../atoms/Button";
+import CategorySelector from "./CategorySelector";
 import ConfirmDialog from "../molecules/ConfirmDialog";
 import Control from "../atoms/Control";
 import Field from "../atoms/Field";
 import ImageUploader from "../molecules/ImageUploader";
-import Panel from "../molecules/Panel";
-import CategorySelector from "./CategorySelector";
 import { PRODUCT_LIMITS } from "../../features/products/productValidation";
+import Panel from "../molecules/Panel";
 import { useProductForm } from "../../features/products/useProductForm";
+import { useState } from "react";
 
 /**
  * Organism: formulário de produto (cadastro e edição).
@@ -56,7 +55,10 @@ export default function ProductForm({
       onSubmit={submit}
       className="flex flex-nowrap items-start justify-center gap-5"
     >
-      <Panel className="max-w-2xl grow text-[#BBC9CD]" bodyClassName="flex flex-col">
+      <Panel
+        className="max-w-3xl grow text-[#BBC9CD]"
+        bodyClassName="flex flex-col"
+      >
         <Field
           label="Nome do produto"
           hint={`${form.values.name.length}/${PRODUCT_LIMITS.NAME_MAX} (mín. ${PRODUCT_LIMITS.NAME_MIN})`}
@@ -138,7 +140,7 @@ export default function ProductForm({
         </div>
       </Panel>
 
-      <Panel className="w-full max-w-xs grow" bodyClassName="flex flex-col gap-4">
+      <Panel className="w-72 grow" bodyClassName="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
           <span className="mb-2 block text-xs font-bold tracking-widest text-[#BBC9CD] uppercase">
             Referência Visual

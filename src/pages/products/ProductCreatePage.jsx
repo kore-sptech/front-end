@@ -1,8 +1,9 @@
+import { useLocation, useNavigate } from "react-router-dom";
+
 import AmbientGlow from "../../ui/molecules/AmbientGlow";
 import Breadcrumbs from "../../ui/molecules/Breadcrumbs";
 import ProductForm from "../../ui/organisms/ProductForm";
 import { getSession } from "../../utils/auth";
-import { useLocation, useNavigate } from "react-router-dom";
 
 /**
  * Page: cadastro de produto.
