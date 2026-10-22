@@ -19,3 +19,7 @@ export function listarEstoqueDoAgendamento(agendamentoId) {
 export function associarItemEstoque(itemId, agendamentoId) {
   return api.put(`/estoque/${itemId}/${agendamentoId}`, {});
 }
+
+export function desassociarItemEstoque(itemId) {
+  return api.delete(`/estoque/${itemId}/agendamento`);
+}

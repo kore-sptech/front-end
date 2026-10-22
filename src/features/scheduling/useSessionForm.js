@@ -9,6 +9,7 @@ import {
 } from "./sessionFormatters";
 import {
   associarItemEstoque,
+  desassociarItemEstoque,
   listarEstoqueDoAgendamento,
 } from "../../services/estoque";
 import {
@@ -84,6 +85,7 @@ export function useSessionForm({ session = null, isOpen = false, onSaved } = {})
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [materials, setMaterials] = useState([]);
+  const [initialItemIds, setInitialItemIds] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const {
@@ -162,6 +164,7 @@ export function useSessionForm({ session = null, isOpen = false, onSaved } = {})
       setErrors({});
       setTouched({});
       setMaterials(nextMaterials);
+      setInitialItemIds(flattenMaterialItemIds(nextMaterials));
       setFromReferences(session?.referencias ?? []);
       stopImagesShaking();
     }
@@ -257,15 +260,35 @@ export function useSessionForm({ session = null, isOpen = false, onSaved } = {})
     const payload = buildPayload();
 
     try {
+      const currentItemIds = flattenMaterialItemIds(materials);
+
       if (isEditing) {
         await atualizarAgendamento(session.id, payload);
-        await Promise.all(
-          flattenMaterialItemIds(materials).map((itemId) =>
-            associarItemEstoque(itemId, session.id),
-          ),
+
+        // Desassociar itens que foram removidos
+        const itemsToRemove = initialItemIds.filter(
+          (id) => !currentItemIds.includes(id),
         );
+        // Associar novos itens adicionados
+        const itemsToAdd = currentItemIds.filter(
+          (id) => !initialItemIds.includes(id),
+        );
+
+        await Promise.all([
+          ...itemsToRemove.map((itemId) => desassociarItemEstoque(itemId)),
+          ...itemsToAdd.map((itemId) => associarItemEstoque(itemId, session.id)),
+        ]);
       } else {
-        await criarAgendamento(payload);
+        const { data: created } = await criarAgendamento(payload);
+        const novoAgendamentoId = created?.id;
+
+        if (novoAgendamentoId && currentItemIds.length > 0) {
+          await Promise.all(
+            currentItemIds.map((itemId) =>
+              associarItemEstoque(itemId, novoAgendamentoId),
+            ),
+          );
+        }
       }
 
       onSaved?.();
@@ -286,6 +309,7 @@ export function useSessionForm({ session = null, isOpen = false, onSaved } = {})
     durationMinutes,
     fields,
     hasNoImage,
+    initialItemIds,
     isEditing,
     materials,
     onSaved,
