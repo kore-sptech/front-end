@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { listarEstoque } from "../../services/estoque";
-import { listarTodosProdutos } from "../../services/produtos";
+import { listarProdutos } from "../../services/produtos";
+import { getSession } from "../../utils/auth";
 import { handleApiError } from "../../utils/errorHandler";
 
 /**
@@ -17,8 +18,9 @@ export function useMaterialOptions() {
 
   useEffect(() => {
     let ativo = true;
+    const { usuarioId } = getSession();
 
-    listarTodosProdutos()
+    listarProdutos(usuarioId)
       .then(({ data }) => {
         if (ativo) setProducts(Array.isArray(data) ? data : []);
       })

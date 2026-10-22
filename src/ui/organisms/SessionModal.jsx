@@ -169,25 +169,23 @@ export default function SessionModal({ isOpen, session, onClose, onSaved }) {
             />
           </div>
 
-          {form.isEditing && (
-            <div>
-              <span className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
-                Materiais
-              </span>
+          <div>
+            <span className="mb-2 block text-xs font-bold tracking-widest text-gray-500 uppercase">
+              Materiais
+            </span>
 
-              <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4">
-                <IconButton
-                  variant="solid"
-                  size="tile"
-                  title="Adicionar material"
-                  onClick={() => setIsPickerOpen(true)}
-                >
-                  <Plus size={20} className="text-gray-500" />
-                  <span className="text-[10px] text-gray-600">Adicionar</span>
-                </IconButton>
-              </div>
+            <div className="rounded-2xl border border-[#3C494D]/10 bg-[#263457]/20 p-4">
+              <IconButton
+                variant="solid"
+                size="tile"
+                title="Adicionar material"
+                onClick={() => setIsPickerOpen(true)}
+              >
+                <Plus size={20} className="text-gray-500" />
+                <span className="text-[10px] text-gray-600">Adicionar</span>
+              </IconButton>
             </div>
-          )}
+          </div>
 
           {form.materials.length > 0 && (
             <div className="space-y-3 rounded-2xl border border-gray-800 bg-[#263457]/20 p-4">
@@ -199,6 +197,7 @@ export default function SessionModal({ isOpen, session, onClose, onSaved }) {
                 <SummaryRow
                   key={material.produtoId}
                   title={material.nome}
+                  items={material.itens}
                   itemCount={material.itens.length}
                   total={formatCurrency(sumMaterialValue(material))}
                   onRemove={() => form.removeMaterial(material.produtoId)}
@@ -315,13 +314,11 @@ export default function SessionModal({ isOpen, session, onClose, onSaved }) {
         </form>
       </Modal>
 
-      {form.isEditing && (
-        <MaterialPicker
-          isOpen={isPickerOpen}
-          onClose={() => setIsPickerOpen(false)}
-          onSelect={form.addMaterial}
-        />
-      )}
+      <MaterialPicker
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        onSelect={form.addMaterial}
+      />
     </>
   );
 }
