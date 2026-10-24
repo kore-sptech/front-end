@@ -98,6 +98,18 @@ export default function StockEntryModal({
             }}
           />
         </Field>
+
+        <label className="flex items-center gap-3 cursor-pointer mt-2">
+          <input
+            type="checkbox"
+            className="toggle toggle-primary"
+            checked={Boolean(form.values.novoItem)}
+            onChange={(event) => form.change("novoItem", event.target.checked)}
+          />
+          <span className="text-sm">
+            Novo item comprado (gera despesa no financeiro)
+          </span>
+        </label>
       </form>
     </Modal>
   );

@@ -93,6 +93,18 @@ export default function StockEntryPage() {
               />
             </Field>
 
+            <label className="mt-4 flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="toggle toggle-primary"
+                checked={Boolean(values.novoItem)}
+                onChange={(event) => change("novoItem", event.target.checked)}
+              />
+              <span className="text-sm">
+                Novo item comprado (gera despesa no financeiro)
+              </span>
+            </label>
+
             <div className="mt-8 flex flex-col justify-between gap-12 md:flex-row">
               <Button
                 type="submit"
