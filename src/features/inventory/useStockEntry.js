@@ -7,6 +7,7 @@ const EMPTY_FORM = {
   quantity: "",
   expiryDate: "",
   unitPrice: "",
+  novoItem: false,
 };
 
 const toLocalDateTime = (date) =>
@@ -20,7 +21,7 @@ const toLocalDateTime = (date) =>
  * @param {{quantity: string, unitPrice: string}} values
  * @returns {object} Mapa campo → mensagem de erro.
  */
-export function validateStockEntry({ quantity, unitPrice }) {
+export function validateStockEntry({ quantity, unitPrice, novoItem }) {
   const errors = {};
 
   const parsedQuantity = Number(quantity);
@@ -31,7 +32,9 @@ export function validateStockEntry({ quantity, unitPrice }) {
 
   const parsedPrice = Number(unitPrice);
 
-  if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+  if (novoItem && (!Number.isFinite(parsedPrice) || parsedPrice <= 0)) {
+    errors.unitPrice = "Informe o valor unitário do item comprado.";
+  } else if (!novoItem && (!Number.isFinite(parsedPrice) || parsedPrice < 0)) {
     errors.unitPrice = "Informe um valor unitário válido.";
   }
 
@@ -44,12 +47,13 @@ export function validateStockEntry({ quantity, unitPrice }) {
  * @param {{expiryDate: string, unitPrice: string}} values
  * @returns {object}
  */
-export function buildStockEntryPayload({ expiryDate, unitPrice }) {
+export function buildStockEntryPayload({ expiryDate, unitPrice, novoItem }) {
   return {
     valorUnitario: Number(unitPrice),
     dataValidade: expiryDate ? `${expiryDate}T00:00:00` : null,
     dataEntrada: toLocalDateTime(new Date()),
     seAtivo: true,
+    novoItem: Boolean(novoItem),
   };
 }
 
