@@ -3,7 +3,6 @@ import FilterChips from "../../ui/molecules/FilterChips";
 import PageHeader from "../../ui/molecules/PageHeader";
 import Pagination from "../../ui/molecules/Pagination";
 import Panel from "../../ui/molecules/Panel";
-import Odometer from "react-odometerjs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { NOTIFICATION_FILTERS } from "../../features/notifications/notifications";
 import { useNotificationFeed } from "../../features/notifications/useNotificationFeed";
@@ -28,7 +27,7 @@ const SUMMARY_ROWS = [
 ];
 
 /**
- * Organism: resumo de alertas por severidade.
+ * Organism: resumo de alertas por severidade com contagem numérica direta.
  *
  * @param {object} props
  * @param {{CRITICO: number, ATENCAO: number, INFORMATIVO: number}} props.summary
@@ -50,7 +49,7 @@ function AlertSummary({ summary }) {
             </span>
 
             <span className="text-xl font-black text-white">
-              <Odometer value={summary[row.key]} duration={5} format="d" />
+              {summary[row.key] ?? 0}
             </span>
           </div>
         ))}
@@ -60,12 +59,12 @@ function AlertSummary({ summary }) {
 }
 
 /**
- * Page: central de notificações com filtros por severidade e paginação.
+ * Page: central de notificações com filtros por severidade, paginação e ações acionáveis.
  *
  * @returns {React.ReactElement}
  */
 export default function NotificationsPage() {
-  const { notifications } = useNotifications();
+  const { notifications, dismissNotification } = useNotifications();
 
   const {
     visibleItems,
@@ -91,9 +90,19 @@ export default function NotificationsPage() {
 
       <div className="mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         <div className="flex flex-col gap-4 lg:col-span-8">
-          {visibleItems.map((notification) => (
-            <AlertNotification key={notification.id} alert={notification} />
-          ))}
+          {visibleItems.length === 0 ? (
+            <div className="rounded-2xl border border-gray-800 bg-[#061639] p-8 text-center text-gray-400">
+              Nenhuma notificação encontrada para este filtro.
+            </div>
+          ) : (
+            visibleItems.map((notification) => (
+              <AlertNotification
+                key={notification.id}
+                alert={notification}
+                onDismiss={() => dismissNotification(notification.id)}
+              />
+            ))
+          )}
         </div>
 
         <div className="lg:col-span-4">

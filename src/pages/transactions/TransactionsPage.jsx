@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useTransactions } from "../../features/transactions/useTransactions";
 
 /**
- * Page: listagem financeira com filtros, métricas e tabela paginada.
+ * Page: listagem financeira com filtros, métricas, tabela paginada e exportação CSV.
  *
  * @returns {React.ReactElement}
  */
@@ -46,6 +46,31 @@ export default function TransactionsPage() {
   const closeEdit = () => {
     setEditing(null);
     refresh();
+  };
+
+  const exportCSV = () => {
+    const list = transactions.content || [];
+    if (list.length === 0) return;
+
+    const headers = ["ID", "Nome", "Tipo", "Valor", "Categoria", "Data"];
+    const rows = list.map((t) => [
+      t.id,
+      `"${(t.nome || "").replace(/"/g, '""')}"`,
+      t.tipo,
+      t.valor,
+      t.categoria,
+      t.dataCriacao ? new Date(t.dataCriacao).toLocaleDateString("pt-BR") : "",
+    ]);
+
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob(["﻿" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `relatorio_financeiro_kore_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -113,9 +138,10 @@ export default function TransactionsPage() {
         <IconButton
           variant="subtle"
           size="md"
-          title="Exportar transações (indisponível)"
-          disabled
-          className="shrink-0"
+          title="Exportar relatório CSV"
+          onClick={exportCSV}
+          disabled={!transactions.content?.length}
+          className="shrink-0 text-[#23CBEA]"
         >
           <Download size={20} />
         </IconButton>

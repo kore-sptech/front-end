@@ -16,7 +16,7 @@ import { useState } from "react";
 import { useStockItems } from "../../features/inventory/useStockItems";
 
 /**
- * Page: itens de estoque de um produto.
+ * Page: itens de estoque de um produto com alertas visuais de validade.
  *
  * @returns {React.ReactElement}
  */
@@ -87,20 +87,31 @@ export default function InventoryPage() {
             }}
           />
         ) : (
-          items.map((item) => (
-            <StockItemCard
-              key={item.id}
-              id={item.id}
-              expiryDate={
-                item.dataValidade
-                  ? new Date(item.dataValidade).toLocaleDateString("pt-BR")
-                  : "Sem validade"
-              }
-              unitPrice={item.valorUnitario}
-              imageUrl={productImage}
-              onDelete={() => requestDelete(item)}
-            />
-          ))
+          items.map((item) => {
+            const now = new Date();
+            const fifteenDays = new Date();
+            fifteenDays.setDate(now.getDate() + 15);
+            const valDate = item.dataValidade ? new Date(item.dataValidade) : null;
+            const isExpired = valDate && valDate < now;
+            const isNearExpiry = valDate && valDate >= now && valDate <= fifteenDays;
+
+            return (
+              <StockItemCard
+                key={item.id}
+                id={item.id}
+                expiryDate={
+                  item.dataValidade
+                    ? new Date(item.dataValidade).toLocaleDateString("pt-BR")
+                    : "Sem validade"
+                }
+                unitPrice={item.valorUnitario}
+                imageUrl={productImage}
+                isExpired={isExpired}
+                isNearExpiry={isNearExpiry}
+                onDelete={() => requestDelete(item)}
+              />
+            );
+          })
         )}
       </div>
 

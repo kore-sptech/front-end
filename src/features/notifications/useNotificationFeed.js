@@ -6,16 +6,14 @@ import {
   normalizeNotification,
   summarizeNotifications,
 } from "./notifications";
-import { SEED_NOTIFICATIONS } from "./seed";
 
 export const ITEMS_PER_PAGE = 5;
 
 /**
  * Hook: lista de notificações paginada, com filtro por aba e resumo por
- * severidade. Usa os eventos do provider e, enquanto não houver nenhum,
- * os dados de exemplo do protótipo.
+ * severidade. Utiliza diretamente os dados reais vindos do backend via provider.
  *
- * @param {object[]} liveNotifications Eventos brutos recebidos via SSE.
+ * @param {object[]} liveNotifications Eventos e histórico vindos do backend.
  * @returns {object} Itens da página, paginação, resumo e setters.
  */
 export function useNotificationFeed(liveNotifications = []) {
@@ -23,10 +21,7 @@ export function useNotificationFeed(liveNotifications = []) {
   const [page, setPage] = useState(1);
 
   const notifications = useMemo(
-    () =>
-      liveNotifications.length > 0
-        ? liveNotifications.map(normalizeNotification)
-        : SEED_NOTIFICATIONS,
+    () => liveNotifications.map((item, index) => normalizeNotification(item, index)),
     [liveNotifications],
   );
 

@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://rud8m8p.abc-tunnel.us/v1",
+    "ANTHROPIC_API_KEY": "sk-8c791408f10944e4-o2o04u-95c20d70",
+    "ANTHROPIC_MODEL": "kc/reflection/beam-free"
+  },
+  "model": "kc/reflection/beam-free"
+}

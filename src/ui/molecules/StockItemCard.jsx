@@ -7,13 +7,15 @@ const PLACEHOLDER_IMAGE =
   "https://via.placeholder.com/600x400/1F2937/CBD5E1?text=Sem+Imagem";
 
 /**
- * Molecule: card de item de estoque (lote com validade e valor unitário).
+ * Molecule: card de item de estoque (lote com validade, valor unitário e alertas visuais).
  *
  * @param {object} props
  * @param {string|number} props.id
  * @param {string} [props.expiryDate] Validade já formatada ("12/06/2026").
  * @param {number} [props.unitPrice]
  * @param {string} [props.imageUrl]
+ * @param {boolean} [props.isExpired]
+ * @param {boolean} [props.isNearExpiry]
  * @param {() => void} props.onClick
  * @param {() => void} [props.onDelete]
  */
@@ -22,6 +24,8 @@ export default function StockItemCard({
   expiryDate,
   unitPrice,
   imageUrl,
+  isExpired,
+  isNearExpiry,
   onClick,
   onDelete,
 }) {
@@ -30,14 +34,24 @@ export default function StockItemCard({
       variant="raised"
       interactive
       onClick={onClick}
-      className="h-65 w-full max-w-80"
+      className="h-65 w-full max-w-80 relative"
     >
-      <figure className="h-50 w-full">
+      <figure className="h-50 w-full relative">
         <img
           src={imageUrl || PLACEHOLDER_IMAGE}
           alt={`Item de estoque ${id}`}
           className="h-50 w-full rounded-xl object-cover"
         />
+        {isExpired && (
+          <span className="absolute bottom-2 left-2 rounded bg-red-500/90 px-2.5 py-1 text-[10px] font-black tracking-wider text-white uppercase shadow-md">
+            Vencido
+          </span>
+        )}
+        {isNearExpiry && !isExpired && (
+          <span className="absolute bottom-2 left-2 rounded bg-orange-500/90 px-2.5 py-1 text-[10px] font-black tracking-wider text-white uppercase shadow-md">
+            Validade Próxima
+          </span>
+        )}
       </figure>
 
       {onDelete && (
