@@ -7,14 +7,14 @@ import {
   cancelarAgendamento,
   confirmarAgendamento,
 } from "../services/agendamentos";
-import { abrirStreamDeNotificacoes } from "../services/notificacoes";
+import { abrirStreamDeNotificacoes, listarNotificacoes } from "../services/notificacoes";
 import SessionToast from "../ui/organisms/SessionToast";
 import { handleApiError } from "../utils/errorHandler";
 
 const RECONNECT_DELAY_MS = 5000;
 
 /**
- * Organismo de estado: stream SSE de notificações + toasts de sessão.
+ * Organismo de estado: histórico via API + stream SSE de notificações + toasts de sessão.
  *
  * @param {object} props
  * @param {React.ReactNode} props.children
@@ -31,8 +31,25 @@ export function NotificationProvider({ children, onSessionChanged }) {
     reloadRef.current = onSessionChanged;
   }, [onSessionChanged]);
 
+  // Carregar histórico inicial do backend protegido por JWT
+  useEffect(() => {
+    listarNotificacoes()
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setNotifications(data);
+        }
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar histórico de notificações:", err);
+      });
+  }, []);
+
   const dismissToast = useCallback((id) => toast.dismiss(id), []);
   const dismissAll = useCallback(() => toast.dismiss(), []);
+
+  const dismissNotification = useCallback((id) => {
+    setNotifications((prev) => prev.filter((n) => (n.id || n.agendamento?.id) !== id));
+  }, []);
 
   const runSessionAction = useCallback(
     ({ successMessage, errorMessage, action }) =>
@@ -103,7 +120,7 @@ export function NotificationProvider({ children, onSessionChanged }) {
           return;
         }
 
-        setNotifications((prev) => [...prev, parsed]);
+        setNotifications((prev) => [parsed, ...prev]);
 
         const { agendamento } = parsed;
 
@@ -126,8 +143,8 @@ export function NotificationProvider({ children, onSessionChanged }) {
   }, [showSessionToast]);
 
   const value = useMemo(
-    () => ({ notifications, showSessionToast, dismissToast, dismissAll }),
-    [notifications, showSessionToast, dismissToast, dismissAll],
+    () => ({ notifications, setNotifications, dismissNotification, showSessionToast, dismissToast, dismissAll }),
+    [notifications, dismissNotification, showSessionToast, dismissToast, dismissAll],
   );
 
   return (

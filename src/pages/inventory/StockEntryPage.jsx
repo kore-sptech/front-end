@@ -8,7 +8,9 @@ import Breadcrumbs from "../../ui/molecules/Breadcrumbs";
 import Button from "../../ui/atoms/Button";
 import Control from "../../ui/atoms/Control";
 import Field from "../../ui/atoms/Field";
+import MoneyInput from "../../ui/atoms/MoneyInput";
 import Panel from "../../ui/molecules/Panel";
+import { formatCurrency } from "../../utils/formatters";
 import { useProductName } from "../../features/products/useProductName";
 import { useStockEntry } from "../../features/inventory/useStockEntry";
 
@@ -81,15 +83,19 @@ export default function StockEntryPage() {
               />
             </Field>
 
-            <Field className="mt-4" label="Valor (R$)" error={errors.unitPrice}>
-              <Control
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0,00"
-                value={values.unitPrice}
+            <Field
+              className="mt-4"
+              label="Valor (R$)"
+              hint={values.unitPrice && formatCurrency(values.unitPrice)}
+              error={errors.unitPrice}
+            >
+              <MoneyInput
+                value={values.unitPrice ? formatCurrency(values.unitPrice) : ""}
                 invalid={Boolean(errors.unitPrice)}
-                onChange={(event) => change("unitPrice", event.target.value)}
+                onChange={(event) => {
+                  const digits = event.target.value.replace(/\D/g, "");
+                  change("unitPrice", digits ? (Number(digits) / 100).toFixed(2) : "");
+                }}
               />
             </Field>
 
