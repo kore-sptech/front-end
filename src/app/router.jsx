@@ -46,13 +46,15 @@ const router = createBrowserRouter([
           { path: "/produtos/editar/:id", element: <ProductEditPage /> },
           { path: "/estoque/:id", element: <InventoryPage /> },
           { path: "/estoque/:id/adicionar", element: <StockEntryPage /> },
+          ...(import.meta.env.DEV
+            ? [{ path: "/test-validation", element: <TestValidationPage /> }]
+            : []),
         ],
       },
     ],
   },
   { path: "/login", element: <LoginPage /> },
   { path: "/signup", element: <SignUpPage /> },
-  { path: "/test-validation", element: <TestValidationPage /> },
   { path: "*", element: <Navigate to="/login" replace /> },
 ]);
 

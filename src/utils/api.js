@@ -1,6 +1,6 @@
 import { API_URL } from "../config/env";
 import axios from "axios";
-import { logout } from "./auth";
+import { getToken, logout } from "./auth";
 import { toast } from "sonner";
 
 export const api = axios.create({
@@ -8,7 +8,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = getToken();
   if (token) {
     config.headers = config.headers || {};
     if (!config.headers.Authorization) {

@@ -1,8 +1,9 @@
 import { jwtDecode } from "jwt-decode";
 
-const CHAVES_SESSAO = ["auth", "nome", "token", "usuarioId"];
+const CHAVES_SESSAO = ["nome", "token", "usuarioId"];
 
 export function getToken() {
+  // Fase 2: retornar null e deixar o cookie ser enviado automaticamente
   return localStorage.getItem("token");
 }
 
@@ -15,7 +16,6 @@ export function getSession() {
 }
 
 export function saveSession(session) {
-  localStorage.setItem("auth", JSON.stringify(session));
   localStorage.setItem("nome", session.nome);
   localStorage.setItem("token", session.token);
   localStorage.setItem("usuarioId", String(session.id));
