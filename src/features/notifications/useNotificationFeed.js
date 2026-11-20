@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePagination } from "../../hooks/usePagination";
 
 import {
   NOTIFICATION_FILTERS,
@@ -18,10 +19,12 @@ export const ITEMS_PER_PAGE = 5;
  */
 export function useNotificationFeed(liveNotifications = []) {
   const [filter, setFilter] = useState(NOTIFICATION_FILTERS[0].value);
-  const [page, setPage] = useState(1);
 
   const notifications = useMemo(
-    () => liveNotifications.map((item, index) => normalizeNotification(item, index)),
+    () =>
+      liveNotifications.map((item, index) =>
+        normalizeNotification(item, index),
+      ),
     [liveNotifications],
   );
 
@@ -30,21 +33,17 @@ export function useNotificationFeed(liveNotifications = []) {
     [filter, notifications],
   );
 
-  const summary = useMemo(
-    () => summarizeNotifications(filtered),
-    [filtered],
-  );
+  const summary = useMemo(() => summarizeNotifications(filtered), [filtered]);
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const currentPage = Math.min(page, Math.max(totalPages, 1));
-
-  const visibleItems = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
-
-  const firstItem = filtered.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
-  const lastItem = Math.min(currentPage * ITEMS_PER_PAGE, filtered.length);
+  const {
+    page: currentPage,
+    totalPages,
+    pageItems: visibleItems,
+    total,
+    firstIndex: firstItem,
+    lastIndex: lastItem,
+    goTo: setPage,
+  } = usePagination(filtered, ITEMS_PER_PAGE);
 
   const changeFilter = (value) => {
     setFilter(value);
@@ -56,7 +55,7 @@ export function useNotificationFeed(liveNotifications = []) {
     visibleItems,
     summary,
     filter,
-    total: filtered.length,
+    total,
     firstItem,
     lastItem,
     totalPages,

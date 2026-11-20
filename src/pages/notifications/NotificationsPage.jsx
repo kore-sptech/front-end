@@ -3,6 +3,7 @@ import FilterChips from "../../ui/molecules/FilterChips";
 import PageHeader from "../../ui/molecules/PageHeader";
 import Pagination from "../../ui/molecules/Pagination";
 import Panel from "../../ui/molecules/Panel";
+import Spinner from "../../ui/atoms/Spinner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { NOTIFICATION_FILTERS } from "../../features/notifications/notifications";
 import { useNotificationFeed } from "../../features/notifications/useNotificationFeed";
@@ -64,7 +65,7 @@ function AlertSummary({ summary }) {
  * @returns {React.ReactElement}
  */
 export default function NotificationsPage() {
-  const { notifications, dismissNotification } = useNotifications();
+  const { notifications, dismissNotification, isLoading } = useNotifications();
 
   const {
     visibleItems,
@@ -84,15 +85,32 @@ export default function NotificationsPage() {
       <PageHeader
         title="NOTIFICAÇÕES"
         actions={
-          <FilterChips options={NOTIFICATION_FILTERS} value={filter} onChange={setFilter} />
+          <FilterChips
+            options={NOTIFICATION_FILTERS}
+            value={filter}
+            onChange={setFilter}
+          />
         }
       />
 
       <div className="mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         <div className="flex flex-col gap-4 lg:col-span-8">
-          {visibleItems.length === 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-gray-800 bg-[#061639] p-12 text-gray-400">
+              <Spinner
+                size="lg"
+                className="text-[#22D3EE]"
+                label="Carregando notificações"
+              />
+              <span className="text-sm font-medium">
+                Carregando notificações...
+              </span>
+            </div>
+          ) : visibleItems.length === 0 ? (
             <div className="rounded-2xl border border-gray-800 bg-[#061639] p-8 text-center text-gray-400">
-              Nenhuma notificação encontrada para este filtro.
+              {notifications.length === 0
+                ? "Nenhuma notificação encontrada no momento. Notificações do sistema aparecerão aqui."
+                : "Nenhuma notificação encontrada para este filtro."}
             </div>
           ) : (
             visibleItems.map((notification) => (

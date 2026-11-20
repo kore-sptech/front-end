@@ -5,7 +5,7 @@ import { NotificationsContext } from "./notificationsContext";
 /**
  * Hook: acesso ao contexto de notificações.
  *
- * @returns {{notifications: object[], showSessionToast: (session: object, notification?: object) => void, dismissToast: (id: string) => void, dismissAll: () => void}}
+ * @returns {{notifications: object[], isLoading: boolean, showSessionToast: (session: object, notification?: object) => void, dismissNotification: (id: string|number) => void, dismissToast: (id: string) => void, dismissAll: () => void}}
  */
 export function useNotifications() {
   const context = useContext(NotificationsContext);

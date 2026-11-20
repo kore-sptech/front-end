@@ -7,7 +7,10 @@ import {
   cancelarAgendamento,
   confirmarAgendamento,
 } from "../services/agendamentos";
-import { abrirStreamDeNotificacoes, listarNotificacoes } from "../services/notificacoes";
+import {
+  abrirStreamDeNotificacoes,
+  listarNotificacoes,
+} from "../services/notificacoes";
 import SessionToast from "../ui/organisms/SessionToast";
 import { handleApiError } from "../utils/errorHandler";
 
@@ -23,6 +26,7 @@ const RECONNECT_DELAY_MS = 5000;
  */
 export function NotificationProvider({ children, onSessionChanged }) {
   const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const retryTimeout = useRef(null);
   const eventSourceRef = useRef(null);
   const reloadRef = useRef(onSessionChanged);
@@ -41,6 +45,9 @@ export function NotificationProvider({ children, onSessionChanged }) {
       })
       .catch((err) => {
         console.error("Erro ao carregar histórico de notificações:", err);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
 
@@ -48,7 +55,9 @@ export function NotificationProvider({ children, onSessionChanged }) {
   const dismissAll = useCallback(() => toast.dismiss(), []);
 
   const dismissNotification = useCallback((id) => {
-    setNotifications((prev) => prev.filter((n) => (n.id || n.agendamento?.id) !== id));
+    setNotifications((prev) =>
+      prev.filter((n) => (n.id || n.agendamento?.id) !== id),
+    );
   }, []);
 
   const runSessionAction = useCallback(
@@ -143,8 +152,23 @@ export function NotificationProvider({ children, onSessionChanged }) {
   }, [showSessionToast]);
 
   const value = useMemo(
-    () => ({ notifications, setNotifications, dismissNotification, showSessionToast, dismissToast, dismissAll }),
-    [notifications, dismissNotification, showSessionToast, dismissToast, dismissAll],
+    () => ({
+      notifications,
+      setNotifications,
+      isLoading,
+      dismissNotification,
+      showSessionToast,
+      dismissToast,
+      dismissAll,
+    }),
+    [
+      notifications,
+      isLoading,
+      dismissNotification,
+      showSessionToast,
+      dismissToast,
+      dismissAll,
+    ],
   );
 
   return (
