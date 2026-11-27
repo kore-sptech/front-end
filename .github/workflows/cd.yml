@@ -10,7 +10,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Pull Docker image
-        run: docker pull ${{ secrets.DOCKERHUB_USER }}/kore-front-end:latest
+        run: docker pull henryfranz/kore-front-end:latest
 
       - name: Stop Docker container
         run: docker stop app-frontend || true
@@ -19,4 +19,4 @@ jobs:
         run: docker rm app-frontend || true
 
       - name: Run Docker container
-        run: docker run --name app-frontend -d -p 80:80 ${{ secrets.DOCKERHUB_USER }}/kore-front-end:latest
+        run: docker run --name app-frontend -d -p 80:80 henryfranz/kore-front-end:latest
