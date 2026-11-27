@@ -12,11 +12,14 @@ jobs:
       - name: Pull Docker image
         run: docker pull henryfranz/kore-front-end:latest
 
-      - name: Stop Docker container
-        run: docker stop app-frontend || true
+      - name: Stop Docker containers
+        run: docker stop frontend-1 frontend-2 app-frontend || true
 
-      - name: Remove Docker container
-        run: docker rm app-frontend || true
+      - name: Remove Docker containers
+        run: docker rm frontend-1 frontend-2 app-frontend || true
 
-      - name: Run Docker container
-        run: docker run --name app-frontend -d -p 80:80 henryfranz/kore-front-end:latest
+      - name: Run Docker container frontend-1
+        run: docker run --name frontend-1 -d -p 127.0.0.1:3000:80 henryfranz/kore-front-end:latest
+
+      - name: Run Docker container frontend-2
+        run: docker run --name frontend-2 -d -p 127.0.0.1:3001:80 henryfranz/kore-front-end:latest
